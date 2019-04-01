@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Navbar, Nav } from 'react-bootstrap'
-import { Router, Location, navigate } from '@reach/router'
+import { Router, Location, navigate, Redirect } from '@reach/router'
 import ListViewComponent from './ListView/ListViewComponent'
 import MapViewComponent from './MapView/MapViewComponent'
 import HazardViewComponent from './HazardView/HazardViewComponent'
@@ -29,6 +29,7 @@ class App extends Component {
           </Navbar.Collapse>
         </Navbar>
         <Router>
+          <Redirect from="/" to="/list" noThrow />
           <ListViewComponent    path="/list" />
           <MapViewComponent     path="/map"  />
           <HazardViewComponent  path="/hazard" />
