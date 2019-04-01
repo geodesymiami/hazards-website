@@ -5,6 +5,7 @@ import ListViewComponent from './ListView/ListViewComponent'
 import MapViewComponent from './MapView/MapViewComponent'
 import HazardViewComponent from './HazardView/HazardViewComponent'
 import './App.css';
+import FourOhFourViewComponent from './404View/404ViewComponent';
 
 class App extends Component {
   render() {
@@ -33,6 +34,7 @@ class App extends Component {
           <ListViewComponent    path="/list" />
           <MapViewComponent     path="/map"  />
           <HazardViewComponent  path="/hazard" />
+          <FourOhFourViewComponent default />
         </Router>
       </div>
     );
