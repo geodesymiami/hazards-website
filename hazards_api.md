@@ -1,327 +1,219 @@
-# **RSMAS Geohazards API**
+# CSC 431 REST API Protocol
 
-## Main URL: `hazards.miami.edu/api/`
-----
+This document describes the protocol for retrieving data from the backend. This API is how frontend will iteract with the backend to retrieve data.
 
-## **GET: hazard_type**
-Description: returns back all of the individual hazards in the database of the provided hazard type (either volcano or earthquake)
+There are three endpoints:
+1. _**Hazards Summary Endpoint**_: This endpoint will be used by the hazard landing page
+2. _**Hazard Data Endpoint**_: This endpoint will be used by the hazard information page.
+3. _**Hazard Data Download Endpoint**_: This endpoint will be used by the hazard information page and possibly used independently to generate a zip download.
 
-URL: `/:hazard_type`
+## Test Server
+Limited functionality of this API is currently supported at this URL: http://ec2-3-82-161-15.compute-1.amazonaws.com. Check out the first API endpoint: http://ec2-3-82-161-15.compute-1.amazonaws.com/api/volcanoes.
 
-* `hazard_type`: String
-  * "volcanoes"
-  * "earthquakes"
-* Example Call:
+Features that are currently not supported.
+1. There is no `earthquakes` support
+2. There is no support for downloading zips.
+3. How images are served may change
+
+## The API
+
+**Hazards Summary Endpoint**
+-----------
+
+* **URL**
+
+	`/api/:hazard_type/`
+
+* **Use Case**
+  * Get all data for hazard landing page.
+  * The 2 supported hazard types are "volcanoes" and "earthquakes"
+<br/><br/>
+
+* **Method**
+
+	`GET /api/<hazard_type>`
+
+
+* **Successful Response example**
+
 ```
-  GET: hazards.miami.edu/api/volcanoes/
-```
+$ curl -i <url.com>/api/volcanoes
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 627
+Server: Werkzeug/0.14.1 Python/3.6.7
+Date: Wed, 19 Mar 2019 18:22:27 GMT
 
-Response: JSON `HazardType` Object
-
-* Success
-```
-  {
-    type: String,
-    num_hazards: Integer,
-    hazards: [Hazard]
-  }
-```
-  * Example Response:
-  ```
+{
+  "hazards": [
     {
-      type: "volcano"
-      num_hazards: 20,
-      hazards: [Hazard]
-    }
-  ```
-* Failure
-```
-  {
-    type: String,
-    error: String
-  }
-```
-  * Example Response:
-  ```
-    {
-      type: "tsunami"
-      error: "Invalid hazard type `tsunami`"
-    }
-  ```
-----
-
-## **GET: hazard_id**
-Description: returns back summary information and images for a specific hazard, *hazard_id*
-
-URL: `/:hazard_type/:hazard_id`
-
-* `hazard_type`: String
-  * "volcanoes"
-  * "earthquakes"
-* `hazard_id`: Integer
-* `image_types`: [String]
-  * "geo_backscatter"
-  * "geo_coherence"
-  * "geo_interferogram"
-  * "ortho_backscatter"
-  * "ortho_coherence"
-  * "ortho_interferogram"
-  * "all_backscatter"
-  * "all_coherence"
-  * "all_interferogram"
-* `satellites`: [String], *optional*
-* `startDate`: StringDate ("mmddyyy"), *optional*
-* `endDate`: StringDate ("mmddyyyy"), *optional*
-* `max_images`: Integer, *optional*
-* `last_n_days`: Integer, *optional*
-
-Example Call:
-```
-  GET: hazards.miami.edu/api/volcanoes/000001?image_types="geo_backscatter","ortho_backscatter"&satellites="satellite1","satellite2"&startDate="11201998"&endDate="02282019"
-```
-
-Response: JSON `Hazard` Object
-
-* Success
-```
-  {
-    hazard_id: Integer
-    summary_info: {
-      hazard_name: String,
-      location: {
-        north: Double
-        south: Double
-        east:  Double
-        west:  Double
+      "hazard_id": "VolcanoName0",
+      "last_updated": "05182019",
+      "location": {
+        "latitude": 0.0,
+        "longitude": 0.0
       },
-      ...
+      "name": "Volcano Name 0"
     },
-    images: [
-      {
-        satellite_id: {
-          name: String
-          satellite_info: {
-            ...
-          },
-          image_type: [
-            {
-              name: String,
-              images: [
-                {
-                  date: StringDate ("mmddyyyy"),
-                  comp_url: String,
-                  full_url: String
-                }
-              ]
-            },
-            ...
-          ]
-        },
-        ...
-      }
-    ]
-  }
-```
-  * Example Response:
-  ```
     {
-      hazard_id: 000001,
-      summary_info: {
-        hazard_name: Fernandina1,
-        location: {
-          north: 20.0000,
-          south: 19.0000,
-          east:  10.0000,
-          west:  12.0000
-        },
-        ...
+      "hazard_id": "VolcanoName1",
+      "last_updated": "05182019",
+      "location": {
+        "latitude": 1.0,
+        "longitude": 1.0
       },
-      images: [
+      "name": "Volcano Name 1"
+    },
+  ],
+  "type": "volcanoes"
+}
+```
+
+* **Unsuccessful Response**
+
+```
+$ curl -i "<url.com>/api/tornadoes"
+HTTP/1.0 404 NOT FOUND
+Content-Type: application/json
+Content-Length: 70
+Server: Werkzeug/0.14.1 Python/3.6.7
+Date: Wed, 20 Mar 2019 18:24:58 GMT
+
+{
+  "error": "404 Not Found: Hazard Type tornadoes does not exist."
+}
+```
+
+* **Notes**
+
+	- The `earthquakes` hazard type is not currently implemented on the test server
+
+
+
+**Hazard Data Endpoint**
+----------
+
+* **URL**
+
+	`/api/:hazard_type/:hazard_id`
+
+* **Use Case**
+  * Get data for the hazard information page by `hazard_id`.
+  * Supported hazards: `volcanoes` and `earthquakes`.
+<br/><br/>
+
+* **Method**
+
+	`GET /api/:hazard_type/:hazard_id`
+
+* **URL Params**
+
+	*Required*
+
+	* `'image_types'=List[geo_backscatter, geo_interferogram, ...]`
+  	- Any empty list of `image_type`s (i.e. not declaring the parameter)
+     will retrieve all image types.
+    - These are the  supported image types: "geo_backscatter", "geo_coherence", "geo_interferogram", "ortho_backscatter", "ortho_coherence", "ortho_interferogram"
+
+	*Optional*
+
+  * `"satellites"=[<satellite_id>]`
+    - An empty list of satellites
+  * `"start_date"="mmddyyyy"`
+  * `"end_date"="mmddyyyy"`
+  * `"max_num_images"=Integer`
+  * `"last_n_days"=Integer`
+<br/><br/>
+
+* **Success Response**
+
+```
+$ curl -i "<url.com>/api/volcanoes/VolcanoName?image_types=ortho_interferogram,ortho_backscatter&max_num_images=2"
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 2012
+Server: Werkzeug/0.14.1 Python/3.6.7
+Date: Wed, 20 Mar 2019 18:46:41 GMT
+
+{
+  "hazard_id": "VolcanoName",
+  "hazard_name": "Volcano Name",
+  "images_by_satellite": {
+    "satellite_id0": {
+      "ortho_backscatter": [
         {
-          000001: {
-            name: "Sen000001",
-            satellite_info: {
-              ...
-            },
-            image_type: [
-              {
-                name: "geo_backscatter",
-                images: [
-                  {
-                    date: "03061999",
-                    comp_url: "hazards.miami.edu/images/scatter03061999_compressed.jpg",
-                    full_url: "hazards.miami.edu/images/scatter03061999_full.jpg"
-                  },
-                  {
-                    date: "04252015",
-                    comp_url: "hazards.miami.edu/images/scatter04252015_compressed.jpg",
-                    full_url: "hazards.miami.edu/images/scatter04252015_full.jpg"
-                  },
-                  ...
-                ]
-              },
-              {
-                name: "geo_coherence",
-                images: [
-                  {
-                    date: "03061999",
-                    comp_url: "hazards.miami.edu/images/coherence03061999_compressed.jpg",
-                    full_url: "hazards.miami.edu/images/coherence03061999_full.jpg"
-                  },
-                  {
-                    date: "04252015",
-                    comp_url: "hazards.miami.edu/images/coherence04252015_compressed.jpg",
-                    full_url: "hazards.miami.edu/images/coherence04252015_full.jpg"
-                  },
-                  ...
-                ]
-              },
-              ...
-            ]
-          },
-          000002: {
-            name: "Sen000002",
-            satellite_info: {
-              ...
-            },
-            image_type: [
-              {
-                name: "geo_backscatter",
-                images: [
-                  {
-                    date: "03061999",
-                    comp_url: "hazards.miami.edu/images/scatter03061999_compressed.jpg",
-                    full_url: "hazards.miami.edu/images/scatter03061999_full.jpg"
-                  },
-                  {
-                    date: "04252015",
-                    comp_url: "hazards.miami.edu/images/scatter04252015_compressed.jpg",
-                    full_url: "hazards.miami.edu/images/scatter04252015_full.jpg"
-                  },
-                  ...
-                ]
-              },
-              {
-                name: "geo_coherence",
-                images: [
-                  {
-                    date: "03061999",
-                    comp_url: "hazards.miami.edu/images/coherence03061999_compressed.jpg",
-                    full_url: "hazards.miami.edu/images/coherence03061999_full.jpg"
-                  },
-                  {
-                    date: "04252015",
-                    comp_url: "hazards.miami.edu/images/coherence04252015_compressed.jpg",
-                    full_url: "hazards.miami.edu/images/coherence04252015_full.jpg"
-                  },
-                  ...
-                ]
-              },
-              ...
-            ]
-          }
+          "compressed_image_url": "/api/images/scatter03061999_compressed.jpg",
+          "date": "03061999",
+          "full_image_url": "/api/images/scatter03061999_full.jpg"
+        },
+        {
+          "compressed_image_url": "/api/images/scatter03061999_compressed.jpg",
+          "date": "03061999",
+          "full_image_url": "/api/images/scatter03061999_full.jpg"
+        }
+      ],
+      "ortho_interferogram": [
+        {
+          "compressed_image_url": "/api/images/scatter03061999_compressed.jpg",
+          "date": "03061999",
+          "full_image_url": "/api/images/scatter03061999_full.jpg"
+        },
+        {
+          "compressed_image_url": "/api/images/scatter03061999_compressed.jpg",
+          "date": "03061999",
+          "full_image_url": "/api/images/scatter03061999_full.jpg"
         }
       ]
-    }
-  ```
-
-* Failure
-```
-  {
-    hazard_id: String,
-    error: String
+    },
+    "satellite_id1": {...}
+  },
+  "last_updated": "05182019",
+  "location": {
+    "latitude": 0.0,
+    "longitude": 0.0
   }
-```
-  * Example Response:
-  ```
-    {
-      type: "21639"
-      error: "Invalid hazard_id `21639`"
-    }
-  ```
-----
-
-## **GET: hazard_download**
-Description: returns back all of the individual hazards in the database of the provided hazard type (either volcano or earthquake)
-
-URL: `/:hazard_type/download/:hazard_id`
-
-* `hazard_type`: String
-  * "volcanoes"
-  * "earthquakes"
-* `hazard_id`: Integer
-* `image_types`: [String]
-  * "geo_backscatter"
-  * "geo_coherence"
-  * "geo_interferogram"
-  * "ortho_backscatter"
-  * "ortho_coherence"
-  * "ortho_interferogram"
-  * "all_backscatter"
-  * "all_coherence"
-  * "all_interferogram"
-* `satellites`: [String], *optional*
-* `startDate`: StringDate ("mmddyyy"), *optional*
-* `endDate`: StringDate ("mmddyyyy"), *optional*
-* `max_images`: Integer, *optional*
-* `last_n_days`: Integer, *optional*
-* `dataType`: [String], *optional*
-  * "raw"
-  * "kmz"
-  * "gif"
-  * "compressed"
-  * "full"
-
-Example Call:
-```
-  GET: hazards.miami.edu/api/volcanoes/download/000001?image_types="geo_backscatter","ortho_backscatter"&satellites="satellite1","satellite2"&startDate="11201998"&endDate="02282019"&dataType="raw"
+}
 ```
 
-Response: JSON `HazardDownload` Object
 
-* Success
-```
-  {
-    type: String,
-    hazard_id: Integer,
-    download: {
-      raw: String,
-      kmz: String,
-      compressed: String,
-      full: String,
-      gif: String
-    }
-  }
-```
-  * Example Response:
-  ```
-    {
-      type: "volcano"
-      hazard_id: "96024"
-      download: {
-        raw: "hazards.miami.edu/volcanos/data/96024.data",
-        kmz: null,
-        compressed: null,
-        full: null,
-        gif: null
-      }
-    }
-  ```
-* Failure
-```
-  {
-    type: String,
-    hazard_id: String,
-    data_type: [String]
-    error: String
-  }
-```
-  * Example Response:
-  ```
-    {
-      type: "volcano",
-      hazard_id: "96024"
-      data_type: ["raw", "kml"]
-      error: "Invalid data type `kml`"
-    }
-  ```
+* **Notes**
+  * Should we include any metadata with each image?
+    - Assuming the image date is "in" the generated image, do we need to include the image date?
+  * The `last_n_days` parameter can only be used if neither the `start_date` and `end_date` parameters are used.
+  * `max_num_images` will use the most recent images first.
+  * Images in the response content will be ordered chronologically with newest images first.
+  * TODO
+
+**Hazard Download**
+----------
+
+* **URL**
+
+	`/api/:hazard/download/:hazard_id`
+
+* **Use Case**
+  * Download data by `hazard_id`
+<br/><br/>
+
+* **Method**
+
+	`GET`
+
+* **URL Params**
+
+  *Required*
+
+  * `"hazard_id"=Integer`
+
+  *Optional*
+
+  * `"satellites"=[satellite_id]`
+  * `"start_date"="mmddyyyy"`
+  * `"end_date"="mmddyyyy"`
+  * `"max_num_images"=Integer`
+  * `"last_n_days"=Integer`
+  * `"dataType"=OneOf["GEOTIFF", "KMZ", "raw", "GIF"]`
+<br/><br/>
+* **Success Response**
+
+	**Content:** link to file for download
