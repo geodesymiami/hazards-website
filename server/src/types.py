@@ -100,6 +100,12 @@ class HazardInfo:
 	name: str
 
 @dataclass
+class Hazard:
+	info: HazardInfo
+	satellites: List[Satellite]
+	images: List[Image]
+
+@dataclass
 class Image:
 	hazard_id: str
 	satellite_id: str
@@ -133,9 +139,11 @@ def get_satellites_by_hazard(hazard_id: str, hazard_type: HazardType):
 	"""
 	pass
 
-def get_hazard_data_by_hazard_id(hazard_id: str,                                                                                                                                         filter: HazardInfoFilter):
+def get_hazard_data_by_hazard_id(hazard_id: str, filter: HazardInfoFilter):
 	"""
 	Returns hazards by id filtered by satellite, image type, date range, and num images
 	:returns HazardSummaryInfo, [Image]
 	"""
 	pass
+	
+def create_new_hazard(hazard: Haz)
