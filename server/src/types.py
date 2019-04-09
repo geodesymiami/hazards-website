@@ -14,6 +14,10 @@ class ImageType(Enum):
 	ORTHO_BACKSCATTER     = 4
 	ORTHO_COHERENCE       = 5
 	ORTHO_INTERFEROGRAM   = 6
+
+class DatabaseSuccess(Enum):
+	SUCCESS	= 1
+	FAILURE = 2
 	
 @dataclass
 class LatLong:
@@ -80,7 +84,7 @@ class Location:
 			raise Exception()
 
 	def validate_latitudes(north, south):
-		return float(north) < 90 and float(south) > -90
+		return -90 < float(north) < 90 and -90 < float(south) < 90
 		
 	def validate_longitudes(east, west):
 		return float(east) < 180 and float(west) > -180
@@ -101,9 +105,11 @@ class HazardInfo:
 
 @dataclass
 class Hazard:
-	info: HazardInfo
-	satellites: List[Satellite]
-	images: List[Image]
+	hazard_id: str
+	name: str
+	hazard_type: HazardType
+	location: Location
+	last_updated: Date
 
 @dataclass
 class Image:
@@ -145,5 +151,40 @@ def get_hazard_data_by_hazard_id(hazard_id: str, filter: HazardInfoFilter):
 	:returns HazardSummaryInfo, [Image]
 	"""
 	pass
+
+
+
+"""
+All datbase insertion methods should take care to do the following:
+	1) Connect appropriately to the database
+	2) Validate that the data sent to the method is valid for insertion
+	3) Check to make sure that data is not added to the database multiple times
+	4) Disconnect appropriately from the database
+	5) Return a SUCCESS or FAILURE to the user
+"""
 	
-def create_new_hazard(hazard: Haz)
+def create_new_hazard(hazard: Hazard):
+	"""
+	Inserts the hazard object into the database `hazards` table. The `hazard` object's parameters
+	should be one-to-one with the `hazards` table's columns.
+	:returns DatabaseSuccess 
+	"""
+	pass
+	
+def create_new_satellite(satellite: Satellite):
+	"""
+	Inserts the satellite object into the database `satellites` table. The `satellite` object's parameters
+	should be one-to-one with the `satellites` table's columns.
+	:returns DatabaseSuccess 
+	"""
+	pass
+	
+def create_new_image(image: Image):
+	"""
+	Inserts the image object into the database `images` table. The `image` object's parameters
+	should be one-to-one with the `images` table's columns. Also, needs to insert a new 
+	`satellite_hazard` pair into the `satellite_hazards` table correlating the existence of the
+	image's satellite with the image's hazard.
+	:returns DatabaseSuccess 
+	"""
+	pass
