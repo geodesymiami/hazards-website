@@ -24,5 +24,6 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "proxy": "http://ec2-3-82-161-15.compute-1.amazonaws.com/"
 }
