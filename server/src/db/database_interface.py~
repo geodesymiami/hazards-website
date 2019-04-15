@@ -1,6 +1,6 @@
 from ..types import *
 
-def get_hazards_by_type(hazard_type: HazardType) -> List[Hazard]:
+def get_info_by_hazard(hazard_type: HazardType) -> List[Hazard]:
     """
     Returns a list of Hazard
     :returns [Hazard]
@@ -8,7 +8,7 @@ def get_hazards_by_type(hazard_type: HazardType) -> List[Hazard]:
     pass
 
 
-def get_satellites_by_hazard_id(hazard_id: str) -> List[Satellite]:
+def get_satellites_by_hazard(hazard_id: str) -> List[Satellite]:
     """
     Returns a list of Satellite
     :returns [Satellite]
