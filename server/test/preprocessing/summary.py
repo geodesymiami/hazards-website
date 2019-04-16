@@ -1,31 +1,18 @@
 from osgeo import gdal
 import os
+import sys
 import pandas as pd
 
-def get_id_from_coords(ul_coords, br_coords):
-	ul_lat, ul_lon = ul_coords
-	br_lat, br_lon = br_coords
-	
+def get_id_from_coords(lat, lon):
+
 	all_volcanos = pd.read_csv("/Users/joshua/Desktop/insarlab/hazards-website/GVP_Volcano_List_Holocene.csv")
 	
 	lats = all_volcanos['Latitude']
 	lons = all_volcanos['Longitude']
 	
-	volcanos_in_range = all_volcanos[(lats.between(br_lat, ul_lat, inclusive=True)) & (lons.between(ul_lon, br_lon, inclusive=True))]
+	volcanos_sorted = all_volcanos.ix[(lats-lat).abs().argsort()]
 	
-	indices = volcanos_in_range.index.tolist()
-	
-	volcanos = {}
-	for i in indices:
-		
-		volcano = all_volcanos.iloc[i]
-			
-		volc_id = volcano['Volcano Number']
-		volc_name = volcano['Volcano Name']
-	
-		volcanos[volc_id] = volc_name
-	
-	return volcanos
+	return all_volcanos.iloc[volcanos_sorted.index[0]]
 	
 
 def get_date_from_file(file_path):
@@ -67,18 +54,24 @@ def pull_summary_data(file_path):
 	
 	ul_coords, ur_coords, bl_coords, br_coords, center_coords = get_bounding_box(ul_coords, x, y)
 	
-	volcanos = get_id_from_coords(ul_coords, br_coords)
+	volcano = get_id_from_coords(center_coords[0], center_coords[1])
 	
-	if len(volcanos) is {}:
-		raise Exception("No volcanos in image")
-	
-	#image_date = get_date_from_file(file_path)	
+	volcano_id = volcano["Volcano Number"]
+	volcano_name = volcano["Volcano Name"]
 
-	satellite = ds.GetMetadataItem('satellite')
-	sat_direction = ds.GetMetadataItem('sat_direction')
-	image_type = ds.GetMetadataItem('type')
-	image_date = ds.GetMetadataItem('date')
+	band = ds.GetRasterBand(1)
+
+	satellite = band.GetMetadataItem('SAT')
+	sat_direction = band.GetMetadataItem('Mode')
+	image_type = band.GetMetadataItem('Image Type')
+	image_date = band.GetMetadataItem('Date')
+	
+	print(volcano_id)
+	print(volcano_name)
+	print(satellite)
+	print(sat_direction)
+	print(image_type)
+	print(image_date)
 
 if __name__ == "__main__":
-	os.chdir("/Users/joshua/Desktop/insarlab/hazards-website/example_data/")
-	pull_summary_data('geo_20170125.tif')
+	pull_summary_data(sys.argv[1])
