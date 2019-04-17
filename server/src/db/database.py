@@ -59,7 +59,6 @@ class Database:
             type = HazardType(item['type'])
             center = LatLong(item['latitude'], item['longitude'])
 
-            # TODO: Change location type to ignore bounding box
             location = Location(center)
             updated = Date(str(item['last_updated']))
 
@@ -115,7 +114,23 @@ class Database:
         :param hazard: a fully formed hazard object to insert
         :returns DatabaseSuccess
         """
-        pass
+
+        id = int(hazard.hazard_id)
+        name = hazard.name
+        haz_type = hazard.hazard_type.value
+        lat = hazard.location.center.lat
+        lon = hazard.location.center.long
+        updated = hazard.last_updated.to_integer()
+
+        with self.database.cursor() as cursor:
+            sql = "INSERT INTO `hazards` " \
+                  "(`id`, `name`, `type`, `latitude`, `longitude`, `last_updated`) " \
+                  "VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(id, name, haz_type, lat, lon, updated)
+
+            cursor.execute(sql)
+
+        self.database.commit()
+
 
     def create_new_satellite(self, satellite: Satellite):
         """
@@ -158,6 +173,11 @@ class Database:
 
 
 if __name__ == "__main__":
+
+    hazard = Hazard("200005", "Volcano2", HazardType.VOLCANOES, Location(LatLong(1.000, 1.000)), Date("19700101"))
+
     db = Database()
-    db.get_hazards_by_type(hazard_type=HazardType.EARTHQUAKES)
-    db.close()
+    earthquakes = db.get_hazards_by_type(hazard_type=HazardType.VOLCANOES)
+    db.create_new_hazard(hazard)
+
+    print(earthquakes)

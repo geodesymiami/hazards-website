@@ -94,6 +94,9 @@ class Date:
                         return True
         return False
 
+    def to_integer(self):
+        return int(self.date)
+
 
 @dataclass
 class DateRange:
