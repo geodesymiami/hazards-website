@@ -60,7 +60,7 @@ class Database:
             center = LatLong(item['latitude'], item['longitude'])
 
             # TODO: Change location type to ignore bounding box
-            location = Location(center, center, center, center, center)
+            location = Location(center)
             updated = Date(str(item['last_updated']))
 
             hazard = Hazard(id, name, type, location, updated)

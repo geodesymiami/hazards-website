@@ -125,28 +125,22 @@ class ImageURL():
 
 
 class Location:
-    def __init__(self, center: LatLong, north: LatLong, south: LatLong, east: LatLong, west: LatLong):
-        
-        valid_lats = self.validate_latitudes(north, south)
-        valid_lons = self.validate_longitudes(east, west)
+    def __init__(self, center: LatLong):
 
+        valid_lats = self.validate_latitude(center)
+        valid_lons = self.validate_longitude(center)
         if valid_lats and valid_lons:
             self.center = center
-            self.bounding_box = {}
-            self.bounding_box["North"] = north
-            self.bounding_box["South"] = south
-            self.bounding_box["East"] = east
-            self.bounding_box["West"] = west
         else:
             raise Exception()
 
     @classmethod
-    def validate_latitudes(cls, north, south):
-        return -90 < float(north.lat) < 90 and -90 < float(south.lat) < 90
+    def validate_latitude(cls, lat: LatLong):
+        return -90 <= float(lat.lat) <= 90
 
     @classmethod
-    def validate_longitudes(cls, east, west):
-        return float(east.long) < 180 and float(west.long) > -180
+    def validate_longitude(cls, lon: LatLong):
+        return -180 <= float(lon.long) <= 180
 
 
 @dataclass
