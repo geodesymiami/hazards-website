@@ -1,4 +1,6 @@
-from ..types import *
+from server.src.types import *
+import pymysql.cursors
+
 
 class Database:
 
@@ -9,24 +11,33 @@ class Database:
         as expected. Anticipated use case of this object is as follows:
 
         Data Transform:
-
             ...
             db = Database()
             db.create_new_hazard(hazard)
-            db.create_new_satellite(satellite)
-            db.create_new_image(image)
             db.close()
 
-
         API:
-
             ...
             db = Database()
             hazards = db.get_hazards_by_type(HazardType.VOLCANOES)
             db.close()
 
         """
-        pass
+
+        self.HOST = ''
+        self.USER = ''
+        self.PASSWORD = ''
+        self.DATABASE = ''
+
+        self.database = pymysql.connect(host=self.HOST,
+                                        user=self.USER,
+                                        password=self.PASSWORD,
+                                        db=self.DATABASE,
+                                        charset='utf8mb4',
+                                        cursorclass=pymysql.cursors.DictCursor)
+
+    def close(self):
+        self.database.close()
 
     def get_hazards_by_type(self, hazard_type: HazardType) -> List[Hazard]:
         """
@@ -35,8 +46,27 @@ class Database:
         :param hazard_type: the type of hazard to return (volcano or earthquake)
         :returns [Hazard]
         """
-        pass
 
+        with self.database.cursor() as cursor:
+            sql = "SELECT * FROM `hazards` WHERE `type`='{}'".format(hazard_type.value)
+            cursor.execute(sql)  # Execute to the SQL statement
+            result = cursor.fetchall()  # fetch all the results, since there may be several
+
+        hazards = []
+        for item in result:
+            id = item['id']
+            name = item['name']
+            type = HazardType(item['type'])
+            center = LatLong(item['latitude'], item['longitude'])
+
+            # TODO: Change location type to ignore bounding box
+            location = Location(center, center, center, center, center)
+            updated = Date(str(item['last_updated']))
+
+            hazard = Hazard(id, name, type, location, updated)
+            hazards.append(hazard)
+
+        return hazards
 
     def get_satellites_by_hazard_id(self, hazard_id: str) -> List[Satellite]:
         """
@@ -46,7 +76,6 @@ class Database:
         :returns [Satellite]
         """
         pass
-
 
     def get_hazard_data_by_hazard_id(self, hazard_id: str, filter: HazardInfoFilter) -> Tuple[Hazard, List[Image]]:
         """
@@ -61,7 +90,6 @@ class Database:
         """
         pass
 
-
     """
     All database insertion methods should take care to do the following:
         1) Connect appropriately to the database
@@ -71,7 +99,6 @@ class Database:
         5) Disconnect appropriately from the database
         6) Return a SUCCESS or FAILURE to the user
     """
-
 
     def create_new_hazard(self, hazard: Hazard):
         """
@@ -90,7 +117,6 @@ class Database:
         """
         pass
 
-
     def create_new_satellite(self, satellite: Satellite):
         """
         Inserts a satellite object into the database `satellites` table. The `satellite` object's parameters
@@ -105,7 +131,6 @@ class Database:
         :returns DatabaseSuccess
         """
         pass
-
 
     def create_new_image(self, image: Image):
         """
@@ -130,3 +155,9 @@ class Database:
         :returns DatabaseSuccess
         """
         pass
+
+
+if __name__ == "__main__":
+    db = Database()
+    db.get_hazards_by_type(hazard_type=HazardType.EARTHQUAKES)
+    db.close()

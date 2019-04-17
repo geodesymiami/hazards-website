@@ -83,7 +83,7 @@ class Date:
         else:
             raise ValueError("The date {0} is not a valid date of the form \"YYYYMMDD\"".format(date))
 
-    def is_valid_date(possible_date: str):
+    def is_valid_date(self, possible_date: str):
         """
         Checks if date is of format "YYYYMMDD"
         """
@@ -142,11 +142,11 @@ class Location:
 
     @classmethod
     def validate_latitudes(cls, north, south):
-        return -90 < float(north) < 90 and -90 < float(south) < 90
+        return -90 < float(north.lat) < 90 and -90 < float(south.lat) < 90
 
     @classmethod
     def validate_longitudes(cls, east, west):
-        return float(east) < 180 and float(west) > -180
+        return float(east.long) < 180 and float(west.long) > -180
 
 
 @dataclass
