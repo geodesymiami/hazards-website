@@ -181,16 +181,45 @@ class Database:
         :param image: a fully formed Image object to insert
         :returns DatabaseSuccess
         """
-        pass
+
+        id = int(image.image_id)
+        haz_id = int(image.hazard_id)
+        sat_id = int(image.satellite_id)
+        im_type = image.image_type.value
+        im_date = image.image_date.to_integer()
+        tif = image.tif_image_url.url
+        raw = image.raw_image_url.url
+        mod = image.modified_image_url.url
+
+        with self.database.cursor() as cursor:
+            sql = "INSERT INTO `images` " \
+                  "(`id`, `hazard_id`, `satellite_id`, `type`, `date`, `tif_url`, `raw_url`, `mod_url`) " \
+                  "VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"\
+                .format(id, haz_id, sat_id, im_type, im_date, tif, raw, mod)
+
+            cursor.execute(sql)
+
+        self.database.commit()
 
 
 if __name__ == "__main__":
 
     hazard = Hazard("200006", "Volcano2", HazardType.VOLCANOES, Location(LatLong(1.000, 1.000)), Date("19700101"))
-    satellite = Satellite("00005", "S4", False);
+    satellite = Satellite("00005", "S4", False)
+    image = Image("5",
+                  "200006",
+                  "00005",
+                  ImageType.GEO_BACKSCATTER,
+                  Date("19700105"),
+                  ImageURL("/test.jpg"),
+                  ImageURL("/test.tif"),
+                  ImageURL("/test.jpg"),
+                  ImageURL("/test.jpg"),
+                  )
 
     db = Database()
-    db.create_new_satellite(satellite)
+    db.create_new_image(image)
+    #db.create_new_satellite(satellite)
     #earthquakes = db.get_hazards_by_type(hazard_type=HazardType.VOLCANOES)
     #db.create_new_hazard(hazard)
 

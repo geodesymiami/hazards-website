@@ -119,8 +119,8 @@ class ImageURL():
             raise ValueError("The url {0} is not a valid URL".format(url))
 
     # TODO: Add further validation
-    def is_valid_url(url):
-        valid_extensions = [".jpg", ".png", ".tiff", ".gif"]
+    def is_valid_url(self, url):
+        valid_extensions = [".jpg", ".png", ".tif", ".gif"]
         filename, file_extension = os.path.splitext(url)
         if filename[0] is not "/" or file_extension not in valid_extensions:
             return False
@@ -173,6 +173,7 @@ class Hazard:
 
 @dataclass
 class Image:
+    image_id: str
     hazard_id: str
     satellite_id: str
     image_type: ImageType
