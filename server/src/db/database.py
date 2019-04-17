@@ -145,7 +145,19 @@ class Database:
         :param satellite: a fully formed Satellite object to insert
         :returns DatabaseSuccess
         """
-        pass
+
+        id = int(satellite.satellite_id)
+        name = satellite.satellite_name
+        asc = 1 if satellite.ascending else 0
+
+        with self.database.cursor() as cursor:
+            sql = "INSERT INTO `satellites` " \
+                  "(`id`, `name`, `ascending`) " \
+                  "VALUES ('{}', '{}', '{}')".format(id, name, asc)
+
+            cursor.execute(sql)
+
+        self.database.commit()
 
     def create_new_image(self, image: Image):
         """
@@ -174,10 +186,12 @@ class Database:
 
 if __name__ == "__main__":
 
-    hazard = Hazard("200005", "Volcano2", HazardType.VOLCANOES, Location(LatLong(1.000, 1.000)), Date("19700101"))
+    hazard = Hazard("200006", "Volcano2", HazardType.VOLCANOES, Location(LatLong(1.000, 1.000)), Date("19700101"))
+    satellite = Satellite("00005", "S4", False);
 
     db = Database()
-    earthquakes = db.get_hazards_by_type(hazard_type=HazardType.VOLCANOES)
-    db.create_new_hazard(hazard)
+    db.create_new_satellite(satellite)
+    #earthquakes = db.get_hazards_by_type(hazard_type=HazardType.VOLCANOES)
+    #db.create_new_hazard(hazard)
 
-    print(earthquakes)
+    #print(earthquakes)
