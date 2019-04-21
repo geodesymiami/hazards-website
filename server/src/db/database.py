@@ -70,11 +70,24 @@ class Database:
     def get_satellites_by_hazard_id(self, hazard_id: str) -> List[Satellite]:
         """
         Returns a list of Satellite that have images a given hazard (given by hazard_id)
-
         :param hazard_id: the hazard_id of the hazard to obtain a list of satellites for
         :returns [Satellite]
         """
-        pass
+	    with self.database.cursor() as cursor:
+            sql = "SELECT DISTINCT sat_id FROM `image` WHERE `haz_id`='{}'".format(hazard_id.value)
+            cursor.execute(sql)  # Execute to the SQL statement
+            result = cursor.fetchall()  # fetch all the results, since there may be several
+
+        satellites = []
+        for item in result:
+            id = item['sat_id']
+            name = item['sat_name']
+            ascending = item('ascending')
+
+            satellite = Satellite(id, name, ascending)
+            satellites.append(satellite)
+
+	    return satellites
 
     def get_hazard_data_by_hazard_id(self, hazard_id: str, filter: HazardInfoFilter) -> Tuple[Hazard, List[Image]]:
         """
