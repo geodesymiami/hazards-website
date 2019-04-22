@@ -185,7 +185,7 @@ class Image:
     
 @dataclass
 class HazardInfoFilter:
-    satellite_ids: Tuple[List[str], None]
-    image_type: Tuple[List[ImageType], None]
+    satellite_ids: Union[List[str], None]
+    image_type: Union[List[ImageType], None]
     date_range: Union[DateRange, None]
     last_n_images: Union[int, None]
