@@ -180,7 +180,6 @@ class Image:
     image_date: Date
     raw_image_url: ImageURL
     tif_image_url: ImageURL
-    compressed_image_url: ImageURL
     modified_image_url: ImageURL
     
     
