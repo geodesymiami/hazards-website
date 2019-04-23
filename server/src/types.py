@@ -82,7 +82,8 @@ class Date:
             self.date = date
         else:
             raise ValueError("The date {0} is not a valid date of the form \"YYYYMMDD\"".format(date))
-
+    
+    @classmethod
     def is_valid_date(self, possible_date: str):
         """
         Checks if date is of format "YYYYMMDD"
@@ -119,6 +120,7 @@ class ImageURL():
             raise ValueError("The url {0} is not a valid URL".format(url))
 
     # TODO: Add further validation
+    @classmethod
     def is_valid_url(self, url):
         valid_extensions = [".jpg", ".png", ".tif", ".gif"]
         filename, file_extension = os.path.splitext(url)
@@ -180,13 +182,12 @@ class Image:
     image_date: Date
     raw_image_url: ImageURL
     tif_image_url: ImageURL
-    compressed_image_url: ImageURL
     modified_image_url: ImageURL
     
     
 @dataclass
 class HazardInfoFilter:
-    satellite_ids: Tuple[List[str], None]
-    image_type: Tuple[List[ImageType], None]
+    satellite_ids: Union[List[str], None]
+    image_type: Union[List[ImageType], None]
     date_range: Union[DateRange, None]
     last_n_images: Union[int, None]
