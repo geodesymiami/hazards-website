@@ -12,15 +12,15 @@ export default class ListViewComponent extends Component {
         }
     }
 
-    componentDidMount() {
-        fetch('/api/volcanoes')
-        .then(res => res.json())
-        .then(volcanoes => this.setState({volcanoes.hazards}, 
-            () => console.log('volcanoes', volcanoes.hazards)
-            ));
+    // componentDidMount() {
+    //     fetch('/api/volcanoes')
+    //     .then(res => res.json())
+    //     .then(volcanoes => this.setState({volcanoes.hazards}, 
+    //         () => console.log('volcanoes', volcanoes.hazards)
+    //         ));
 
-       return null;
-    }
+    //    return null;
+    // }
 
     render() {
         return (
