@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './MapViewComponent.css';
+import {  Map, Marker, Popup } from 'react-leaflet';
 
 export default class MapViewComponent extends Component {
     render() {
