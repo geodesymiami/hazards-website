@@ -69,7 +69,7 @@ class SatelliteEnum(Enum):
     JERS  = 8
     ALOS  = 9
     ALOS2 = 10
-    NISAR = 1
+    NISAR = 11
 
     @classmethod
     def from_string(cls, string: str) -> "SatelliteEnum":
@@ -174,7 +174,7 @@ class Location:
 
 @dataclass
 class Satellite:
-    satellite_id: str
+    satellite_id: SatelliteEnum
     satellite_name: str
     ascending: bool        
 
