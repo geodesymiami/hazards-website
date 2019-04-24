@@ -13,10 +13,10 @@ export default class ListViewComponent extends Component {
     }
 
     componentDidMount() {
-        fetch('/api/Volcanoes')
+        fetch('/api/volcanoes')
         .then(res => res.json())
-        .then(volcanoes => this.setState({volcanoes}, 
-            () => console.log('volcanoes', volcanoes)
+        .then(volcanoes => this.setState({volcanoes.hazards}, 
+            () => console.log('volcanoes', volcanoes.hazards)
             ));
 
        return null;
