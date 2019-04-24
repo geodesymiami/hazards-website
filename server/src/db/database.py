@@ -110,15 +110,6 @@ class Database:
         has_daterange = bool(daterange)
         has_lastNimages = bool(lastNimages)
 
-
-        # Reference definition of HazardInfoFilter Class #
-
-        # satellite_ids: Tuple[List[str], None]
-        # image_type: Tuple[List[ImageType], None]
-        # date_range: Union[DateRange, None]
-        # last_n_images: Union[int, None]
-
-        # BIG IMPORTANT #
         hazard = ""
         images = []
 
