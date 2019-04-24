@@ -79,14 +79,22 @@ class Database:
             cursor.execute(sql)  # Execute to the SQL statement
             result = cursor.fetchall()  # fetch all the results, since there may be several
 
-        # satellites = []
-        # for item in result:
-        #     id = item['id']
-        #     name = item['sat_name']
-        #     ascending = item['ascending']
-        #
-        #     satellite = Satellite(id, name, ascending)
-        #     satellites.append(satellite)
+        satellites = []
+        for item in result:
+            # TODO: ths should probably be taken care of in the above SQL query and not as a separate call
+            sat = self.get_satellite_by_satellite_id(item['sat_id'])[0]
+
+            satellite = Satellite(sat['id'], sat['name'], True if sat['ascending'] is 1 else False)
+            satellites.append(satellite)
+
+        return satellites
+
+    def get_satellite_by_satellite_id(self, sat_id: str) -> Satellite:
+
+        with self.database.cursor() as cursor:
+            sql = "SELECT * FROM `satellites` WHERE `id`='{}'".format(sat_id)
+            cursor.execute(sql)  # Execute to the SQL statement
+            result = cursor.fetchall()  # fetch all the results, since there may be several
 
         return result
 
@@ -239,7 +247,7 @@ if __name__ == "__main__":
                   )
 
     db = Database()
-    sats = db.get_satellites_by_hazard_id("200001");
+    sats = db.get_satellites_by_hazard_id("200006");
     #db.create_new_image(image)
     #db.create_new_satellite(satellite)
     #earthquakes = db.get_hazards_by_type(hazard_type=HazardType.VOLCANOES)
