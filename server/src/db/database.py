@@ -103,45 +103,51 @@ class Database:
 
         Worked on by Samuel Triana and Xinxin Rong.
         """
-	
-	hazard = None
+
+        hazard = None
         images = []
-	
+
         satellites = filter.satellite_ids[0]
         imagetype = filter.image_type[0]
         daterange = filter.date_range
         lastNimages = filter.last_n_images
         has_daterange = bool(daterange)
         has_lastNimages = bool(lastNimages)
-	
-	# Get Hazard data and create Hazard Object
+
+        # Get Hazard data and create Hazard Object
         with self.database.cursor() as cursor:
             sql = "SELECT * FROM `hazards` WHERE `haz_id`='{}'".format(hazard_id)
             cursor.execute(sql)  # Execute to the SQL statement
             data = cursor.fetchall()
-            id = data['id']
-            name = data['name']
-            type = HazardType(data['type'])
-            center = LatLong(data['latitude'], data['longitude'])
 
-            location = Location(center)
-            updated = Date(str(item['last_updated']))
+        id = data['id']
+        name = data['name']
+        type = HazardType(data['type'])
+        center = LatLong(data['latitude'], data['longitude'])
 
-            hazard = Hazard(id, name, type, location, updated)
+        location = Location(center)
+        updated = Date(str(data['last_updated']))
 
-	# Get Images, no filter, needs true column names
-	with self.database.cursor() as cursor:
-		sql = "SELECT * FROM 'images" WHERE 'haz_id' = '{}';".format(hazard_id)
-		cursor.execute(sql)
-		data = cursor.fetchall()
-		
-		for img in data:
-			image = Image(img['image_id'],img['hazard_id'],img['satellite_id'],\
-				     img['image_type'],img['image_date'],img['raw_image_url']\
-				     img['tiff_image_url'])
-			images.append(image)
-		
-	# Get Images, filtered 	
+        hazard = Hazard(id, name, type, location, updated)
+
+        # Get Images, no filter, needs true column names
+        with self.database.cursor() as cursor:
+            sql = "SELECT * FROM `images` WHERE `haz_id` = '{}';".format(hazard_id)
+            cursor.execute(sql)
+            data = cursor.fetchall()
+
+            for img in data:
+                image = Image(img['image_id'],
+                              img['hazard_id'],
+                              img['satellite_id'],
+                              img['image_type'],
+                              img['image_date'],
+                              img['raw_image_url'],
+                              img['tiff_image_url'],
+                              img['mod_image_url'])
+                images.append(image)
+
+# Get Images, filtered
 #         with self.database.cursor() as cursor:
 #             sql = "SELECT * FROM `images` WHERE `haz_id`='{}' ".format(hazard_id)
 #             sql += " AND 'sat_id' IN ('{}') ".format(satellites)
