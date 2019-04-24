@@ -74,29 +74,21 @@ class Database:
         :param hazard_id: the hazard_id of the hazard to obtain a list of satellites for
         :returns [Satellite]
         """
+
         with self.database.cursor() as cursor:
-            sql = "SELECT DISTINCT sat_id FROM `images` WHERE `haz_id`='{}'".format(hazard_id)
-            cursor.execute(sql)  # Execute to the SQL statement
-            result = cursor.fetchall()  # fetch all the results, since there may be several
+            sql = "SELECT satellite.* FROM satellites satellite WHERE satellite.id in " \
+                  "(SELECT DISTINCT sat_id FROM images WHERE haz_id='{}')".format(hazard_id)
+            cursor.execute(sql)
+            result = cursor.fetchall()
 
         satellites = []
-        for item in result:
-            # TODO: ths should probably be taken care of in the above SQL query and not as a separate call
-            sat = self.get_satellite_by_satellite_id(item['sat_id'])[0]
+        for sat in result:
 
             satellite = Satellite(sat['id'], sat['name'], True if sat['ascending'] is 1 else False)
             satellites.append(satellite)
 
         return satellites
 
-    def get_satellite_by_satellite_id(self, sat_id: str) -> Satellite:
-
-        with self.database.cursor() as cursor:
-            sql = "SELECT * FROM `satellites` WHERE `id`='{}'".format(sat_id)
-            cursor.execute(sql)  # Execute to the SQL statement
-            result = cursor.fetchall()  # fetch all the results, since there may be several
-
-        return result
 
     def get_hazard_data_by_hazard_id(self, hazard_id: str, filter: HazardInfoFilter) -> Tuple[Hazard, List[Image]]:
         """
@@ -247,7 +239,7 @@ if __name__ == "__main__":
                   )
 
     db = Database()
-    sats = db.get_satellites_by_hazard_id("200006");
+    sats = db.get_satellites_by_hazard_id("200006")
     #db.create_new_image(image)
     #db.create_new_satellite(satellite)
     #earthquakes = db.get_hazards_by_type(hazard_type=HazardType.VOLCANOES)
