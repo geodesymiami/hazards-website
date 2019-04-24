@@ -21,7 +21,7 @@ class App extends Component {
 
     // fetching Volcanoes data
     axios
-      .get("<url.com>/api/volcanoes")
+      .get("/api/volcanoes")
       .then(response => {
         const newVolcanoes = response.data.hazards.map(volcano => {
           return {
@@ -33,19 +33,17 @@ class App extends Component {
           };
         });
 
-        const newState = Object.assign({}, this.state, {
+        this.setState({
           volcanoes: newVolcanoes
         });
-
-        this.setState(newState);
       })
       .catch(error => console.log(error));
 
     // fetching Earthquakes data
     axios
-      .get("<url.com>/api/earthquakes")
+      .get("/api/earthquakes")
       .then(response => {
-        const newVolcanoes = response.data.hazards.map(earthquake => {
+        const newEarthquakes = response.data.hazards.map(earthquake => {
           return {
             id: earthquake.hazard_id,
             last_updated: earthquake.last_updated,
@@ -55,11 +53,9 @@ class App extends Component {
           };
         });
 
-        const newState = Object.assign({}, this.state, {
+        this.setState({
           earthquakes: newEarthquakes
         });
-
-        this.setState(newState);
       })
       .catch(error => console.log(error));
   }
