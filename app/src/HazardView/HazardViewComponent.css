@@ -1,3 +1,15 @@
 .HazardViewComponent {
-    
+  transition: margin-left 0.5s;
+}
+
+.sidebar {
+  width: 250px;
+}
+
+.header {
+  height: 250px;
+}
+
+.main {
+  padding-left: 270px;
 }
