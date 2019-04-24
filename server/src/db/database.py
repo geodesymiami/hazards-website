@@ -102,17 +102,18 @@ class Database:
 
         Worked on by Samuel Triana and Xinxin Rong.
         """
-
+	
+	hazard = None
+        images = []
+	
         satellites = filter.satellite_ids[0]
         imagetype = filter.image_type[0]
         daterange = filter.date_range
         lastNimages = filter.last_n_images
         has_daterange = bool(daterange)
         has_lastNimages = bool(lastNimages)
-
-        hazard = ""
-        images = []
-
+	
+	# Get Hazard data and create Hazard Object
         with self.database.cursor() as cursor:
             sql = "SELECT * FROM `hazards` WHERE `haz_id`='{}'".format(hazard_id)
             cursor.execute(sql)  # Execute to the SQL statement
@@ -127,12 +128,23 @@ class Database:
 
             hazard = Hazard(id, name, type, location, updated)
 
-        with self.database.cursor() as cursor:
-            sql = "SELECT * FROM `images` WHERE `haz_id`='{}' ".format(hazard_id)
-            sql += " AND 'sat_id' IN ('{}') ".format(satellites)
-            sql += " AND 'imagetype' ".format()
-            sql += " AND 'daterange' ".format()
-            sql += " ORDER BY 'img_id' DESC LIMIT '{}';".format(lastNimages)
+	# Get Images, no filter	
+	with self.database.cursor() as cursor:
+		sql = "SELECT * FROM 'images" WHERE 'haz_id' = '{}';".format(hazard_id)
+		cursor.execute(sql)
+		data = cursor.fetchall()
+		
+		for img in data:
+			image = Image(img[''],img[''],img[''])
+			images.append(image)
+		
+	# Get Images, filtered 	
+#         with self.database.cursor() as cursor:
+#             sql = "SELECT * FROM `images` WHERE `haz_id`='{}' ".format(hazard_id)
+#             sql += " AND 'sat_id' IN ('{}') ".format(satellites)
+#             sql += " AND 'imagetype' ".format()
+#             sql += " AND 'daterange' ".format()
+#             sql += " ORDER BY 'img_id' DESC LIMIT '{}';".format(lastNimages)
 
 
         cursor.execute(sql)  # Execute to the SQL statement
