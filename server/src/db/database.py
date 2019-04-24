@@ -33,6 +33,7 @@ class Database:
                                         user=self.USER,
                                         password=self.PASSWORD,
                                         db=self.DATABASE,
+                                        port=32000,
                                         charset='utf8mb4',
                                         cursorclass=pymysql.cursors.DictCursor)
 
@@ -73,21 +74,21 @@ class Database:
         :param hazard_id: the hazard_id of the hazard to obtain a list of satellites for
         :returns [Satellite]
         """
-	    with self.database.cursor() as cursor:
-            sql = "SELECT DISTINCT sat_id FROM `image` WHERE `haz_id`='{}'".format(hazard_id.value)
+        with self.database.cursor() as cursor:
+            sql = "SELECT DISTINCT sat_id FROM `images` WHERE `haz_id`='{}'".format(hazard_id)
             cursor.execute(sql)  # Execute to the SQL statement
             result = cursor.fetchall()  # fetch all the results, since there may be several
 
-        satellites = []
-        for item in result:
-            id = item['sat_id']
-            name = item['sat_name']
-            ascending = item('ascending')
+        # satellites = []
+        # for item in result:
+        #     id = item['id']
+        #     name = item['sat_name']
+        #     ascending = item['ascending']
+        #
+        #     satellite = Satellite(id, name, ascending)
+        #     satellites.append(satellite)
 
-            satellite = Satellite(id, name, ascending)
-            satellites.append(satellite)
-
-	    return satellites
+        return result
 
     def get_hazard_data_by_hazard_id(self, hazard_id: str, filter: HazardInfoFilter) -> Tuple[Hazard, List[Image]]:
         """
@@ -137,14 +138,14 @@ class Database:
         try:
             with self.database.cursor() as cursor:
                 sql = "INSERT INTO `hazards` " \
-                      "(`id`, `name`, `type`, `latitude`, `longitude`, `last_updated`) " \
+                      "(`id`, `name`, `type`, `latitude`, `longitude`, `date`) " \
                       "VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(id, name, haz_type, lat, lon, updated)
 
                 cursor.execute(sql)
 
             self.database.commit()
-        except pymysql.err.IntegrityError:
-            print("Already there")
+        except pymysql.err.IntegrityError as e:
+            print(e)
 
 
     def create_new_satellite(self, satellite: Satellite):
@@ -173,8 +174,8 @@ class Database:
                 cursor.execute(sql)
 
             self.database.commit()
-        except pymysql.err.IntegrityError:
-            print("Already there")
+        except pymysql.err.IntegrityError as e:
+            print(e)
 
     def create_new_image(self, image: Image):
         """
@@ -207,39 +208,41 @@ class Database:
         tif = image.tif_image_url.url
         raw = image.raw_image_url.url
         mod = image.modified_image_url.url
+
+        # TODO: Need to validate that the hazard_id and satellite_id exist in the database already
         try:
             with self.database.cursor() as cursor:
                 sql = "INSERT INTO `images` " \
-                      "(`id`, `hazard_id`, `satellite_id`, `type`, `date`, `tif_url`, `raw_url`, `mod_url`) " \
+                      "(`id`, `haz_id`, `sat_id`, `img_date`, `img_type`, `tif_image_url`, `raw_image_url`, `mod_image_url`) " \
                       "VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"\
-                    .format(id, haz_id, sat_id, im_type, im_date, tif, raw, mod)
+                    .format(id, haz_id, sat_id, im_date, im_type, tif, raw, mod)
 
                 cursor.execute(sql)
 
             self.database.commit()
-        except pymysql.err.IntegrityError:
-            print("Already there")
+        except pymysql.err.IntegrityError as e:
+            print(e)
 
 
 if __name__ == "__main__":
 
     hazard = Hazard("200006", "Volcano2", HazardType.VOLCANOES, Location(LatLong(1.000, 1.000)), Date("19700101"))
     satellite = Satellite("00006", "S4", False)
-    image = Image("7",
-                  "200006",
-                  "00006",
+    image = Image("6",
+                  "200003",
+                  "00003",
                   ImageType.GEO_BACKSCATTER,
                   Date("19700105"),
                   ImageURL("/test.jpg"),
                   ImageURL("/test.tif"),
-                  ImageURL("/test.jpg"),
-                  ImageURL("/test.jpg"),
+                  ImageURL("/test.jpg")
                   )
 
     db = Database()
-    db.create_new_image(image)
-    db.create_new_satellite(satellite)
+    sats = db.get_satellites_by_hazard_id("200001");
+    #db.create_new_image(image)
+    #db.create_new_satellite(satellite)
     #earthquakes = db.get_hazards_by_type(hazard_type=HazardType.VOLCANOES)
-    db.create_new_hazard(hazard)
+    #db.create_new_hazard(hazard)
 
-    #print(earthquakes)
+    print(sats)
