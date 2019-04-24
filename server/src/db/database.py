@@ -128,14 +128,16 @@ class Database:
 
             hazard = Hazard(id, name, type, location, updated)
 
-	# Get Images, no filter	
+	# Get Images, no filter, needs true column names
 	with self.database.cursor() as cursor:
 		sql = "SELECT * FROM 'images" WHERE 'haz_id' = '{}';".format(hazard_id)
 		cursor.execute(sql)
 		data = cursor.fetchall()
 		
 		for img in data:
-			image = Image(img[''],img[''],img[''])
+			image = Image(img['image_id'],img['hazard_id'],img['satellite_id'],\
+				     img['image_type'],img['image_date'],img['raw_image_url']\
+				     img['tiff_image_url'])
 			images.append(image)
 		
 	# Get Images, filtered 	
