@@ -58,6 +58,30 @@ class DatabaseSuccess(Enum):
     SUCCESS = 1
     FAILURE = 2
 
+class SatelliteEnum(Enum):
+    ERS   = 1
+    ENV   = 2
+    S1    = 3
+    RS1   = 4
+    RS2   = 5
+    CSK   = 6
+    TSX   = 7
+    JERS  = 8
+    ALOS  = 9
+    ALOS2 = 10
+    NISAR = 1
+
+    @classmethod
+    def from_string(cls, string: str) -> "SatelliteEnum":
+        upper_string = string.upper()
+        if upper_string in SatelliteEnum.__members__:
+            return SatelliteEnum[upper_string]
+        else:
+            raise ValueError("{} is not a valid image type".format(string))
+
+    @classmethod
+    def to_string(cls, sat_enum: "SatelliteEnum") -> str:
+        return sat_enum.name.lower()
 
 @dataclass
 class LatLong:
