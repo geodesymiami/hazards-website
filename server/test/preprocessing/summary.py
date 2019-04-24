@@ -2,6 +2,7 @@ from osgeo import gdal
 import os
 import sys
 import pandas as pd
+from server.src.types import *
 
 def get_id_from_coords(lat, lon):
 
@@ -61,17 +62,13 @@ def pull_summary_data(file_path):
 
 	band = ds.GetRasterBand(1)
 
-	satellite = band.GetMetadataItem('SAT')
+	satellite_name = band.GetMetadataItem('SAT')
 	sat_direction = band.GetMetadataItem('Mode')
 	image_type = band.GetMetadataItem('Image Type')
 	image_date = band.GetMetadataItem('Date')
-	
-	print(volcano_id)
-	print(volcano_name)
-	print(satellite)
-	print(sat_direction)
-	print(image_type)
-	print(image_date)
+
+	return volcano_id, volcano_name, satellite_name, sat_direction, image_type, image_date
+
 
 if __name__ == "__main__":
-	pull_summary_data(sys.argv[1])
+	print(pull_summary_data(sys.argv[1]))
