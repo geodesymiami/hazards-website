@@ -99,8 +99,69 @@ class Database:
         :param hazard_id: the hazard_id to pull information and images for
         :param filter: a list of filtering options to refine the returned information
         :returns Hazard, [Image]
+
+        Worked on by Samuel Triana and Xinxin Rong.
         """
-        pass
+
+        satellites = filter.satellite_ids[0]
+        imagetype = filter.image_type[0]
+        daterange = filter.date_range
+        lastNimages = filter.last_n_images
+        has_daterange = bool(daterange)
+        has_lastNimages = bool(lastNimages)
+
+
+        # Reference definition of HazardInfoFilter Class #
+
+        # satellite_ids: Tuple[List[str], None]
+        # image_type: Tuple[List[ImageType], None]
+        # date_range: Union[DateRange, None]
+        # last_n_images: Union[int, None]
+
+        # BIG IMPORTANT #
+        hazard = ""
+        images = []
+
+        with self.database.cursor() as cursor:
+            sql = "SELECT * FROM `hazards` WHERE `haz_id`='{}'".format(hazard_id)
+            cursor.execute(sql)  # Execute to the SQL statement
+            data = cursor.fetchall()
+            id = data['id']
+            name = data['name']
+            type = HazardType(data['type'])
+            center = LatLong(data['latitude'], data['longitude'])
+
+            location = Location(center)
+            updated = Date(str(item['last_updated']))
+
+            hazard = Hazard(id, name, type, location, updated)
+
+        with self.database.cursor() as cursor:
+            sql = "SELECT * FROM `images` WHERE `haz_id`='{}' ".format(hazard_id)
+            sql += " AND 'sat_id' IN ('{}') ".format(satellites)
+            sql += " AND 'imagetype' ".format()
+            sql += " AND 'daterange' ".format()
+            sql += " ORDER BY 'img_id' DESC LIMIT '{}';".format(lastNimages)
+
+
+        cursor.execute(sql)  # Execute to the SQL statement
+        all_images = cursor.fetchall()
+        for image in all_images:
+            image_id = image['image_id']
+            hazard_id = image['hazard_id']
+            satellite_id = image['satellite_id']
+            image_type = image['image_type']
+            image_date = image['image_date']
+            raw_image_url = image['raw_image_url']
+            tif_image_url = image['tif_image_url']
+
+            temp = Image(image_id,hazard_id,satellite_id,image_type,image_date,\
+                   raw_image_url, tif_image_url)
+
+            images.append(temp)
+
+        target = Tuple(hazard, images)
+        return target
 
     """
     All database insertion methods should take care to do the following:
