@@ -22,14 +22,13 @@ class HazardType(Enum):
         else:
             raise ValueError("{} is not a valid hazard type".format(string))
 
-    @classmethod
-    def to_string(cls, hazard_type: "HazardType") -> str:
+    def to_string(self) -> str:
         """
         Converts a hazard type into a lowercase string.
         Examples: HazardType.to_string(HazardType.VOLCANOES) returns 'volcanoes'
                   HazardType.to_string(HazardType.EARTHQUAKES) returns 'earthquakes'
         """
-        return hazard_type.name.lower()
+        return self.name.lower()
 
 
 class ImageType(Enum):
@@ -50,9 +49,8 @@ class ImageType(Enum):
             raise ValueError("{} is not a valid image type".format(string))
 
 
-    @classmethod
-    def to_string(cls, image_type: "ImageType") -> str:
-        return image_type.name.lower()
+    def to_string(self) -> str:
+        return self.name.lower()
 
 class DatabaseSuccess(Enum):
     SUCCESS = 1
@@ -79,9 +77,8 @@ class SatelliteEnum(Enum):
         else:
             raise ValueError("{} is not a valid image type".format(string))
 
-    @classmethod
-    def to_string(cls, sat_enum: "SatelliteEnum") -> str:
-        return sat_enum.name.lower()
+    def to_string(self) -> str:
+        return self.name.lower()
 
 @dataclass
 class LatLong:
