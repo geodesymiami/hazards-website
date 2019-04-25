@@ -1,5 +1,4 @@
 from osgeo import gdal
-import os
 import sys
 import pandas as pd
 from server.src.types import *
@@ -67,7 +66,7 @@ def pull_summary_data(file_path):
 	image_type = band.GetMetadataItem('Image Type')
 	image_date = band.GetMetadataItem('Date')
 
-	return volcano_id, volcano_name, satellite_name, sat_direction, image_type, image_date
+	return volcano_id, volcano_name, satellite_name, sat_direction, image_type, image_date, center_coords
 
 
 if __name__ == "__main__":
