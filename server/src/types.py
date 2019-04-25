@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from typing import Union, Tuple, List
+from typing import Tuple, List, Optional
 import os
 
 
@@ -130,7 +130,7 @@ class DateRange:
     If `end = None`, then the date range ends on the current date
     """
     start: Date
-    end: Union[Date, None]
+    end: Optional[Date]
 
 
 class ImageURL():
@@ -211,7 +211,8 @@ class Image:
     
 @dataclass
 class HazardInfoFilter:
-    satellite_ids: Union[List[str], None]
-    image_type: Union[List[ImageType], None]
-    date_range: Union[DateRange, None]
-    last_n_images: Union[int, None]
+    satellite_ids: Optional[List[str]]
+    image_types: Optional[List[ImageType]]
+    date_range: Optional[DateRange]
+    max_num_images: int
+    last_n_days: int
