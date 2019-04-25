@@ -52,9 +52,11 @@ class ImageType(Enum):
     def to_string(self) -> str:
         return self.name.lower()
 
+
 class DatabaseSuccess(Enum):
     SUCCESS = 1
     FAILURE = 2
+
 
 class SatelliteEnum(Enum):
     ERS   = 1
@@ -129,6 +131,9 @@ class DateRange:
     start: Date
     end: Optional[Date]
 
+    def __str__(self):
+        end_str = self.end.date if self.end else str(None)
+        return "[{start}, {end}]".format(self.start.date, end_str)
 
 class ImageURL():
     """
@@ -136,7 +141,7 @@ class ImageURL():
     """
     def __init__(self, url: str):
         if self.is_valid_url(url):
-            self.url = url
+            self.url: str = url
         else:
             raise ValueError("The url {0} is not a valid URL".format(url))
 
@@ -198,7 +203,7 @@ class Hazard:
 class Image:
     image_id: str
     hazard_id: str
-    satellite_id: str
+    satellite_id: SatelliteEnum
     image_type: ImageType
     image_date: Date
     raw_image_url: ImageURL
