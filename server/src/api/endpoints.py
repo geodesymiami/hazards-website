@@ -25,6 +25,20 @@ def get_hazards_summary_info(hazard_type_parameter: str):
 
     return jsonify(data_to_return)
 
+@app.route('/api/satellites/<int:hazard_id_param>', methods=['GET'])
+def get_satellites_by_hazard_id(hazard_id_param: int):
+
+    satellites: List[Satellite] = db.get_satellites_by_hazard_id(hazard_id= hazard_id_param)
+
+    if len(satellites) == 0:
+        abort(404, "No satellites returned for hazard_id: {0}".format(hazard_id_param))
+
+    data_to_return = [{'satellite_id':   sat.to_string(),
+                       'satellite_name': sat.satellite_name
+                      }
+                      for sat in satellites]
+
+    return jsonify(data_to_return)
 
 @app.route('/api/<string:hazard_type_param>/<int:hazard_id_param>', methods=['GET'])
 def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
