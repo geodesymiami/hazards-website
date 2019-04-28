@@ -9,15 +9,15 @@ from server.src.db import database
 from server.src.types import *
 
 
-@app.route('/api/<string:hazard_type_parameter>', methods=['GET'])
-def get_hazards_summary_info(hazard_type_parameter: str):
+@app.route('/api/<string:hazard_type_param>', methods=['GET'])
+def get_hazards_summary_info(hazard_type_param: str):
 
     # HazardType.from_string() raises an exception if the string is not compatible
     try:
-        hazard_type = HazardType.from_string(hazard_type_parameter)
+        hazard_type = HazardType.from_string(hazard_type_param)
     except ValueError:
         # send back an exception
-        abort(404, "Hazard Type {0} does not exist.".format(hazard_type_parameter))
+        abort(400, "Hazard Type {0} does not exist.".format(hazard_type_param))
         return
 
     data_from_db = db.get_hazards_by_type(HazardType.VOLCANOES)
@@ -112,12 +112,11 @@ def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
         if Date.is_valid_date(end_date):
             validated_end_date = Date(end_date)
 
+    validated_date_range = None
     if start_date is not None:
         validated_date_range = DateRange(validated_start_date, validated_end_date)
     elif start_date is None and end_date is not None:
         abort(400, "A specified end_date without a specified start_date is not allowed.")
-    else:
-        validated_date_range = None
 
     # Validate integer values
     last_n_days: Optional[str] = request.args.get('last_n_days')
@@ -159,7 +158,7 @@ def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
 
     # Handle error cases: hazard_id does not exist, no images returned
     if not hazard:
-        abort(400, 'Hazard with id {0} does not exist'.format(hazard.hazard_id))
+        abort(404, 'Hazard with id {0} does not exist'.format(hazard.hazard_id))
     if len(images) == 0:
         if validated_satellites:
             satellite_strs = [sat.to_string() for sat in validated_satellites]
@@ -169,7 +168,7 @@ def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
             image_type_strings = [im_type.to_string() for im_type in validated_image_types]
         else:
             image_type_strings = str(None)
-        abort(400, "Request with the following filters "
+        abort(404, "Request with the following filters "
                    "returned an empty response. \n"
                    "date range: {date_range}, \n"
                    "satellite_ids: {satellite_strs}, \n"
@@ -186,6 +185,18 @@ def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
 
     return jsonify(json_to_return)
 
+
+@app.errorhandler(400)
+def bad_request_error(error):
+    response = jsonify({'code': 400, 'message': 'Bad Request. \n {0}'.format(error)})
+    response.status_code = 400
+    return response
+
+@app.errorhandler(404)
+def not_found_error(error):
+    response = jsonify({'code': 404, 'message': 'Not Found. \n {0}'.format(error)})
+    response.status_code = 404
+    return response
 
 def parse_hazard_summary_info_from_db(data: List[Hazard], hazard_type: HazardType):
     """
