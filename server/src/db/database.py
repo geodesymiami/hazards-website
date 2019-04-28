@@ -40,7 +40,8 @@ class Database:
     def close(self):
         self.database.close()
 
-    def get_hazards_by_type(self, hazard_type: HazardType) -> List[Hazard]:
+    def get_hazards_by_type(self, haz_type: HazardType) -> List[Hazard]:
+        
         """
         Returns a list of Hazard of a given HazardType.
 
@@ -49,21 +50,19 @@ class Database:
         """
 
         with self.database.cursor() as cursor:
-            sql = "SELECT * FROM `hazards` WHERE `type`='{}'".format(hazard_type.value)
+            sql = "SELECT * FROM `hazards` WHERE `type`='{}'".format(haz_type.value)
             cursor.execute(sql)  # Execute to the SQL statement
             result = cursor.fetchall()  # fetch all the results, since there may be several
 
         hazards = []
         for item in result:
-            id = item['id']
-            name = item['name']
-            type = HazardType(item['type'])
-            center = LatLong(item['latitude'], item['longitude'])
-
-            location = Location(center)
-            updated = Date(str(item['last_updated']))
-
-            hazard = Hazard(id, name, type, location, updated)
+            id = item['haz_id']
+            name = item['haz_name']
+            type = HazardType(item['haz_type'])
+            location = item['location']
+            last_updated = Date(str(item['haz_date']))
+            
+            hazard = Hazard(id, name, type, location, last_updated)
             hazards.append(hazard)
 
         return hazards
