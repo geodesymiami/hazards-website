@@ -1,3 +1,9 @@
+import server.test.preprocessing.image_manipulation as immanip
+import server.src.config as config
+import boto3
+import os
+from botocore.exceptions import ClientError
+
 """
 
     Should include the following functions:
@@ -9,8 +15,44 @@
 
 """
 
+def save_image_local(image, output_file):
+    image.save(output_file)
+    return output_file
+
+def save_image_s3(image, local_file, s3_file):
+
+    ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
+    SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
+    BUCKET = config.get_config_var("aws_s3", "bucket_name")
+
+    local = save_image_local(image, local_file)
+
+    s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
+
+    try:
+        s3.upload_file(local, BUCKET, s3_file)
+        os.remove(local_file)
+    except ClientError:
+        print("Client Error")
+        return
+
+    bucket_location = s3.get_bucket_location(Bucket=BUCKET)
+
+    object_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(bucket_location['LocationConstraint'], BUCKET, s3_file)
+
+    return object_url
+
+
+
+
 if __name__ == "__main__":
     """
     Please provide an example of how to use your functions. These test cases should
     work in general (minus the specification of the input files and output paths).
     """
+
+    im = immanip.compress_image("/Users/joshua/Desktop/test.png")
+    im = immanip.add_text_to_image(im, "Test Text 2")
+    save_image_local(im, "/Users/joshua/Desktop/test2.png")
+    url = save_image_s3(im, "/Users/joshua/Desktop/test2.png", "test2.png")
+    print(url)

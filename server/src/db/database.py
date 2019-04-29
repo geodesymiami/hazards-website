@@ -1,4 +1,5 @@
 from server.src.types import *
+import server.src.config as config
 import pymysql.cursors
 
 
@@ -24,16 +25,17 @@ class Database:
 
         """
 
-        self.HOST = ''
-        self.USER = ''
-        self.PASSWORD = ''
-        self.DATABASE = ''
+        self.HOST = config.get_config_var("database", "host")
+        self.USER = config.get_config_var("database", "user")
+        self.PASSWORD = config.get_config_var("database", "password")
+        self.DATABASE = config.get_config_var("database", "database")
+        self.PORT = config.get_config_var("database", "port")
 
         self.database = pymysql.connect(host=self.HOST,
                                         user=self.USER,
                                         password=self.PASSWORD,
                                         db=self.DATABASE,
-                                        port=32000,
+                                        port=self.PORT,
                                         charset='utf8mb4',
                                         cursorclass=pymysql.cursors.DictCursor)
 
@@ -200,12 +202,15 @@ class Database:
         :returns DatabaseSuccess
         """
 
+        print(hazard)
+
         id = int(hazard.hazard_id)
         name = hazard.name
         haz_type = hazard.hazard_type.value
         lat = hazard.location.center.lat
         lon = hazard.location.center.long
         updated = hazard.last_updated.to_integer()
+
         try:
             with self.database.cursor() as cursor:
                 sql = "INSERT INTO `hazards` " \
@@ -233,7 +238,7 @@ class Database:
         :returns DatabaseSuccess
         """
 
-        id = int(satellite.satellite_id)
+        id = satellite.satellite_id.value
         name = satellite.satellite_name
         asc = 1 if satellite.ascending else 0
         try:
