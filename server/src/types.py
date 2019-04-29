@@ -186,7 +186,6 @@ class Location:
 @dataclass
 class Satellite:
     satellite_id: SatelliteEnum
-    satellite_name: str
     ascending: bool
 
     def to_string(self):
