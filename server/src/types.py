@@ -238,7 +238,6 @@ class Satellite:
         return hash(self.to_string())
 
 
-
 class AscendingParseException(Exception):
     pass
 
@@ -272,10 +271,32 @@ class Image:
     modified_image_url: ImageURL
     
     
-@dataclass
 class HazardInfoFilter:
+    """
     satellites: Optional[List[Satellite]]
     image_types: Optional[List[ImageType]]
     date_range: Optional[DateRange]
     max_num_images: int
-    last_n_days: int
+    """
+
+    def __init__(self,
+                 satellites: Optional[List[Satellite]],
+                 image_types: Optional[List[ImageType]],
+                 date_range: Optional[DateRange],
+                 max_num_images: int,
+                 last_n_days: Optional[int]):
+        self.satellites: Optional[List[Satellite]] = satellites
+        self.image_types: Optional[List[ImageType]] = image_types
+        self.max_num_images: int = max_num_images
+
+        # Combine date_range and last_n_days date range into a single date range
+        # We use last_n_days as the start date if it exists
+        if last_n_days:
+            last_n_days_date = Date(str(int(Date.get_today().date) - last_n_days))
+            if date_range is None:
+                new_date_range = DateRange(start=last_n_days_date)
+            else:
+                new_date_range = DateRange(start=last_n_days_date, end=date_range.end)
+        else:
+            new_date_range = date_range
+        self.date_range: Optional[DateRange] = new_date_range
