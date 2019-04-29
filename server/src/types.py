@@ -238,14 +238,6 @@ class Satellite:
 class AscendingParseException(Exception):
     pass
 
-@dataclass
-class HazardInfo:
-    location: Location
-    last_updated: Date
-    hazard_id: str
-    hazard_type: HazardType
-    name: str
-
 
 @dataclass
 class Hazard:
