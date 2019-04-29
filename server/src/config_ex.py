@@ -17,5 +17,5 @@ config['aws_s3'] = aws_s3
 config['database'] = database
 
 
-def get_config_var(type, key):
-    return config[type][key]
+def get_config_var(config_type, key):
+    return config[config_type][key]

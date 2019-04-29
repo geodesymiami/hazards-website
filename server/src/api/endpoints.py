@@ -181,9 +181,11 @@ def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
                            max_num_images=validated_max_num_images,
                            validated_last_n_days=validated_last_n_days))
 
-    json_to_return = parse_hazard_images_from_db(images=images, hazard=hazard)
+    parsed_image_dict = parse_hazard_images_from_db(images=images, hazard=hazard)
 
-    return jsonify(json_to_return)
+    filtered_image_dict = filter_hazard_images(parsed_image_dict, hazard_filter= hazard_filter)
+
+    return jsonify(parsed_image_dict)
 
 
 @app.errorhandler(400)
@@ -197,6 +199,33 @@ def not_found_error(error):
     response = jsonify({'code': 404, 'message': 'Not Found. \n {0}'.format(error)})
     response.status_code = 404
     return response
+
+def filter_hazard_images(parsed_dict, hazard_filter: HazardInfoFilter):
+    satellites = list(parsed_dict['images_by_satellite'].keys())
+    for satellite in satellites:
+        if hazard_filter.satellites and satellite not in hazard_filter.satellites:
+            del parsed_dict['images_by_satellite'][satellite]
+        else:
+            image_types = list(parsed_dict['images_by_satellite'][satellite].keys())
+            for image_type in image_types:
+                if hazard_filter.image_types and image_type not in hazard_filter.image_types:
+                    del parsed_dict['images_by_satellite'][satellite][image_type]
+                else:
+                    new_image_list = []
+                    # filter images by their date
+                    for image in parsed_dict['images_by_satellite'][satellite][image_type]:
+                        if hazard_filter.date_range.date_in_range(image.image_date):
+                            new_image_list.append(image)
+
+                    new_image_list.sort(key=lambda im: int(im.image_date.date), reverse=True)
+                    most_recent_images = new_image_list[:hazard_filter.max_num_images]
+
+                    parsed_dict['images_by_satellite'][satellite][image_type] = most_recent_images
+
+    return parsed_dict
+
+
+
 
 def parse_hazard_summary_info_from_db(data: List[Hazard], hazard_type: HazardType):
     """
@@ -235,14 +264,6 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
     return_dict['images_by_satellite'] = dict()
     # A reference to `return_dict['images_by_satellite']`
     image_dict = return_dict['images_by_satellite']
-
-    """
-        {
-          "compressed_image_url": "/api/images/scatter03061999_compressed.jpg",
-          "date": "03061999",
-          "full_image_url": "/api/images/scatter03061999_full.jpg"
-        }
-        """
 
     for image in images:
         satellite = image.satellite.to_string()

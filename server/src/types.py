@@ -2,6 +2,7 @@ from enum import Enum
 from dataclasses import dataclass
 from typing import Tuple, List, Optional, Set
 import os
+from datetime import datetime
 
 
 class HazardType(Enum):
@@ -126,19 +127,26 @@ class Date:
     def to_integer(self):
         return int(self.date)
 
+    @classmethod
+    def get_today(cls):
+        return Date(datetime.now().strftime("%Y%m%d"))
 
-@dataclass
 class DateRange:
     """
     This class is used for filtering images by a range of dates.
     If `end = None`, then the date range ends on the current date
     """
-    start: Date
-    end: Optional[Date]
+    def __init__(self, start: Date, end: Optional[Date] = None):
+        self.start: Date = start
+        self.end: Optional[Date] = end
 
     def __str__(self):
         end_str = self.end.date if self.end else str(None)
         return "[{start}, {end}]".format(start=self.start.date, end=end_str)
+
+    def date_in_range(self, date: Date):
+        end_date = self.end if self.end != None else Date.get_today()
+        return int(self.start) <= int(date.date) <= int(end_date)
 
 class ImageURL():
     """
@@ -231,7 +239,6 @@ class Satellite:
         return hash(self.to_string())
 
 
-
 class AscendingParseException(Exception):
     pass
 
@@ -265,10 +272,32 @@ class Image:
     modified_image_url: ImageURL
     
     
-@dataclass
 class HazardInfoFilter:
+    """
     satellites: Optional[List[Satellite]]
     image_types: Optional[List[ImageType]]
     date_range: Optional[DateRange]
     max_num_images: int
-    last_n_days: int
+    """
+
+    def __init__(self,
+                 satellites: Optional[List[Satellite]],
+                 image_types: Optional[List[ImageType]],
+                 date_range: Optional[DateRange],
+                 max_num_images: int,
+                 last_n_days: Optional[int]):
+        self.satellites: Optional[List[Satellite]] = satellites
+        self.image_types: Optional[List[ImageType]] = image_types
+        self.max_num_images: int = max_num_images
+
+        # Combine date_range and last_n_days date range into a single date range
+        # We use last_n_days as the start date if it exists
+        if last_n_days:
+            last_n_days_date = Date(str(int(Date.get_today().date) - last_n_days))
+            if date_range is None:
+                new_date_range = DateRange(start=last_n_days_date)
+            else:
+                new_date_range = DateRange(start=last_n_days_date, end=date_range.end)
+        else:
+            new_date_range = date_range
+        self.date_range: Optional[DateRange] = new_date_range
