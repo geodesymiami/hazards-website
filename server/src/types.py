@@ -262,10 +262,10 @@ class Image:
     
 class HazardInfoFilter:
     """
-    satellites: Optional[List[Satellite]]
-    image_types: Optional[List[ImageType]]
-    date_range: Optional[DateRange]
-    max_num_images: int
+    self.satellites: Optional[List[Satellite]]
+    self.image_types: Optional[List[ImageType]]
+    self.date_range: Optional[DateRange]
+    self.max_num_images: int
     """
 
     def __init__(self,
@@ -274,6 +274,7 @@ class HazardInfoFilter:
                  date_range: Optional[DateRange],
                  max_num_images: int,
                  last_n_days: Optional[int]):
+
         self.satellites: Optional[List[Satellite]] = satellites
         self.image_types: Optional[List[ImageType]] = image_types
         self.max_num_images: int = max_num_images
