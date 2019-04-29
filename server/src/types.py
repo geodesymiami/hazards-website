@@ -5,8 +5,8 @@ import os
 
 
 class HazardType(Enum):
-    VOLCANOES    = 1
-    EARTHQUAKES  = 2
+    VOLCANO    = 1
+    EARTHQUAKE  = 2
 
     @classmethod
     def from_string(cls, string: str) -> "HazardType":
@@ -105,6 +105,7 @@ class Date:
     """
 
     def __init__(self, date: str):
+
         if self.is_valid_date(date):
             self.date = date
         else:
