@@ -54,11 +54,6 @@ class ImageType(Enum):
         return self.name.lower()
 
 
-class DatabaseSuccess(Enum):
-    SUCCESS = 1
-    FAILURE = 2
-
-
 class SatelliteEnum(Enum):
     ERS   = 1
     ENV   = 2
