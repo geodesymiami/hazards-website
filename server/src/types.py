@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, Set
 import os
 
 
@@ -52,9 +52,11 @@ class ImageType(Enum):
     def to_string(self) -> str:
         return self.name.lower()
 
+
 class DatabaseSuccess(Enum):
     SUCCESS = 1
     FAILURE = 2
+
 
 class SatelliteEnum(Enum):
     ERS   = 1
@@ -78,7 +80,11 @@ class SatelliteEnum(Enum):
             raise ValueError("{} is not a valid image type".format(string))
 
     def to_string(self) -> str:
-        return self.name.lower()
+        return self.name.upper()
+
+    @classmethod
+    def get_satellite_name(cls) -> str:
+        pass
 
 @dataclass
 class LatLong:
@@ -129,6 +135,9 @@ class DateRange:
     start: Date
     end: Optional[Date]
 
+    def __str__(self):
+        end_str = self.end.date if self.end else str(None)
+        return "[{start}, {end}]".format(start=self.start.date, end=end_str)
 
 class ImageURL():
     """
@@ -136,7 +145,7 @@ class ImageURL():
     """
     def __init__(self, url: str):
         if self.is_valid_url(url):
-            self.url = url
+            self.url: str = url
         else:
             raise ValueError("The url {0} is not a valid URL".format(url))
 
@@ -173,8 +182,57 @@ class Location:
 class Satellite:
     satellite_id: SatelliteEnum
     satellite_name: str
-    ascending: bool        
+    ascending: bool
 
+    def to_string(self):
+        """
+        :return: Of the form "SATID_ASC" or "SATID_DESC"
+        """
+        sat_id_str = self.satellite_id.to_string()
+
+        if self.ascending:
+            return sat_id_str + "_ASC"
+        else:
+            return sat_id_str + "_DESC"
+
+    @classmethod
+    def from_string(cls, raw_satellite: str) -> Tuple["Satellite", ...]:
+        """
+        The `raw_satellite` parameter can be of the following formats:
+
+        1. "SATID" OR "SATID_BOTH" -> Tuple of both ascending and descending satellites of SATID
+        2."SATID_ASC" -> Tuple of just ascending satellite SATID
+        3. "SATID_DESC" -> Tuple of just descending satellite SATID
+        :raises: ValueError, AscendingParseException
+        :return:
+        """
+        if "_" in raw_satellite:
+            sat_id, asc_or_desc = raw_satellite.split("_")
+            asc_or_desc = asc_or_desc.lower()
+            if asc_or_desc not in ('asc', 'desc', 'both'):
+                raise AscendingParseException
+        else:
+            sat_id = raw_satellite
+            asc_or_desc = 'both'
+
+        sat_enum = SatelliteEnum.from_string(sat_id)
+        asc_satellite = Satellite(satellite_id=sat_enum, satellite_name="", ascending=True)
+        desc_satellite = Satellite(satellite_id=sat_enum, satellite_name="", ascending=False)
+
+        if asc_or_desc == 'both':
+            return asc_satellite, desc_satellite
+        elif asc_or_desc == 'asc':
+            return (asc_satellite,) # The way to create a 1-tuple in Python
+        elif asc_or_desc == 'desc':
+            return (desc_satellite,)
+
+    def __hash__(self):
+        return hash(self.to_string())
+
+
+
+class AscendingParseException(Exception):
+    pass
 
 @dataclass
 class HazardInfo:
@@ -198,7 +256,7 @@ class Hazard:
 class Image:
     image_id: str
     hazard_id: str
-    satellite_id: str
+    satellite: Satellite
     image_type: ImageType
     image_date: Date
     raw_image_url: ImageURL
@@ -208,7 +266,7 @@ class Image:
     
 @dataclass
 class HazardInfoFilter:
-    satellite_ids: Optional[List[str]]
+    satellites: Optional[List[Satellite]]
     image_types: Optional[List[ImageType]]
     date_range: Optional[DateRange]
     max_num_images: int
