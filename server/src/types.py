@@ -78,10 +78,6 @@ class SatelliteEnum(Enum):
     def to_string(self) -> str:
         return self.name.upper()
 
-    @classmethod
-    def get_satellite_name(cls) -> str:
-        pass
-
 
 class LatLong:
     def __init__(self, lat: float, long: float):
@@ -232,6 +228,11 @@ class Satellite:
 
     def __hash__(self):
         return hash(self.to_string())
+
+
+    @classmethod
+    def get_satellite_name(cls) -> str:
+        pass
 
 
 class AscendingParseException(Exception):
