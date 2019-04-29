@@ -82,10 +82,11 @@ class SatelliteEnum(Enum):
     def get_satellite_name(cls) -> str:
         pass
 
-@dataclass
+
 class LatLong:
-    lat: float
-    long: float
+    def __init__(self, lat: float, long: float):
+        self.lat: float = lat
+        self.long: float = long
 
 
 class Date:
