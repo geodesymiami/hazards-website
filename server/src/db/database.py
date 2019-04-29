@@ -52,17 +52,17 @@ class Database:
         """
 
         with self.database.cursor() as cursor:
-            sql = "SELECT * FROM `hazards` WHERE `type`='{}'".format(haz_type.value)
+            sql = "SELECT * FROM `hazards` WHERE `type`='{}'".format(haz_type.to_string())
             cursor.execute(sql)  # Execute to the SQL statement
             result = cursor.fetchall()  # fetch all the results, since there may be several
 
         hazards = []
         for item in result:
-            id = item['haz_id']
-            name = item['haz_name']
-            type = HazardType(item['haz_type'])
-            location = item['location']
-            last_updated = Date(str(item['haz_date']))
+            id = item['id']
+            name = item['name']
+            type = HazardType.from_string(item['type'])
+            location = Location(LatLong(item['latitude'], item['longitude']))
+            last_updated = Date(str(item['date']))
             
             hazard = Hazard(id, name, type, location, last_updated)
             hazards.append(hazard)
@@ -105,29 +105,23 @@ class Database:
         Worked on by Samuel Triana and Xinxin Rong.
         """
 
-        hazard = None
         images = []
-
-        satellites = filter.satellite_ids[0]
-        imagetype = filter.image_type[0]
-        daterange = filter.date_range
-        lastNimages = filter.last_n_images
-        has_daterange = bool(daterange)
-        has_lastNimages = bool(lastNimages)
 
         # Get Hazard data and create Hazard Object
         with self.database.cursor() as cursor:
-            sql = "SELECT * FROM `hazards` WHERE `haz_id`='{}'".format(hazard_id)
+            sql = "SELECT * FROM `hazards` WHERE `id`='{}'".format(hazard_id)
             cursor.execute(sql)  # Execute to the SQL statement
             data = cursor.fetchall()
 
+        data = data[0]
         id = data['id']
         name = data['name']
-        type = HazardType(data['type'])
+        type = HazardType.from_string(data['type'])
         center = LatLong(data['latitude'], data['longitude'])
 
         location = Location(center)
-        updated = Date(str(data['last_updated']))
+
+        updated = Date(str(data['date']))
 
         hazard = Hazard(id, name, type, location, updated)
 
@@ -138,43 +132,17 @@ class Database:
             data = cursor.fetchall()
 
             for img in data:
-                image = Image(img['image_id'],
-                              img['hazard_id'],
-                              img['satellite_id'],
-                              img['image_type'],
-                              img['image_date'],
+                image = Image(img['id'],
+                              img['haz_id'],
+                              img['sat_id'],
+                              img['img_type'],
+                              img['img_date'],
                               img['raw_image_url'],
-                              img['tiff_image_url'],
+                              img['tif_image_url'],
                               img['mod_image_url'])
                 images.append(image)
 
-# Get Images, filtered
-#         with self.database.cursor() as cursor:
-#             sql = "SELECT * FROM `images` WHERE `haz_id`='{}' ".format(hazard_id)
-#             sql += " AND 'sat_id' IN ('{}') ".format(satellites)
-#             sql += " AND 'imagetype' ".format()
-#             sql += " AND 'daterange' ".format()
-#             sql += " ORDER BY 'img_id' DESC LIMIT '{}';".format(lastNimages)
-
-
-        cursor.execute(sql)  # Execute to the SQL statement
-        all_images = cursor.fetchall()
-        for image in all_images:
-            image_id = image['image_id']
-            hazard_id = image['hazard_id']
-            satellite_id = image['satellite_id']
-            image_type = image['image_type']
-            image_date = image['image_date']
-            raw_image_url = image['raw_image_url']
-            tif_image_url = image['tif_image_url']
-
-            temp = Image(image_id,hazard_id,satellite_id,image_type,image_date,\
-                   raw_image_url, tif_image_url)
-
-            images.append(temp)
-
-        target = Tuple(hazard, images)
-        return target
+        return (hazard, images)
 
     """
     All database insertion methods should take care to do the following:
@@ -278,7 +246,7 @@ class Database:
 
         id = int(image.image_id)
         haz_id = int(image.hazard_id)
-        sat_id = int(image.satellite_id)
+        sat_id = int(image.satellite.satellite_id.value)
         im_type = image.image_type.value
         im_date = image.image_date.to_integer()
         tif = image.tif_image_url.url
@@ -302,11 +270,11 @@ class Database:
 
 if __name__ == "__main__":
 
-    hazard = Hazard("200006", "Volcano2", HazardType.VOLCANOES, Location(LatLong(1.000, 1.000)), Date("19700101"))
-    satellite = Satellite("00006", "S4", False)
-    image = Image("6",
-                  "200003",
-                  "00003",
+    hazard = Hazard("200022", "Volcano2", HazardType.VOLCANO, Location(LatLong(1.000, 1.000)), Date("19700101"))
+    satellite = Satellite(SatelliteEnum(9), "S4", False)
+    image = Image("60",
+                  "200022",
+                  satellite,
                   ImageType.GEO_BACKSCATTER,
                   Date("19700105"),
                   ImageURL("/test.jpg"),
@@ -315,10 +283,18 @@ if __name__ == "__main__":
                   )
 
     db = Database()
-    sats = db.get_satellites_by_hazard_id("200006")
-    #db.create_new_image(image)
-    #db.create_new_satellite(satellite)
-    #earthquakes = db.get_hazards_by_type(hazard_type=HazardType.VOLCANOES)
-    #db.create_new_hazard(hazard)
 
+    volcanos = db.get_hazards_by_type(HazardType.VOLCANO)
+    print(volcanos)
+    sats = db.get_satellites_by_hazard_id("200006")
     print(sats)
+    imgs = db.get_hazard_data_by_hazard_id("200006", None)
+    print(imgs)
+
+    db.create_new_hazard(hazard)
+    db.create_new_satellite(satellite)
+    db.create_new_image(image)
+
+    db.close()
+
+    #print(sats)
