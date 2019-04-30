@@ -7,7 +7,7 @@ export default class MapViewComponent extends Component {
     constructor(){
 	super()
 	this.state = {
-	    lat: 25.5,
+	    lat: 25.5, // will pass actual variables
 	    lng: -80.5,
 	    zoom: 2
 	}
