@@ -1,0 +1,213 @@
+CSC 431 REST API Documentation
+This document describes the protocol for retrieving data from the backend. This API is how frontend will interact with the backend to retrieve data.
+Authentication
+This section is not applicable to the current state of the program. Possible future updates that require user credentials for certain functionality will populate this section with any relevant request handling by the code.
+
+Error Messages
+200
+
+SUCCESSFUL REQUEST
+
+There was a successful response to the user’s request.
+
+Example:
+
+$ curl -i <url.com>/api/volcanoes
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 627
+Server: Werkzeug/0.14.1 Python/3.6.7
+Date: Wed, 19 Mar 2019 18:22:27 GMT
+
+{
+  "hazards": [
+    {
+      "hazard_id": "VolcanoName0",
+      "last_updated": "05182019",
+      "location": {
+        "latitude": 0.0,
+        "longitude": 0.0
+      },
+      "name": "Volcano Name 0"
+    },
+    {
+      "hazard_id": "VolcanoName1",
+      "last_updated": "05182019",
+      "location": {
+        "latitude": 1.0,
+        "longitude": 1.0
+      },
+      "name": "Volcano Name 1"
+    },
+  ],
+  "type": "volcanoes"
+}
+
+
+
+400
+
+BAD REQUEST
+
+None of the following image types are supported: <image type(s)>
+
+Error occurs when the satellite(s) monitoring the specified hazard(s) does not possess the capability for the desired image type(s).
+
+None of the following satellites are supported: <satellite(s)>
+
+Error occurs when the satellite(s) requested does not monitor the hazard(s) specified by the user.
+
+404
+
+NOT FOUND
+
+Hazard type  <hazard> does not exist.
+
+Error occurs when a hazard other than volcanoes or earthquakes is called upon. 
+
+Example:
+
+$ curl -i "<url.com>/api/tornadoes"
+HTTP/1.0 404 NOT FOUND
+Content-Type: application/json
+Content-Length: 70
+Server: Werkzeug/0.14.1 Python/3.6.7
+Date: Wed, 20 Mar 2019 18:24:58 GMT
+
+{
+  "error": "404 Not Found: Hazard Type tornadoes does not exist."
+}
+
+
+
+
+
+
+500
+
+INTERNAL SERVER ERROR
+
+An unexpected internal error has occurred. Please contact support for more information.
+
+This error occurs when our server is experiencing a problem. If this error is encountered, please contact famelung@rsmas.miami.edu.
+
+501
+
+NOT IMPLEMENTED
+
+Hazard type  <hazard> does not exist.
+
+Error occurs when a hazard other than volcanoes or earthquakes is called upon.
+
+Resources
+Limited functionality of this API is currently supported at this URL: http://ec2-3-82-161-15.compute-1.amazonaws.com. 
+There are three endpoints:
+Hazards Summary Endpoint: This endpoint will be used by the hazard landing page
+URL
+/api/:hazard_type/
+Use Case
+Get all data for hazard landing page.
+The 2 supported hazard types are "volcanoes" and "earthquakes" 
+
+
+Method
+GET /api/<hazard_type>
+Notes
+The <earthquakes> hazard type is not currently implemented on the test server
+
+Hazard Data Endpoint: This endpoint will be used by the hazard information page.
+URL
+/api/:hazard_type/:hazard_id
+Use Case
+Get data for the hazard information page by hazard_id.
+The supported hazards are volcanoes and earthquakes. 
+Method
+GET /api/:hazard_type/:hazard_id
+Required URL Parameters
+'image_types'=List[geo_backscatter, geo_interferogram, ...]
+Any empty list of image_type(s) (i.e. not declaring the parameter) will retrieve all image types.
+The supported image types are: geo_backscatter, geo_coherence, geo_interferogram, ortho_backscatter, ortho_coherence, and ortho_interferogram
+Optional URL Parameters
+"satellites"=[<satellite_id>]
+An empty list of satellites
+"start_date"="mmddyyyy"
+"end_date"="mmddyyyy"
+"max_num_images"=Integer
+"last_n_days"=Integer 
+Successful Response
+$ curl -i "<url.com>/api/volcanoes/VolcanoName?image_types=ortho_interferogram,ortho_backscatter&max_num_images=2"
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 2012
+Server: Werkzeug/0.14.1 Python/3.6.7
+Date: Wed, 20 Mar 2019 18:46:41 GMT
+
+{
+  "hazard_id": "VolcanoName",
+  "hazard_name": "Volcano Name",
+  "images_by_satellite": {
+    "satellite_id0": {
+      "ortho_backscatter": [
+        {
+          "compressed_image_url": "/api/images/scatter03061999_compressed.jpg",
+          "date": "03061999",
+          "full_image_url": "/api/images/scatter03061999_full.jpg"
+        },
+        {
+          "compressed_image_url": "/api/images/scatter03061999_compressed.jpg",
+          "date": "03061999",
+          "full_image_url": "/api/images/scatter03061999_full.jpg"
+        }
+      ],
+      "ortho_interferogram": [
+        {
+          "compressed_image_url": "/api/images/scatter03061999_compressed.jpg",
+          "date": "03061999",
+          "full_image_url": "/api/images/scatter03061999_full.jpg"
+        },
+        {
+          "compressed_image_url": "/api/images/scatter03061999_compressed.jpg",
+          "date": "03061999",
+          "full_image_url": "/api/images/scatter03061999_full.jpg"
+        }
+      ]
+    },
+    "satellite_id1": {...}
+  },
+  "last_updated": "05182019",
+  "location": {
+    "latitude": 0.0,
+    "longitude": 0.0
+  }
+}
+Notes
+The last_n_days parameter can only be used if neither the start_date and end_date parameters are used.
+max_num_images will use the most recent images first.
+Images in the response content will be ordered chronologically with newest images first.
+Check out the first API endpoint: http://ec2-3-82-161-15.compute-1.amazonaws.com/api/volcanoes.
+Hazard Data Download Endpoint: This endpoint will be used by the hazard information page and possibly used independently to generate a zip download.
+URL
+/api/:hazard/download/:hazard_id
+Use Case
+Download data by hazard_id 
+Method
+GET
+Required URL Parameters
+"hazard_id"=Integer
+Optional URL Parameters
+"satellites"=[satellite_id]
+"start_date"="mmddyyyy"
+"end_date"="mmddyyyy"
+"max_num_images"=Integer
+"last_n_days"=Integer
+"dataType"=OneOf["GEOTIFF", "KMZ", "raw", "GIF"] 
+Success Response
+Link to file for download.
+
+Terms of Use
+Introduction
+Hello and welcome to the REST API Terms of Service!
+Thank you for using our platform for your hazard research interests. This is an ongoing effort to provide you with the most accurate up-to-date volcano and earthquake data. If you have any suggestions on how to improve our platform please contact us at famelung@rsmas.miami.edu. 
+
+Principle
+Our platform does not directly collect data from the hazard sources and therefore such findings should be accredited to their respective researcher(s) or institute. Legal use of the data follows the rules imposed by the respective observatory(ies) that the data was extracted from. We are simply a hub for convenience in hazard research purposes.
