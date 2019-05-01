@@ -6,10 +6,6 @@ const IMAGETYPE = ["Backscatter", "Interferogram", "Coherence"];
 const RECTIFICATION = ["Georectified", "Orthorectified"];
 
 class Sidebar extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   selectAllCheckboxes = isSelected => {
     Object.keys(this.props.checkboxes).forEach(checkbox => {
       this.props.action(checkbox, isSelected);

@@ -31,15 +31,14 @@ export default class HazardViewComponent extends Component {
   }
 
   filterHandler(filterToChange, value) {
-    Object.keys(this.state.filter).forEach(checkbox => {
-      this.setState(prevState => ({
-        hazardId: prevState.hazardId,
-        filter: {
-          ...prevState.filter,
-          [filterToChange]: value
-        }
-      }));
-    });
+    this.setState(prevState => ({
+      hazardId: prevState.hazardId,
+      filter: {
+        ...prevState.filter,
+        [filterToChange]: value
+      }
+    }));
+    console.log(filterToChange + " is " + value);
   }
 
   getParams(location) {
@@ -52,6 +51,42 @@ export default class HazardViewComponent extends Component {
     return filterData;
   }
 
+  setParams({ imageType = "", rectification = "" }) {
+    const searchParams = new URLSearchParams();
+    searchParams.set("imageType", imageType);
+    searchParams.set("rectification", rectification);
+    return searchParams.toString();
+  }
+
+  getUpdateURL = () => {
+    var imgTypes = "";
+    var rects = "";
+    IMAGETYPE.forEach(type => {
+      if (this.state.filter[type]) {
+        imgTypes = imgTypes.concat(type);
+        imgTypes = imgTypes.concat(",");
+      }
+    });
+
+    RECTIFICATION.forEach(type => {
+      if (this.state.filter[type]) {
+        rects = rects.concat(type);
+        rects = rects.concat(",");
+      }
+    });
+
+    const url = this.setParams({ imageType: imgTypes, rectification: rects });
+    return `?${url}`;
+  };
+
+  componentDidUpdate(prevProps) {
+    const url = this.getUpdateURL();
+    if (url !== prevProps.location.search) {
+      this.props.navigate(url);
+      console.log("URL Updating");
+    }
+  }
+
   updateFilters(filterData) {
     var options = [];
     filterData.forEach(string => {
@@ -59,8 +94,6 @@ export default class HazardViewComponent extends Component {
         options = options.concat(string.split(","));
       }
     });
-
-    console.log(options);
 
     if (options.length > 0) {
       Object.keys(this.state.filter).forEach(checkbox => {

@@ -30,11 +30,7 @@ class Images extends Component {
 
   printThumbnail = element => (
     <div class="col col-sm-auto col-md-auto col-lg-auto" key={Math.random()}>
-      <img
-        src={element.compressed_image_url}
-        class="img-thumbnail"
-        alt="Image"
-      />
+      <img src={element.compressed_image_url} class="img-thumbnail" alt="" />
     </div>
   );
 
@@ -52,6 +48,8 @@ class Images extends Component {
         return "Orthorectified Coherence";
       case "ortho_interferogram":
         return "Orthorectified Interferogram";
+      default:
+        console.log("Tried to match " + type);
     }
   };
 
@@ -94,7 +92,7 @@ class Images extends Component {
 
   createSatelliteSection = (satName, satellite) => (
     <div class="satellite-section" key={satName}>
-      <h2>{satName}</h2>
+      <h1>{satName}</h1>
       {this.printRows(satellite)}
     </div>
   );
