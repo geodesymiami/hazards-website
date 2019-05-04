@@ -1,6 +1,14 @@
 import React, { Component } from 'react'
-import './MapViewComponent.css'
 import {  Map, Marker, TileLayer, Popup } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet';
+delete L.Icon.Default.prototype._getIconUrl
+
+L.Icon.Default.mergeOptions({
+	iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+	    iconUrl: require('leaflet/dist/images/marker-icon.png'),
+	    shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+	    })
  
     type State ={
     lat: number,
@@ -13,7 +21,7 @@ import {  Map, Marker, TileLayer, Popup } from 'react-leaflet'
 	 this.state = {
 	    lat: 25.5,
 	    lng: -80.5,
-	    zoom: 2
+	    zoom: 3
 	}
 	}
 
@@ -21,11 +29,12 @@ import {  Map, Marker, TileLayer, Popup } from 'react-leaflet'
 	
         const position = [this.state.lat, this.state.lng];
 	return (
-            <div className='MapViewComponent'>
-	    <h1>Map View</h1>
-      	    <Map center = {position} zoom = {this.state.zoom}>
+	    <div className='MapViewComponent'>
+       	    <Map center = {position} zoom = {this.state.zoom} style={{width:'100%', height:'600px'}}>
 	    <TileLayer
-          attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+	    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+	    attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
+	    />
 	    <Marker position = {position}>
 	    <Popup>Popup 
 	    <br/> More information... 
@@ -33,7 +42,7 @@ import {  Map, Marker, TileLayer, Popup } from 'react-leaflet'
 	    </Marker>
 	    </Map>
 	       
-        </div>
+	    </div>
 		)
     }
  }
