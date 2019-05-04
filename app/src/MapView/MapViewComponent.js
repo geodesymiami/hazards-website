@@ -32,4 +32,4 @@ export default class MapViewComponent extends Component {
     }
 }
 
-ReactDOM.render(<MapViewComponent />, document.getElementById('root'))
+// ReactDOM.render(<MapViewComponent />, document.getElementById('root'))
