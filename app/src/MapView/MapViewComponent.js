@@ -9,13 +9,8 @@ L.Icon.Default.mergeOptions({
 	    iconUrl: require('leaflet/dist/images/marker-icon.png'),
 	    shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 	    })
- 
-    type State ={
-    lat: number,
-    lng: number,
-    zoom: number,
-}
-    export default class MapViewComponent extends Component<{},State> {
+
+export default class MapViewComponent extends Component {
 	constructor(){
 	 super()
 	 this.state = {
