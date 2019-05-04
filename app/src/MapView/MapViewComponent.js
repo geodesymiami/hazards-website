@@ -14,27 +14,30 @@ export default class MapViewComponent extends Component {
 	constructor(){
 	 super()
 	 this.state = {
-	    lat: 25.5,
-	    lng: -80.5,
-	    zoom: 3
+	     markers: [[51.5, -0.09], [52,-0.5]]
 	}
 	}
+    addMarker = (e) => {
+	const {markers} = this.state
+	markers.push(e.latlng)
+	this.setState({markers})
+    }
 
     render() {
-	
-        const position = [this.state.lat, this.state.lng];
+       
 	return (
 	    <div className='MapViewComponent'>
-       	    <Map center = {position} zoom = {this.state.zoom} style={{width:'100%', height:'600px'}}>
+       	    <Map center = {[51.505, -0.09]} zoom = {3} style={{width:'100%', height:'600px'}}>
 	    <TileLayer
 	    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 	    attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
 	    />
-	    <Marker position = {position}>
+		{this.state.markers.map((position, idx) =>
+					<Marker key={`marker-${idx}`} position = {position}>
 	    <Popup>Popup 
 	    <br/> More information... 
 	    </Popup>
-	    </Marker>
+	    </Marker>)}
 	    </Map>
 	       
 	    </div>
