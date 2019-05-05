@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./Images.css";
 import axios from "axios";
+import Gallery from "react-grid-gallery";
 
 class Images extends Component {
   constructor(props) {
@@ -16,6 +17,9 @@ class Images extends Component {
     this.setState({ filter: nextProps.filter });
   }
 
+  componentDidUpdate() {
+    console.log(this.state);
+  }
   componentDidMount() {
     var id = this.props.id;
     axios
@@ -30,7 +34,7 @@ class Images extends Component {
 
   printThumbnail = element => (
     <div class="col col-sm-auto col-md-auto col-lg-auto" key={Math.random()}>
-      <img src={element.compressed_image_url} class="img-thumbnail" alt="" />
+      <Gallery images={this.createArray(element)} />
     </div>
   );
 
@@ -53,10 +57,25 @@ class Images extends Component {
     }
   };
 
+  createArray(type) {
+    const IMAGES = [];
+    console.log(type);
+    type.map(img => {
+      var obj = {
+        src: img.full_image_url,
+        thumbnail: img.compressed_image_url
+      };
+
+      IMAGES.push(obj);
+    });
+    console.log(IMAGES);
+    return IMAGES;
+  }
+
   printRow = (satellite, type) => (
     <div class="image-type-section" key={satellite + this.printName(type)}>
       <h3>{this.printName(type)}</h3>
-      <div class="row">{satellite[type].map(this.printThumbnail)}</div>
+      <div class="row">{this.printThumbnail(satellite[type])}</div>
     </div>
   );
 
@@ -91,7 +110,7 @@ class Images extends Component {
   };
 
   createSatelliteSection = (satName, satellite) => (
-    <div class="satellite-section" key={satName}>
+    <div class="satellite-section " key={satName}>
       <h1>{satName}</h1>
       {this.printRows(satellite)}
     </div>

@@ -83,7 +83,8 @@ export default class HazardViewComponent extends Component {
     const url = this.getUpdateURL();
     if (url !== prevProps.location.search) {
       this.props.navigate(url);
-      console.log("URL Updating");
+      console.log("Filters Updating");
+      console.log(this.props);
     }
   }
 
