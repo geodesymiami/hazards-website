@@ -1,14 +1,18 @@
-CREATE DATABASE hazards; //creates database
+***mySQL code creating the database with all necesary tables***
 
-USE hazards; //chooses database
+--all data is pretty much self expenatory, the main designation of each table is described
 
-CREATE TABLE satellites (  // creates table
+CREATE DATABASE hazards; --//--creates database hazards
+
+USE hazards; --//--chooses database hazards -- it is reqired in order to interact with the chosen database
+
+CREATE TABLE satellites (  --//-- creates table storing satellites
 sat_id 		CHAR(16),
 sat_name 	VARCHAR(50) NOT NULL,
 ascending 	VARCHAR(10) NOT NULL,
 PRIMARY KEY (sat_id));
 
-CREATE TABLE hazard (
+CREATE TABLE hazard ( --// table allocatef for volcanos, earthquakes and non-hazards
 haz_id 		CHAR(16),
 haz_type 	ENUM('volcano', 'earthquake', 'non_hazard') NOT NULL,
 haz_name 	VARCHAR(30) NOT NULL,
@@ -16,7 +20,7 @@ location 	VARCHAR(50) NOT NULL,
 haz_date 	DATETIME,
 PRIMARY KEY(haz_id));
 
-CREATE TABLE image(
+CREATE TABLE image( --//table storing images assigned to particular (non)hazard
 img_id CHAR(16),
 img_date DATETIME,
 haz_id CHAR(30),
