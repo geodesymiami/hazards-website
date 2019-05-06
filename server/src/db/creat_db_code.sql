@@ -1,8 +1,8 @@
-CREATE DATABASE hazards;
+CREATE DATABASE hazards; //creates database
 
-USE hazards;
+USE hazards; //chooses database
 
-CREATE TABLE satellites ( 
+CREATE TABLE satellites (  // creates table
 sat_id 		CHAR(16),
 sat_name 	VARCHAR(50) NOT NULL,
 ascending 	VARCHAR(10) NOT NULL,
