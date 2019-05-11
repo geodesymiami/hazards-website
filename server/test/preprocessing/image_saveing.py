@@ -19,18 +19,16 @@ def save_image_local(image, output_file):
     image.save(output_file)
     return output_file
 
-def save_image_s3(image, local_file, s3_file):
 
+def save_image_s3(local_file, s3_file):
     ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
     SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
     BUCKET = config.get_config_var("aws_s3", "bucket_name")
 
-    local = save_image_local(image, local_file)
-
     s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
 
     try:
-        s3.upload_file(local, BUCKET, s3_file)
+        s3.upload_file(local_file, BUCKET, s3_file)
         os.remove(local_file)
     except ClientError:
         print("Client Error")
@@ -43,6 +41,20 @@ def save_image_s3(image, local_file, s3_file):
     return object_url
 
 
+def move_tif(original, new):
+    ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
+    SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
+    BUCKET = config.get_config_var("aws_s3", "bucket_name")
+
+    s3 = boto3.resource('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
+    s3.Object(BUCKET, new).copy_from(CopySource='{}/{}'.format(BUCKET, original))
+    s3.Object(BUCKET, original).delete()
+
+    # bucket_location = s3.get_bucket_location(Bucket=BUCKET)
+
+    object_url = "https://s3-us-east-2.amazonaws.com/{0}/{1}".format(BUCKET, new)
+
+    return object_url
 
 
 if __name__ == "__main__":
@@ -56,3 +68,4 @@ if __name__ == "__main__":
     save_image_local(im, "/Users/joshua/Desktop/test2.png")
     url = save_image_s3(im, "/Users/joshua/Desktop/test2.png", "test2.png")
     print(url)
+
