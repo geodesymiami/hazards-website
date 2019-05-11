@@ -64,15 +64,15 @@ def pull_summary_data(file_path):
 	volcano_id = volcano["Volcano Number"]
 	volcano_name = volcano["Volcano Name"]
 
-	band = ds.GetRasterBand(1)
+    band = ds.GetRasterBand(1)
 
 	satellite_name = band.GetMetadataItem('SAT')
 	sat_direction = band.GetMetadataItem('Mode')
 	image_type = band.GetMetadataItem('Image Type')
 	image_date = band.GetMetadataItem('Date')
 
-	return volcano_id, volcano_name, satellite_name, sat_direction, image_type, image_date, center_coords
+    return volcano_id, volcano_name, satellite_name, sat_direction, image_type, image_date, center_coords
 
 
 if __name__ == "__main__":
-	print(pull_summary_data(sys.argv[1]))
+    print(pull_summary_data(sys.argv[1]))
