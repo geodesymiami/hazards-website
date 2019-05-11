@@ -92,21 +92,23 @@ if __name__ == "__main__":
         print(full_path_aws)
         print(tif_path_aws)
 
-        # hazard = Hazard(haz_id, haz_name, HazardType.VOLCANO, Location(LatLong(center[0], center[1])), Date(img_date))
-        # sat_id = SatelliteEnum.from_string(sat_name)
-        # satellite = Satellite(sat_id, sat_dir)
-        # image = Image(str(randint(1, 10000000)),
-        #               haz_id,
-        #               satellite,
-        #               ImageType.from_string(img_type),
-        #               Date(img_date),
-        #               ImageURL(mod_path.format(img_date)),
-        #               ImageURL(full_path.format(img_date)),
-        #               ImageURL(file_path))
-        #
-        # db = Database()
-        # db.create_new_hazard(hazard)
-        # db.create_new_satellite(satellite)
-        # db.create_new_image(image)
-        # db.close()
+        hazard = Hazard(haz_id, haz_name, HazardType.VOLCANO, Location(LatLong(center[0], center[1])), Date(img_date))
+        sat_id = SatelliteEnum.from_string(sat_name)
+        satellite = Satellite(sat_id, sat_dir)
+        image = Image(str(randint(1, 10000000)),
+                      haz_id,
+                      satellite,
+                      ImageType.from_string(img_type),
+                      Date(img_date),
+                      ImageURL(full_path_aws),
+                      ImageURL(tif_path_aws),
+                      ImageURL(mod_path_aws))
+
+        db = Database()
+        db.create_new_hazard(hazard)
+        db.create_new_satellite(satellite)
+        db.create_new_image(image)
+        db.close()
+
+        # print(im)
 
