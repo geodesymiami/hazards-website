@@ -1,19 +1,25 @@
 from osgeo import gdal
 import sys
 import pandas as pd
+import server.src.config as config
 from server.src.types import *
 
-def get_id_from_coords(lat, lon):
 
-	all_volcanos = pd.read_csv("/Users/joshua/Desktop/insarlab/hazards-website/GVP_Volcano_List_Holocene.csv")
-	
-	lats = all_volcanos['Latitude']
-	lons = all_volcanos['Longitude']
-	
-	volcanos_sorted = all_volcanos.ix[(lats-lat).abs().argsort()]
-	
-	return all_volcanos.iloc[volcanos_sorted.index[0]]
-	
+def get_id_from_coords(lat, lon):
+    all_volcanos = pd.read_csv("/Users/joshua/Desktop/insarlab/hazards-website/GVP_Volcano_List_Holocene.csv")
+
+    lats = all_volcanos['Latitude']
+
+    lat_sorted = all_volcanos.ix[(lats - lat).abs().argsort()]
+    lat_sorted = lat_sorted[:10]
+    lat_sorted = lat_sorted.reset_index(drop=True)
+
+    lons = lat_sorted['Longitude']
+
+    lon_sorted = lat_sorted.ix[(lons - lon).abs().argsort()]
+
+    return all_volcanos.loc[all_volcanos['Volcano Number'] == lon_sorted.iloc[0]['Volcano Number']]
+
 
 def get_date_from_file(file_path):
 	file_name = os.path.splitext(file_path)[0]
@@ -43,7 +49,6 @@ def get_bounding_box(ul_coords, x, y):
 	center_coords = (center_lat, center_lon)
 	
 	return ul_coords_n, ur_coords, bl_coords, br_coords, center_coords
-
 
 
 def pull_summary_data(file_path):
