@@ -84,12 +84,10 @@ class Database:
 
         satellites = []
         for sat in result:
-
             satellite = Satellite(sat['id'], sat['name'], True if sat['ascending'] is 1 else False)
             satellites.append(satellite)
 
         return satellites
-
 
     def get_hazard_data_by_hazard_id(self, hazard_id: str, filter: HazardInfoFilter) -> Tuple[Hazard, List[Image]]:
         """
@@ -191,7 +189,6 @@ class Database:
         except pymysql.err.IntegrityError as e:
             print(e)
 
-
     def create_new_satellite(self, satellite: Satellite):
         """
         Inserts a satellite object into the database `satellites` table. The `satellite` object's parameters
@@ -207,7 +204,7 @@ class Database:
         """
 
         id = satellite.satellite_id.value
-        name = satellite.satellite_name
+        name = satellite.satellite_id.to_string()
         asc = 1 if satellite.ascending else 0
         try:
             with self.database.cursor() as cursor:
@@ -258,7 +255,7 @@ class Database:
             with self.database.cursor() as cursor:
                 sql = "INSERT INTO `images` " \
                       "(`id`, `haz_id`, `sat_id`, `img_date`, `img_type`, `tif_image_url`, `raw_image_url`, `mod_image_url`) " \
-                      "VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')"\
+                      "VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')" \
                     .format(id, haz_id, sat_id, im_date, im_type, tif, raw, mod)
 
                 cursor.execute(sql)
@@ -269,7 +266,6 @@ class Database:
 
 
 if __name__ == "__main__":
-
     hazard = Hazard("200022", "Volcano2", HazardType.VOLCANO, Location(LatLong(1.000, 1.000)), Date("19700101"))
     satellite = Satellite(SatelliteEnum(9), "S4", False)
     image = Image("60",
