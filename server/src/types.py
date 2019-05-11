@@ -40,7 +40,6 @@ class ImageType(Enum):
     ORTHO_COHERENCE       = 5
     ORTHO_INTERFEROGRAM   = 6
 
-
     @classmethod
     def from_string(cls, string: str) -> "ImageType":
         upper_string = string.upper()
@@ -49,21 +48,20 @@ class ImageType(Enum):
         else:
             raise ValueError("{} is not a valid image type".format(string))
 
-
     def to_string(self) -> str:
         return self.name.lower()
 
 
 class SatelliteEnum(Enum):
-    ERS   = 1
-    ENV   = 2
-    S1    = 3
-    RS1   = 4
-    RS2   = 5
-    CSK   = 6
-    TSX   = 7
-    JERS  = 8
-    ALOS  = 9
+    ERS = 1
+    ENV = 2
+    S1A = 3
+    RS1 = 4
+    RS2 = 5
+    CSK = 6
+    TSX = 7
+    JERS = 8
+    ALOS = 9
     ALOS2 = 10
     NISAR = 11
 
@@ -155,7 +153,7 @@ class ImageURL():
     def is_valid_url(self, url):
         valid_extensions = [".jpg", ".png", ".tif", ".gif"]
         filename, file_extension = os.path.splitext(url)
-        if filename[0] is not "/" or file_extension not in valid_extensions:
+        if file_extension not in valid_extensions:
             return False
         return True
 
