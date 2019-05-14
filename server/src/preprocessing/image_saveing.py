@@ -1,5 +1,5 @@
-import server.test.preprocessing.image_manipulation as immanip
-import server.src.config as config
+import server.src.preprocessing.image_manipulation as immanip
+import server.src.config.config as config
 import boto3
 import os
 from botocore.exceptions import ClientError
@@ -15,15 +15,16 @@ from botocore.exceptions import ClientError
 
 """
 
+ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
+SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
+BUCKET = config.get_config_var("aws_s3", "bucket_name")
+
 def save_image_local(image, output_file):
     image.save(output_file)
     return output_file
 
 
 def save_image_s3(local_file, s3_file):
-    ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
-    SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
-    BUCKET = config.get_config_var("aws_s3", "bucket_name")
 
     s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
 
@@ -42,9 +43,6 @@ def save_image_s3(local_file, s3_file):
 
 
 def move_tif(original, new):
-    ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
-    SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
-    BUCKET = config.get_config_var("aws_s3", "bucket_name")
 
     s3 = boto3.resource('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
     s3.Object(BUCKET, new).copy_from(CopySource='{}/{}'.format(BUCKET, original))

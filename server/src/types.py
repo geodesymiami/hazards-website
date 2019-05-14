@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 class HazardType(Enum):
-    VOLCANO    = 1
+    VOLCANO     = 1
     EARTHQUAKE  = 2
 
     @classmethod
@@ -33,12 +33,12 @@ class HazardType(Enum):
 
 
 class ImageType(Enum):
-    GEO_BACKSCATTER       = 1
-    GEO_COHERENCE         = 2
-    GEO_INTERFEROGRAM     = 3
-    ORTHO_BACKSCATTER     = 4
-    ORTHO_COHERENCE       = 5
-    ORTHO_INTERFEROGRAM   = 6
+    GEO_BACKSCATTER     = 1
+    GEO_COHERENCE       = 2
+    GEO_INTERFEROGRAM   = 3
+    ORTHO_BACKSCATTER   = 4
+    ORTHO_COHERENCE     = 5
+    ORTHO_INTERFEROGRAM = 6
 
     @classmethod
     def from_string(cls, string: str) -> "ImageType":
@@ -101,7 +101,7 @@ class Date:
             self.date = date
         else:
             raise ValueError("The date {0} is not a valid date of the form \"YYYYMMDD\"".format(date))
-    
+
     @classmethod
     def is_valid_date(self, possible_date: str):
         """
@@ -121,6 +121,7 @@ class Date:
     def get_today(cls):
         return Date(datetime.now().strftime("%Y%m%d"))
 
+
 class DateRange:
     """
     This class is used for filtering images by a range of dates.
@@ -137,6 +138,7 @@ class DateRange:
     def date_in_range(self, date: Date):
         end_date = self.end if self.end != None else Date.get_today()
         return int(self.start) <= int(date.date) <= int(end_date)
+
 
 class ImageURL():
     """
@@ -214,8 +216,8 @@ class Satellite:
             asc_or_desc = 'both'
 
         sat_enum = SatelliteEnum.from_string(sat_id)
-        asc_satellite = Satellite(satellite_id=sat_enum, satellite_name="", ascending=True)
-        desc_satellite = Satellite(satellite_id=sat_enum, satellite_name="", ascending=False)
+        asc_satellite = Satellite(satellite_id=sat_enum, ascending=True)
+        desc_satellite = Satellite(satellite_id=sat_enum, ascending=False)
 
         if asc_or_desc == 'both':
             return asc_satellite, desc_satellite
@@ -256,8 +258,8 @@ class Image:
     raw_image_url: ImageURL
     tif_image_url: ImageURL
     modified_image_url: ImageURL
-    
-    
+
+
 class HazardInfoFilter:
     """
     self.satellites: Optional[List[Satellite]]

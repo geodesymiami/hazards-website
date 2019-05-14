@@ -1,5 +1,5 @@
 from server.src.types import *
-import server.src.config as config
+import server.src.config.config as config
 import pymysql.cursors
 
 
@@ -43,7 +43,7 @@ class Database:
         self.database.close()
 
     def get_hazards_by_type(self, haz_type: HazardType) -> List[Hazard]:
-        
+
         """
         Returns a list of Hazard of a given HazardType.
 
@@ -63,7 +63,7 @@ class Database:
             type = HazardType.from_string(item['type'])
             location = Location(LatLong(item['latitude'], item['longitude']))
             last_updated = Date(str(item['date']))
-            
+
             hazard = Hazard(id, name, type, location, last_updated)
             hazards.append(hazard)
 
@@ -84,7 +84,9 @@ class Database:
 
         satellites = []
         for sat in result:
-            satellite = Satellite(sat['id'], sat['name'], True if sat['ascending'] is 1 else False)
+            id = sat['id']//10
+            asc = sat['ascending'] % 10
+            satellite = Satellite(id, True if asc is 1 else False)
             satellites.append(satellite)
 
         return satellites
@@ -206,11 +208,14 @@ class Database:
         id = satellite.satellite_id.value
         name = satellite.satellite_id.to_string()
         asc = 1 if satellite.ascending else 0
+
+        new_id = int(str(id)+str(asc))
+
         try:
             with self.database.cursor() as cursor:
                 sql = "INSERT INTO `satellites` " \
                       "(`id`, `name`, `ascending`) " \
-                      "VALUES ('{}', '{}', '{}')".format(id, name, asc)
+                      "VALUES ('{}', '{}', '{}')".format(new_id, name, asc)
 
                 cursor.execute(sql)
 
@@ -243,7 +248,7 @@ class Database:
 
         id = int(image.image_id)
         haz_id = int(image.hazard_id)
-        sat_id = int(image.satellite.satellite_id.value)
+        sat_id = int(str(image.satellite.satellite_id.value)+str(int(image.satellite.ascending)))
         im_type = image.image_type.value
         im_date = image.image_date.to_integer()
         tif = image.tif_image_url.url
@@ -267,7 +272,7 @@ class Database:
 
 if __name__ == "__main__":
     hazard = Hazard("200022", "Volcano2", HazardType.VOLCANO, Location(LatLong(1.000, 1.000)), Date("19700101"))
-    satellite = Satellite(SatelliteEnum(9), "S4", False)
+    satellite = Satellite(SatelliteEnum(9), False)
     image = Image("60",
                   "200022",
                   satellite,
@@ -293,4 +298,4 @@ if __name__ == "__main__":
 
     db.close()
 
-    #print(sats)
+    # print(sats)

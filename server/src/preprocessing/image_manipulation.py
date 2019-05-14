@@ -53,8 +53,3 @@ if __name__ == "__main__":
     im = add_text_to_image(im, "Test Text 2")
 
     im.save("/Users/joshua/Desktop/new.jpg")
-
-    # for i in range(1, 11, 1):
-    #     im = Image.open("/Users/joshua/Desktop/test.png")
-    #     im = compress_image("/Users/joshua/Desktop/test.png", compression_amount=i/10)
-    #     im.save("/Users/joshua/Desktop/new_{}.jpg".format(i))

@@ -1,7 +1,7 @@
 from osgeo import gdal
 import sys
 import pandas as pd
-import server.src.config as config
+import server.src.config.config as config
 from server.src.types import *
 
 

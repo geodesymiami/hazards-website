@@ -1,23 +1,21 @@
 import rasterio
 import rasterio.plot as plot
 import boto3
-from datetime import timedelta, datetime, timezone
-import time
-import os
+from datetime import timedelta, timezone
 from random import randint
 
 from server.src.db.database import Database
-import server.test.preprocessing.summary as summary
-import server.test.preprocessing.image_manipulation as immanip
-import server.test.preprocessing.image_saveing as save
-import server.src.config as config
+import server.src.preprocessing.summary as summary
+import server.src.preprocessing.image_manipulation as immanip
+import server.src.preprocessing.image_saveing as save
+import server.src.config.config as config
 from server.src.types import *
 
+ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
+SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
+BUCKET_NAME = config.get_config_var("aws_s3", "bucket_name")
 
 def get_list_of_images():
-    ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
-    SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
-    BUCKET_NAME = config.get_config_var("aws_s3", "bucket_name")
 
     s3 = boto3.resource('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
     bucket = s3.Bucket(BUCKET_NAME)
@@ -109,6 +107,4 @@ if __name__ == "__main__":
         db.create_new_satellite(satellite)
         db.create_new_image(image)
         db.close()
-
-        # print(im)
 
