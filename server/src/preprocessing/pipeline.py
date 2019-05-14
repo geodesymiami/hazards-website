@@ -8,8 +8,8 @@ from server.src.db.database import Database
 import server.src.preprocessing.summary as summary
 import server.src.preprocessing.image_manipulation as immanip
 import server.src.preprocessing.image_saveing as save
-import server.src.config.config as config
-from server.src.types import *
+import server.src.common.config.config as config
+from server.src.common.types import *
 
 ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
 SECRET_KEY = config.get_config_var("aws_s3", "secret_key")

@@ -1,5 +1,5 @@
-from server.src.types import *
-import server.src.config.config as config
+from server.src.common.types import *
+import server.src.common.config.config as config
 import pymysql.cursors
 
 

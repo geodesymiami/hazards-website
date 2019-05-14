@@ -1,12 +1,10 @@
 from flask import Flask
 from flask import request
 from flask import abort, jsonify
-from typing import Set, Union, List
 
 app = Flask(__name__)
 
-from server.src.db import database
-from server.src.types import *
+from server.src.common.types import *
 
 
 @app.route('/api/<string:hazard_type_param>', methods=['GET'])

@@ -1,5 +1,5 @@
 import server.src.preprocessing.image_manipulation as immanip
-import server.src.config.config as config
+import server.src.common.config.config as config
 import boto3
 import os
 from botocore.exceptions import ClientError

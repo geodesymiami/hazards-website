@@ -1,7 +1,0 @@
-dataclasses
-flask
-pandas
-gdal
-PIL
-matplotlib
-numpy

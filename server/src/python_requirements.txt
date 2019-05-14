@@ -1,0 +1,11 @@
+dataclasses
+boto3
+botocore
+flask
+gdal
+matplotlib
+pandas
+pillow
+pymysql
+rasterio
+

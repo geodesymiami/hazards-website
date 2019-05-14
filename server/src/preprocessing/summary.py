@@ -1,8 +1,8 @@
 from osgeo import gdal
 import sys
 import pandas as pd
-import server.src.config.config as config
-from server.src.types import *
+import server.src.common.config.config as config
+from server.src.common.types import *
 
 
 def get_id_from_coords(lat, lon):
