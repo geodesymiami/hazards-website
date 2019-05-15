@@ -1,7 +1,8 @@
-import server.src.preprocessing.image_manipulation as immanip
-import server.src.common.config.config as config
-import boto3
+import image_manipulation as immanip
 import os
+
+from common.config import config
+import boto3
 from botocore.exceptions import ClientError
 
 """

@@ -1,9 +1,12 @@
 from osgeo import gdal
 import sys
 import pandas as pd
-import server.src.common.config.config as config
-from server.src.common.types import *
 
+import common.config.config as config
+from common.types import *
+
+ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
+SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
 
 def get_id_from_coords(lat, lon):
     all_volcanos = pd.read_csv("/Users/joshua/Desktop/insarlab/hazards-website/GVP_Volcano_List_Holocene.csv")
@@ -53,8 +56,6 @@ def get_bounding_box(ul_coords, x, y):
 
 
 def pull_summary_data(file_path):
-    ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
-    SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
 
     gdal.SetConfigOption('AWS_REGION', 'us-east-2')
     gdal.SetConfigOption('AWS_SECRET_ACCESS_KEY', SECRET_KEY)

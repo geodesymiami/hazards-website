@@ -1,15 +1,17 @@
-import rasterio
-import rasterio.plot as plot
 import boto3
 from datetime import timedelta, timezone
 from random import randint
+import rasterio
+import rasterio.plot as plot
 
-from server.src.db.database import Database
-import server.src.preprocessing.summary as summary
-import server.src.preprocessing.image_manipulation as immanip
-import server.src.preprocessing.image_saveing as save
-import server.src.common.config.config as config
-from server.src.common.types import *
+from common.database import Database
+from common.config import config
+from common.types import *
+
+import summary as summary
+import image_manipulation as immanip
+import image_saveing as save
+
 
 ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
 SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
