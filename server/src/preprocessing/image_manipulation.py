@@ -26,7 +26,7 @@ def add_text_to_image(image, text):
     pad_img, width, height = pad_image(image)
 
     loc = (round(width - (len(text) * round(height / 20)) * 1.5), 5)
-    font = ImageFont.truetype("/Library/Fonts/arial.ttf", int(round(height / 20)))  # Font Size should fill the white bar
+    font = ImageFont.truetype("resources/arial.ttf", int(round(height / 20)))  # Font Size should fill the white bar
 
     pad_img.paste(image, (0, round(height / 12)))
     draw = ImageDraw.Draw(pad_img)

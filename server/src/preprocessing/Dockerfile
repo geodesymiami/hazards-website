@@ -1,19 +1,20 @@
 FROM continuumio/miniconda3
 
 # Should be /home/amelung/hazards on Jetstream
-ENV COMMON_DIR src/common
-ENV REQUIREMENTS src/python_requirements.txt
 ENV WORKDIR src/preprocessing
+ENV COMMON_DIR src/common
+ENV RESOURCES_DIR $WORKDIR/resources
+ENV REQUIREMENTS $RESOURCES_DIR/requirements.txt
 
-WORKDIR ${WORKDIR}
+WORKDIR dataprocessing
 
-ADD $REQUIREMENTS $WORKDIR/requirements.py
-RUN conda install --yes --file $WORKDIR/requirements.py
+ADD $REQUIREMENTS requirements.txt
+RUN conda install --yes --file requirements.txt
+
+COPY $WORKDIR .
+COPY $COMMON_DIR common
+COPY $RESOURCES_DIR resources
+
 RUN export PYTHONPATH="$PYTHONPATH:$COMMON_DIR"
 
-
-COPY $WORKDIR $WORKDIR
-COPY src/common $WORKDIR/common
-
-CMD ["pwd"]
-CMD ["python", "src/preprocessing/pipeline.py"]
+CMD ["python", "pipeline.py"]

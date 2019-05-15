@@ -9,7 +9,10 @@ ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
 SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
 
 def get_id_from_coords(lat, lon):
-    all_volcanos = pd.read_csv("/Users/joshua/Desktop/insarlab/hazards-website/GVP_Volcano_List_Holocene.csv")
+
+    path = os.path.abspath("resources/volcanos.csv")
+
+    all_volcanos = pd.read_csv(path)
 
     lats = all_volcanos['Latitude']
 
