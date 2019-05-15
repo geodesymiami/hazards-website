@@ -1,9 +1,19 @@
 FROM continuumio/miniconda3
 
-RUN conda install boto3 botocore gdal matplotlib pandas pillow pymysql rasterio
+# Should be /home/amelung/hazards on Jetstream
+ENV COMMON_DIR src/common
+ENV REQUIREMENTS src/python_requirements.txt
+ENV WORKDIR src/preprocessing
 
-WORKDIR /processing
+WORKDIR ${WORKDIR}
 
-COPY . /processing
+ADD $REQUIREMENTS $WORKDIR/requirements.py
+RUN conda install --yes --file $WORKDIR/requirements.py
+RUN export PYTHONPATH="$PYTHONPATH:$COMMON_DIR"
 
-CMD ["python", "pipeline.py"]
+
+COPY $WORKDIR $WORKDIR
+COPY src/common $WORKDIR/common
+
+CMD ["pwd"]
+CMD ["python", "src/preprocessing/pipeline.py"]
