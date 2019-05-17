@@ -1,3 +1,5 @@
+import time
+
 from .types import *
 from .config import config
 import pymysql.cursors
@@ -25,19 +27,30 @@ class Database:
 
         """
 
-        self.HOST = config.get_config_var("database", "host")
+        self.HOST = config.get_config_var("database", "localhost")
         self.USER = config.get_config_var("database", "user")
         self.PASSWORD = config.get_config_var("database", "password")
         self.DATABASE = config.get_config_var("database", "database")
-        self.PORT = config.get_config_var("database", "port")
+        self.PORT = config.get_config_var("database", "localport")
 
-        self.database = pymysql.connect(host=self.HOST,
-                                        user=self.USER,
-                                        password=self.PASSWORD,
-                                        db=self.DATABASE,
-                                        port=self.PORT,
-                                        charset='utf8mb4',
-                                        cursorclass=pymysql.cursors.DictCursor)
+        max_attempts = config.get_config_var("database", "attempts")
+        delay = config.get_config_var("database", "attempt_delay")
+
+        for i in range(max_attempts):
+            print('Trying to connect to database')
+            try:
+                self.database = pymysql.connect(host=self.HOST,
+                                                user=self.USER,
+                                                password=self.PASSWORD,
+                                                db=self.DATABASE,
+                                                port=self.PORT,
+                                                charset='utf8mb4',
+                                                cursorclass=pymysql.cursors.DictCursor)
+                break
+            except:
+                print("Failed {} times".format(i+1))
+
+            time.sleep(delay)
 
     def close(self):
         self.database.close()
@@ -113,6 +126,7 @@ class Database:
             cursor.execute(sql)  # Execute to the SQL statement
             data = cursor.fetchall()
 
+        print(data)
         data = data[0]
         id = data['id']
         name = data['name']
