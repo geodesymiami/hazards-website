@@ -62,7 +62,7 @@ class Database:
             name = item['name']
             type = HazardType.from_string(item['type'])
             location = Location(LatLong(item['latitude'], item['longitude']))
-            last_updated = Date(str(item['date']))
+            last_updated = Date(str(item['updated']))
 
             hazard = Hazard(id, name, type, location, last_updated)
             hazards.append(hazard)
@@ -121,7 +121,7 @@ class Database:
 
         location = Location(center)
 
-        updated = Date(str(data['date']))
+        updated = Date(str(data['updated']).replace("-", ""))
 
         hazard = Hazard(id, name, type, location, updated)
 
@@ -132,14 +132,20 @@ class Database:
             data = cursor.fetchall()
 
             for img in data:
+                sat_id = int(img['sat_id']) // 10
+                sat_asc = int(img['sat_id']) % 10
+                print(sat_id)
+                print(sat_asc)
+                sat = Satellite(SatelliteEnum(sat_id), True if sat_asc == 1 else False)
                 image = Image(img['id'],
                               img['haz_id'],
-                              img['sat_id'],
-                              img['img_type'],
-                              img['img_date'],
-                              img['raw_image_url'],
-                              img['tif_image_url'],
-                              img['mod_image_url'])
+                              sat,
+                              ImageType.from_string(img['img_type']),
+                              Date(img['img_date'].strftime("%Y%m%d")),
+                              ImageURL(img['raw_image_url']),
+                              ImageURL(img['tif_image_url']),
+                              ImageURL(img['mod_image_url'])
+                              )
                 images.append(image)
 
         return (hazard, images)
