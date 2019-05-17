@@ -14,8 +14,8 @@ CREATE TABLE hazards ( -- table allocated for volcanoes, earthquakes and non-haz
     `id` 		    CHAR(6),
     `type` 	        ENUM('volcano', 'earthquake', 'non_hazard') NOT NULL,
     `name`	        VARCHAR(30) NOT NULL,
-    `latitude` 	    VARCHAR(50) NOT NULL,
-    `longitude`     VARCHAR(50) NOT NULL,
+    `latitude` 	    float NOT NULL,
+    `longitude`     float NOT NULL,
     `updated` 	    DATE,
     PRIMARY KEY(`id`)
 );
@@ -32,7 +32,7 @@ CREATE TABLE images ( -- table storing images assigned to particular hazard
                         'ortho_backscatter',
                         'ortho_coherence',
                         'ortho_interferogram') NOT NULL,
-    `raw_img_url`    VARCHAR(200) NOT NULL,
+    `raw_image_url`    VARCHAR(200) NOT NULL,
     `mod_image_url`  VARCHAR(200) NOT NULL,
     `tif_image_url`  VARCHAR(200) NOT NULL,
     PRIMARY KEY(`id`),
