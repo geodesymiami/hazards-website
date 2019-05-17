@@ -196,17 +196,17 @@ class Database:
 
         print(hazard)
 
-        id = int(hazard.hazard_id)
+        id = hazard.hazard_id
         name = hazard.name
         haz_type = hazard.hazard_type.value
         lat = hazard.location.center.lat
         lon = hazard.location.center.long
-        updated = hazard.last_updated.to_integer()
+        updated = datetime.strptime(hazard.last_updated.date, "%Y%m%d")
 
         try:
             with self.database.cursor() as cursor:
                 sql = "INSERT INTO `hazards` " \
-                      "(`id`, `name`, `type`, `latitude`, `longitude`, `date`) " \
+                      "(`id`, `name`, `type`, `latitude`, `longitude`, `updated`) " \
                       "VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(id, name, haz_type, lat, lon, updated)
 
                 cursor.execute(sql)
@@ -238,7 +238,7 @@ class Database:
         try:
             with self.database.cursor() as cursor:
                 sql = "INSERT INTO `satellites` " \
-                      "(`id`, `name`, `ascending`) " \
+                      "(`id`, `name`, `direction`) " \
                       "VALUES ('{}', '{}', '{}')".format(new_id, name, asc)
 
                 cursor.execute(sql)
@@ -270,11 +270,11 @@ class Database:
         :returns DatabaseSuccess
         """
 
-        id = int(image.image_id)
-        haz_id = int(image.hazard_id)
-        sat_id = int(str(image.satellite.satellite_id.value)+str(int(image.satellite.ascending)))
+        id = image.image_id
+        haz_id = image.hazard_id
+        sat_id = str(image.satellite.satellite_id.value)+str(int(image.satellite.ascending))
         im_type = image.image_type.value
-        im_date = image.image_date.to_integer()
+        im_date = datetime.strptime(image.image_date.date, "%Y%m%d")
         tif = image.tif_image_url.url
         raw = image.raw_image_url.url
         mod = image.modified_image_url.url

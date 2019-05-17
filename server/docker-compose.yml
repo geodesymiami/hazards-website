@@ -16,3 +16,10 @@ services:
         MYSQL_ROOT_PASSWORD: root
       volumes:
         - ./src/db:/docker-entrypoint-initdb.d/:ro
+  processing:
+      build:
+        context: .
+        dockerfile: src/preprocessing/Dockerfile
+      links:
+        - db
+
