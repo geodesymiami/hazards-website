@@ -4,7 +4,8 @@ from flask import abort, jsonify
 
 app = Flask(__name__)
 
-from server.src.common.types import *
+from common.types import *
+from common.database import Database
 
 
 @app.route('/api/<string:hazard_type_param>', methods=['GET'])
@@ -151,7 +152,8 @@ def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
     hazard, images = db.get_hazard_data_by_hazard_id(hazard_id=hazard_id_param,
                                                      filter=hazard_filter)
 
-
+    print(hazard)
+    print(images)
     # 3. FORMAT PYTHON TYPES INTO JSON RESPONSE
 
     # Handle error cases: hazard_id does not exist, no images returned
@@ -181,7 +183,9 @@ def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
 
     parsed_image_dict = parse_hazard_images_from_db(images=images, hazard=hazard)
 
-    filtered_image_dict = filter_hazard_images(parsed_image_dict, hazard_filter= hazard_filter)
+    #filtered_image_dict = filter_hazard_images(parsed_image_dict, hazard_filter= hazard_filter)
+
+    print(parsed_image_dict)
 
     return jsonify(parsed_image_dict)
 
@@ -253,7 +257,7 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
     return_dict = dict()
     return_dict['hazard_id'] = hazard.hazard_id
     return_dict['hazard_name'] = hazard.name
-    return_dict['last_updated'] = hazard.last_updated
+    return_dict['last_updated'] = hazard.last_updated.date
     return_dict['location'] = {
                                 'latitude':  hazard.location.center.lat,
                                 'longitude': hazard.location.center.long
@@ -264,7 +268,7 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
     image_dict = return_dict['images_by_satellite']
 
     for image in images:
-        satellite = image.satellite.to_string()
+        satellite = image.satellite.satellite_id.to_string()
         if satellite not in image_dict:
             image_dict[satellite] = {}
 
@@ -272,6 +276,7 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
         if image_type not in image_dict[satellite]:
             image_dict[satellite][image_type] = []
 
+        print(image.image_date.date)
         image_json = {
                         'image_id': image.image_id,
                         'image_date': image.image_date.date,
@@ -281,14 +286,25 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
                      }
 
         image_dict[satellite][image_type].append(image_json)
-
+    print("Done")
     return return_dict
 
 if __name__ == "__main__":
     # db = database.Database()
-    class Database:
-        def get_hazard_data_by_hazard_id(self, hazard_id: str, filter: HazardInfoFilter) -> Tuple[Hazard, List[Image]]:
-            return Hazard("", "", HazardType.VOLCANOES, Location(LatLong(0.0, 0.0)), Date("19901010")), list()
+    # class Database:
+    #     def get_hazard_data_by_hazard_id(self, hazard_id: str, filter: HazardInfoFilter) -> Tuple[Hazard, List[Image]]:
+    #         id = "1"
+    #         haz_id = "20000"
+    #         sat_id = SatelliteEnum.ALOS
+    #         im_type = ImageType.GEO_BACKSCATTER
+    #         im_date = Date("20180101")
+    #         tif = ImageURL("https://s3-us-east-2.amazonaws.com/hazards-website/261290/SatelliteEnum.S1A/Geo_BackScatter/20181113/Geo_20181113_backscatter.tif")
+    #         raw = ImageURL("https://s3-us-east-2.amazonaws.com/hazards-website/261290/SatelliteEnum.S1A/Geo_BackScatter/20181113/20181113_full.jpg")
+    #         mod = ImageURL("https://s3-us-east-2.amazonaws.com/hazards-website/261290/SatelliteEnum.S1A/Geo_BackScatter/20181113/20181113_mod.jpg")
+    #
+    #         im = Image(id, haz_id, Satellite(sat_id, True), im_type, im_date, mod, raw, tif)
+    #
+    #         return Hazard(hazard_id, "", HazardType.VOLCANO, Location(LatLong(0.0, 0.0)), Date("19901010")), list([im])
     db = Database()
 
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
