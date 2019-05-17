@@ -33,24 +33,28 @@ class Database:
         self.DATABASE = config.get_config_var("database", "database")
         self.PORT = config.get_config_var("database", "localport")
 
-        max_attempts = config.get_config_var("database", "attempts")
+        attempts = config.get_config_var("database", "attempts")
         delay = config.get_config_var("database", "attempt_delay")
 
-        for i in range(max_attempts):
-            print('Trying to connect to database')
+        # Attempt to connect to the database. If the connection fails, wait and try again.
+        # mysql docker service takes longer to setup than the api container, so we need to wait until
+        # the mysql service is initialized before connection
+        for i in range(attempts):
             try:
-                self.database = pymysql.connect(host=self.HOST,
-                                                user=self.USER,
-                                                password=self.PASSWORD,
-                                                db=self.DATABASE,
-                                                port=self.PORT,
-                                                charset='utf8mb4',
-                                                cursorclass=pymysql.cursors.DictCursor)
+                self.database = self.connect()
                 break
-            except:
-                print("Failed {} times".format(i+1))
+            except pymysql.err.OperationalError:
+                time.sleep(delay)
 
-            time.sleep(delay)
+
+    def connect(self):
+        return pymysql.connect(host=self.HOST,
+                                user=self.USER,
+                                password=self.PASSWORD,
+                                db=self.DATABASE,
+                                port=self.PORT,
+                                charset='utf8mb4',
+                                cursorclass=pymysql.cursors.DictCursor)
 
     def close(self):
         self.database.close()
