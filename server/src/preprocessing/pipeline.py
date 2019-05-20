@@ -1,5 +1,6 @@
 import boto3
 from datetime import timedelta, timezone
+import logging
 from random import randint
 import rasterio
 import rasterio.plot as plot
@@ -7,6 +8,7 @@ import rasterio.plot as plot
 from common.database import Database
 from common.config import config
 from common.types import *
+from common.rsmas_logging import RsmasLogger, loglevel
 
 import summary as summary
 import image_manipulation as immanip
@@ -48,9 +50,17 @@ if __name__ == "__main__":
         10. Push new object references to database
     """
 
+    today = datetime.now().strftime("%Y-%m-%d")
+    log_file = os.path.abspath("logs/{}.log".format(today))
+    logger = RsmasLogger("pipeline", log_file)
+
     images = get_list_of_images()
+    # LOG: list of images to process
+    logger.log(loglevel.INFO, images)
     print(images)
     for im in images:
+
+        logger.log(loglevel.INFO, "Processing image: {}".format(im.key))
 
         file_path = "{}/{}".format(im.bucket_name, im.key)
         full_path = "{}_full.jpg"
@@ -61,6 +71,8 @@ if __name__ == "__main__":
                 "/vsis3/{}".format(file_path))
             sat_id = SatelliteEnum.from_string(sat_name)
         except:
+            # LOG: error in image metadata format
+            logger.log(loglevel.ERROR, '\tThere was an error in the metadata format of the image.')
             continue
 
         print(haz_id, haz_name, sat_id, sat_name, sat_dir, img_type, img_date)
@@ -88,25 +100,37 @@ if __name__ == "__main__":
 
         tif_path_aws = save.move_tif(im.key, "{}/{}".format(aws_path, im.key))
 
-        print(mod_path_aws)
-        print(full_path_aws)
-        print(tif_path_aws)
+        # LOG: images successfully moved to S3 bucket
+        # LOG: mod_path_aws, full_path_aws, tif_path_aws
+        logger.log(loglevel.INFO, "\tImages were successfully uploaded to the S3 bucket")
+        logger.log(loglevel.INFO, "\t\tmod_path_aws: {}".format(mod_path_aws))
+        logger.log(loglevel.INFO, "\t\tfull_path_aws: {}".format(full_path_aws))
+        logger.log(loglevel.INFO, "\t\ttif_path_aws: {}".format(tif_path_aws))
 
-        hazard = Hazard(haz_id, haz_name, HazardType.VOLCANO, Location(LatLong(center[0], center[1])), Date(img_date))
-        sat_id = SatelliteEnum.from_string(sat_name)
-        satellite = Satellite(sat_id, sat_dir)
-        image = Image(str(randint(1, 10000000)),
-                      haz_id,
-                      satellite,
-                      ImageType.from_string(img_type),
-                      Date(img_date),
-                      ImageURL(full_path_aws),
-                      ImageURL(tif_path_aws),
-                      ImageURL(mod_path_aws))
+        # hazard = Hazard(haz_id, haz_name, HazardType.VOLCANO, Location(LatLong(center[0], center[1])), Date(img_date))
+        # sat_id = SatelliteEnum.from_string(sat_name)
+        # satellite = Satellite(sat_id, sat_dir)
+        # image = Image(str(randint(1, 10000000)),
+        #               haz_id,
+        #               satellite,
+        #               ImageType.from_string(img_type),
+        #               Date(img_date),
+        #               ImageURL(full_path_aws),
+        #               ImageURL(tif_path_aws),
+        #               ImageURL(mod_path_aws))
+        #
+        # db = Database()
+        # db.create_new_hazard(hazard)
+        # db.create_new_satellite(satellite)
+        # db.create_new_image(image)
+        # db.close()
 
-        db = Database()
-        db.create_new_hazard(hazard)
-        db.create_new_satellite(satellite)
-        db.create_new_image(image)
-        db.close()
+        # LOG: database successfully updated
+        logger.log(loglevel.INFO, "\tDatabase succesfully updated.")
+
+        # LOG: image completed
+        logger.log(loglevel.INFO, "\tProcessing of {} completed.".format(im))
+
+    # LOG: finished processing images
+    logger.log(loglevel.INFO, "Processing complete.")
 
