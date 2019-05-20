@@ -17,12 +17,14 @@ class RsmasLogger():
         self.console_handler = None
         self.file_handler = None
         self.logger = logging.getLogger(logger_name)
-        self.logfile_name = file_name
 
-        self.logger.setLevel(logging.DEBUG)
-        
-        if len(self.logger.handlers) >= 0:
-            self.set_format(self.format)
+        if file_name:
+            self.logfile_name = file_name
+
+            self.logger.setLevel(logging.DEBUG)
+
+            if len(self.logger.handlers) >= 0:
+                self.set_format(self.format)
 
     def setup_filehandler(self, formatter):
         file_handler = logging.FileHandler(self.logfile_name, 'a+', encoding=None)

@@ -95,38 +95,48 @@ if __name__ == "__main__":
 
         # 6. Save image locally
         text_image.save(mod_path.format(img_date))
-        mod_path_aws = save.save_image_s3(mod_path, "{}/{}".format(aws_path, mod_path))
-        full_path_aws = save.save_image_s3(full_path, "{}/{}".format(aws_path, full_path))
+        mod_path_aws = save.get_s3_url("{}/{}".format(aws_path, mod_path))
+        full_path_aws = save.get_s3_url("{}/{}".format(aws_path, full_path))
 
-        tif_path_aws = save.move_tif(im.key, "{}/{}".format(aws_path, im.key))
+        tif_path_aws = save.get_s3_url("{}/{}".format(aws_path, im.key))
 
         # LOG: images successfully moved to S3 bucket
         # LOG: mod_path_aws, full_path_aws, tif_path_aws
+
+        hazard = Hazard(haz_id, haz_name, HazardType.VOLCANO, Location(LatLong(center[0], center[1])), Date(img_date))
+        sat_id = SatelliteEnum.from_string(sat_name)
+        satellite = Satellite(sat_id, sat_dir)
+        image = Image(str(randint(1, 10000000)),
+                      haz_id,
+                      satellite,
+                      ImageType.from_string(img_type),
+                      Date(img_date),
+                      ImageURL(full_path_aws),
+                      ImageURL(tif_path_aws),
+                      ImageURL(mod_path_aws))
+
+        try:
+            db = Database()
+        except ConnectionError:
+            logger.log(loglevel.ERROR, "\tThere was an error while connecting to the database. Skipping this image.")
+            continue
+
+        db.create_new_hazard(hazard)
+        db.create_new_satellite(satellite)
+        db.create_new_image(image)
+        db.close()
+
+        # LOG: database successfully updated
+        logger.log(loglevel.INFO, "\tDatabase succesfully updated.")
+
+        save.save_image_s3(mod_path, "{}/{}".format(aws_path, mod_path))
+        save.save_image_s3(full_path, "{}/{}".format(aws_path, full_path))
+        save.move_tif(im.key, "{}/{}".format(aws_path, im.key))
+
         logger.log(loglevel.INFO, "\tImages were successfully uploaded to the S3 bucket")
         logger.log(loglevel.INFO, "\t\tmod_path_aws: {}".format(mod_path_aws))
         logger.log(loglevel.INFO, "\t\tfull_path_aws: {}".format(full_path_aws))
         logger.log(loglevel.INFO, "\t\ttif_path_aws: {}".format(tif_path_aws))
-
-        # hazard = Hazard(haz_id, haz_name, HazardType.VOLCANO, Location(LatLong(center[0], center[1])), Date(img_date))
-        # sat_id = SatelliteEnum.from_string(sat_name)
-        # satellite = Satellite(sat_id, sat_dir)
-        # image = Image(str(randint(1, 10000000)),
-        #               haz_id,
-        #               satellite,
-        #               ImageType.from_string(img_type),
-        #               Date(img_date),
-        #               ImageURL(full_path_aws),
-        #               ImageURL(tif_path_aws),
-        #               ImageURL(mod_path_aws))
-        #
-        # db = Database()
-        # db.create_new_hazard(hazard)
-        # db.create_new_satellite(satellite)
-        # db.create_new_image(image)
-        # db.close()
-
-        # LOG: database successfully updated
-        logger.log(loglevel.INFO, "\tDatabase succesfully updated.")
 
         # LOG: image completed
         logger.log(loglevel.INFO, "\tProcessing of {} completed.".format(im))

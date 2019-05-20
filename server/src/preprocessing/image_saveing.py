@@ -24,6 +24,9 @@ def save_image_local(image, output_file):
     image.save(output_file)
     return output_file
 
+def get_s3_url(s3_file):
+    return "https://s3-{0}.amazonaws.com/{1}/{2}".format('us-east-2', BUCKET, s3_file)
+
 
 def save_image_s3(local_file, s3_file):
 
@@ -36,9 +39,7 @@ def save_image_s3(local_file, s3_file):
         print("Client Error")
         return
 
-    bucket_location = s3.get_bucket_location(Bucket=BUCKET)
-
-    object_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(bucket_location['LocationConstraint'], BUCKET, s3_file)
+    object_url = get_s3_url(s3_file)
 
     return object_url
 

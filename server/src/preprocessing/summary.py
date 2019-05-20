@@ -4,6 +4,7 @@ import pandas as pd
 
 import common.config.config as config
 from common.types import *
+from common.rsmas_logging import RsmasLogger, loglevel
 
 ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
 SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
@@ -27,51 +28,36 @@ def get_id_from_coords(lat, lon):
     return all_volcanos.loc[all_volcanos['Volcano Number'] == lon_sorted.iloc[0]['Volcano Number']]
 
 
-def get_date_from_file(file_path):
-    file_name = os.path.splitext(file_path)[0]
-    file_name = file_name.split("/")[-1]
-    date = file_name.split("geo_")[1]
-    return date
-
-
 def get_bounding_box(ul_coords, x, y):
-    ul_lat = ul_coords[3]
-    ul_lon = ul_coords[0]
-    ul_coords_n = (ul_lat, ul_lon)
-
-    ur_lat = ul_coords[3]
-    ur_lon = ul_coords[0] + ul_coords[1] * x
-    ur_coords = (ur_lat, ur_lon)
-
-    bl_lat = ul_coords[3] + ul_coords[-1] * y
-    bl_lon = ul_coords[0]
-    bl_coords = (bl_lat, bl_lon)
-
-    br_lat = ul_coords[3] + ul_coords[-1] * y
-    br_lon = ul_coords[0] + ul_coords[1] * x
-    br_coords = (br_lat, br_lon)
 
     center_lat = ul_coords[3] + ul_coords[-1] * (y / 2)
     center_lon = ul_coords[0] + ul_coords[1] * (x / 2)
     center_coords = (center_lat, center_lon)
 
-    return ul_coords_n, ur_coords, bl_coords, br_coords, center_coords
+    return center_coords
 
 
 def pull_summary_data(file_path):
+
+    logger = RsmasLogger('pipeline')
+
+    gdal.UseExceptions()
 
     gdal.SetConfigOption('AWS_REGION', 'us-east-2')
     gdal.SetConfigOption('AWS_SECRET_ACCESS_KEY', SECRET_KEY)
     gdal.SetConfigOption('AWS_ACCESS_KEY_ID', ACCESS_KEY)
 
-    print(file_path)
+    try:
+        ds = gdal.Open(file_path)
+        ul_coords = ds.GetGeoTransform()
+        x = ds.RasterXSize
+        y = ds.RasterYSize
+    except:
+        logger.log(loglevel.ERROR, "\tThere was an error opening the file, {}, in gdal.".format(file_path))
+        logger.log(loglevel.ERROR, "\t\t{}".format(gdal.GetLastErrorMsg()))
+        return
 
-    ds = gdal.Open(file_path)
-    ul_coords = ds.GetGeoTransform()
-    x = ds.RasterXSize
-    y = ds.RasterYSize
-
-    ul_coords, ur_coords, bl_coords, br_coords, center_coords = get_bounding_box(ul_coords, x, y)
+    center_coords = get_bounding_box(ul_coords, x, y)
 
     volcano = get_id_from_coords(center_coords[0], center_coords[1])
     volcano_id = volcano["Volcano Number"].item()
@@ -83,6 +69,14 @@ def pull_summary_data(file_path):
     sat_direction = 1 if band.GetMetadataItem('Mode') == 'Asc' else 0
     image_type = band.GetMetadataItem('Image_Type')
     image_date = band.GetMetadataItem('Date')
+
+    logger.log(loglevel.DEBUG, "\tImage Metadata:")
+    logger.log(loglevel.DEBUG, "\t\tVolcano Number: {}".format(volcano_id))
+    logger.log(loglevel.DEBUG, "\t\tVolcano Name: {}".format(volcano_name))
+    logger.log(loglevel.DEBUG, "\t\tSatellite Name: {}".format(satellite_name))
+    logger.log(loglevel.DEBUG, "\t\tSatellite Direction: {}".format(sat_direction))
+    logger.log(loglevel.DEBUG, "\t\tImage Type: {}".format(image_type))
+    logger.log(loglevel.DEBUG, "\t\tImage Date: {}".format(image_date))
 
     return volcano_id, volcano_name, satellite_name, sat_direction, image_type, image_date, center_coords
 

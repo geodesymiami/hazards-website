@@ -2,6 +2,7 @@ import time
 
 from .types import *
 from .config import config
+from .rsmas_logging import RsmasLogger, loglevel
 import pymysql.cursors
 
 
@@ -27,11 +28,13 @@ class Database:
 
         """
 
-        self.HOST = config.get_config_var("database", "localhost")
+        self.pipeline_logger = RsmasLogger('pipeline')
+
+        self.HOST = config.get_config_var("database", "host")
         self.USER = config.get_config_var("database", "user")
         self.PASSWORD = config.get_config_var("database", "password")
         self.DATABASE = config.get_config_var("database", "database")
-        self.PORT = config.get_config_var("database", "localport")
+        self.PORT = config.get_config_var("database", "port")
 
         attempts = config.get_config_var("database", "attempts")
         delay = config.get_config_var("database", "attempt_delay")
@@ -39,13 +42,18 @@ class Database:
         # Attempt to connect to the database. If the connection fails, wait and try again.
         # mysql docker service takes longer to setup than the api container, so we need to wait until
         # the mysql service is initialized before connection
+        self.pipeline_logger.log(loglevel.INFO, "\tAttempting to connect to database.")
         for i in range(attempts):
             try:
                 self.database = self.connect()
+                self.pipeline_logger.log(loglevel.INFO, "\t\tSuccesfully connected to database after {} tries.".format(i))
                 break
             except pymysql.err.OperationalError:
+                self.pipeline_logger.log(loglevel.ERROR, "\t\tCould not connect, try #{}. Trying again.".format(i))
                 time.sleep(delay)
 
+        if i+1 >= attempts:
+            raise ConnectionError()
 
     def connect(self):
         return pymysql.connect(host=self.HOST,
@@ -130,7 +138,6 @@ class Database:
             cursor.execute(sql)  # Execute to the SQL statement
             data = cursor.fetchall()
 
-        print(data)
         data = data[0]
         id = data['id']
         name = data['name']
@@ -152,8 +159,6 @@ class Database:
             for img in data:
                 sat_id = int(img['sat_id']) // 10
                 sat_asc = int(img['sat_id']) % 10
-                print(sat_id)
-                print(sat_asc)
                 sat = Satellite(SatelliteEnum(sat_id), True if sat_asc == 1 else False)
                 image = Image(img['id'],
                               img['haz_id'],
@@ -213,7 +218,9 @@ class Database:
 
             self.database.commit()
         except pymysql.err.IntegrityError as e:
-            print(e)
+            self.pipeline_logger.log(loglevel.WARNING,
+                                     "\tThe following error occurred while inserting the new hazard into the database.")
+            self.pipeline_logger.log(loglevel.WARNING, "\t\t{}".format(e))
 
     def create_new_satellite(self, satellite: Satellite):
         """
@@ -245,7 +252,9 @@ class Database:
 
             self.database.commit()
         except pymysql.err.IntegrityError as e:
-            print(e)
+            self.pipeline_logger.log(loglevel.WARNING,
+                                     "\tThe following error occurred while inserting the new satellite into the database.")
+            self.pipeline_logger.log(loglevel.WARNING, "\t\t{}".format(e))
 
     def create_new_image(self, image: Image):
         """
@@ -291,7 +300,9 @@ class Database:
 
             self.database.commit()
         except pymysql.err.IntegrityError as e:
-            print(e)
+            self.pipeline_logger.log(loglevel.WARNING,
+                                     "\tThe following error occurred while inserting the new image into the database.")
+            self.pipeline_logger.log(loglevel.WARNING, "\t\t{}".format(e))
 
 
 if __name__ == "__main__":
