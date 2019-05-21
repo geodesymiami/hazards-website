@@ -1,4 +1,4 @@
-version: "3"
+version: "3.2"
 services:
   api:
     build:
@@ -22,4 +22,10 @@ services:
         dockerfile: src/preprocessing/Dockerfile
       links:
         - db
+      volumes:
+        - ./src/preprocessing/logs:/dataprocessing/logs
+
+volumes:
+  processing_logs:
+
 
