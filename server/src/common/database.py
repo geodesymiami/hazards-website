@@ -46,10 +46,10 @@ class Database:
         for i in range(attempts):
             try:
                 self.database = self.connect()
-                self.pipeline_logger.log(loglevel.INFO, "\t\tSuccesfully connected to database after {} tries.".format(i))
+                self.pipeline_logger.log(loglevel.INFO, "\t\tSuccesfully connected to database after {} tries.".format(i+1))
                 break
             except pymysql.err.OperationalError:
-                self.pipeline_logger.log(loglevel.ERROR, "\t\tCould not connect, try #{}. Trying again.".format(i))
+                self.pipeline_logger.log(loglevel.ERROR, "\t\tCould not connect, try #{}. Trying again.".format(i+1))
                 time.sleep(delay)
 
         if i+1 >= attempts:
@@ -218,9 +218,7 @@ class Database:
 
             self.database.commit()
         except pymysql.err.IntegrityError as e:
-            self.pipeline_logger.log(loglevel.WARNING,
-                                     "\tThe following error occurred while inserting the new hazard into the database.")
-            self.pipeline_logger.log(loglevel.WARNING, "\t\t{}".format(e))
+            self.pipeline_logger.log(loglevel.WARNING, "\tThe following error occurred while inserting the new hazard into the database: {}".format(e))
 
     def create_new_satellite(self, satellite: Satellite):
         """
@@ -252,9 +250,7 @@ class Database:
 
             self.database.commit()
         except pymysql.err.IntegrityError as e:
-            self.pipeline_logger.log(loglevel.WARNING,
-                                     "\tThe following error occurred while inserting the new satellite into the database.")
-            self.pipeline_logger.log(loglevel.WARNING, "\t\t{}".format(e))
+            self.pipeline_logger.log(loglevel.WARNING, "\tThe following error occurred while inserting the new satellite into the database: {}".format(e))
 
     def create_new_image(self, image: Image):
         """
@@ -300,9 +296,7 @@ class Database:
 
             self.database.commit()
         except pymysql.err.IntegrityError as e:
-            self.pipeline_logger.log(loglevel.WARNING,
-                                     "\tThe following error occurred while inserting the new image into the database.")
-            self.pipeline_logger.log(loglevel.WARNING, "\t\t{}".format(e))
+            self.pipeline_logger.log(loglevel.WARNING, "\tThe following error occurred while inserting the new image into the database: {}".format(e))
 
 
 if __name__ == "__main__":

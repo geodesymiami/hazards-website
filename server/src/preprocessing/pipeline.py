@@ -56,8 +56,8 @@ if __name__ == "__main__":
 
     images = get_list_of_images()
     # LOG: list of images to process
-    logger.log(loglevel.INFO, images)
-    print(images)
+    logger.log(loglevel.INFO, [img.key for img in images])
+
     for im in images:
 
         logger.log(loglevel.INFO, "Processing image: {}".format(im.key))
@@ -72,10 +72,8 @@ if __name__ == "__main__":
             sat_id = SatelliteEnum.from_string(sat_name)
         except:
             # LOG: error in image metadata format
-            logger.log(loglevel.ERROR, '\tThere was an error in the metadata format of the image.')
+            logger.log(loglevel.ERROR, '\tThere was an error in the metadata format of the image. Skipping.')
             continue
-
-        print(haz_id, haz_name, sat_id, sat_name, sat_dir, img_type, img_date)
 
         aws_path = aws_path.format(haz_id, sat_id, img_type, img_date)
         full_path = full_path.format(img_date)
@@ -139,7 +137,7 @@ if __name__ == "__main__":
         logger.log(loglevel.INFO, "\t\ttif_path_aws: {}".format(tif_path_aws))
 
         # LOG: image completed
-        logger.log(loglevel.INFO, "\tProcessing of {} completed.".format(im))
+        logger.log(loglevel.INFO, "\tProcessing of {} completed.".format(im.key))
 
     # LOG: finished processing images
     logger.log(loglevel.INFO, "Processing complete.")

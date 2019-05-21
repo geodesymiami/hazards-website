@@ -13,7 +13,7 @@ class loglevel(Enum):
 class RsmasLogger():
 
     def __init__(self, logger_name, file_name=None):
-        self.format = "%(asctime)s - %(levelname)s - %(message)s"
+        self.format = "%(levelname)s - %(message)s"
         self.console_handler = None
         self.file_handler = None
         self.logger = logging.getLogger(logger_name)

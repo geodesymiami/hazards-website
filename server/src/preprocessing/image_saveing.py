@@ -2,6 +2,7 @@ import image_manipulation as immanip
 import os
 
 from common.config import config
+from common.rsmas_logging import RsmasLogger, loglevel
 import boto3
 from botocore.exceptions import ClientError
 
@@ -30,13 +31,15 @@ def get_s3_url(s3_file):
 
 def save_image_s3(local_file, s3_file):
 
+    logger = RsmasLogger('pipeline')
+
     s3 = boto3.client('s3', aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY)
 
     try:
         s3.upload_file(local_file, BUCKET, s3_file)
         os.remove(local_file)
-    except ClientError:
-        print("Client Error")
+    except ClientError as e:
+        logger.log(loglevel.ERROR, "\tCould not upload file to S3. Error as follows: {}".format(e))
         return
 
     object_url = get_s3_url(s3_file)
