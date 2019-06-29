@@ -3,6 +3,7 @@ from flask import request
 from flask import abort, jsonify
 
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 
 from common.types import *
 from common.database import Database
@@ -258,11 +259,11 @@ def parse_hazard_summary_info_from_db(data: List[Hazard], hazard_type: HazardTyp
         hazard_dict = dict()
         hazard_dict['hazard_id'] = hazard.hazard_id
         hazard_dict['name'] = hazard.name
+        hazard_dict['latitude'] = hazard.location.center.lat
+        hazard_dict['longitude'] = hazard.location.center.long
+        hazard_dict['num_images'] = hazard.num_images
         hazard_dict['last_updated'] = hazard.last_updated.date
-        hazard_dict['location'] = {
-                                      'latitude':  hazard.location.center.lat,
-                                      'longitude': hazard.location.center.long
-                                  }
+
         return_dict['hazards'].append(hazard_dict)
     return return_dict
 
