@@ -7,8 +7,6 @@ app = Flask(__name__)
 from common.types import *
 from common.database import Database
 
-db = Database()
-
 @app.route('/api/<string:hazard_type_param>', methods=['GET'])
 def get_hazards_summary_info(hazard_type_param: str):
     print("Get Hazards Summary")
@@ -22,7 +20,11 @@ def get_hazards_summary_info(hazard_type_param: str):
         abort(400, "Hazard Type {0} does not exist.".format(hazard_type_param))
         return
 
+    db = Database()
+
     data_from_db = db.get_hazards_by_type(hazard_type)
+
+    db.close()
 
     data_to_return = parse_hazard_summary_info_from_db(data_from_db, hazard_type)
 
@@ -31,7 +33,11 @@ def get_hazards_summary_info(hazard_type_param: str):
 @app.route('/api/satellites/<int:hazard_id_param>', methods=['GET'])
 def get_satellites_by_hazard_id(hazard_id_param: int):
 
+    db = Database()
+
     satellites: List[Satellite] = db.get_satellites_by_hazard_id(hazard_id= hazard_id_param)
+
+    db.close()
 
     if len(satellites) == 0:
         abort(404, "No satellites returned for hazard_id: {0}".format(hazard_id_param))
@@ -153,8 +159,11 @@ def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
                                      max_num_images=validated_max_num_images,
                                      last_n_days=validated_last_n_days)
 
+    db = Database()
+
     hazard, images = db.get_hazard_data_by_hazard_id(hazard_id=hazard_id_param,
                                                      filter=hazard_filter)
+    db.close()
 
     # 3. FORMAT PYTHON TYPES INTO JSON RESPONSE
 
@@ -294,21 +303,5 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
     return return_dict
 
 if __name__ == "__main__":
-    # db = database.Database()
-    # class Database:
-    #     def get_hazard_data_by_hazard_id(self, hazard_id: str, filter: HazardInfoFilter) -> Tuple[Hazard, List[Image]]:
-    #         id = "1"
-    #         haz_id = "20000"
-    #         sat_id = SatelliteEnum.ALOS
-    #         im_type = ImageType.GEO_BACKSCATTER
-    #         im_date = Date("20180101")
-    #         tif = ImageURL("https://s3-us-east-2.amazonaws.com/hazards-website/261290/SatelliteEnum.S1A/Geo_BackScatter/20181113/Geo_20181113_backscatter.tif")
-    #         raw = ImageURL("https://s3-us-east-2.amazonaws.com/hazards-website/261290/SatelliteEnum.S1A/Geo_BackScatter/20181113/20181113_full.jpg")
-    #         mod = ImageURL("https://s3-us-east-2.amazonaws.com/hazards-website/261290/SatelliteEnum.S1A/Geo_BackScatter/20181113/20181113_mod.jpg")
-    #
-    #         im = Image(id, haz_id, Satellite(sat_id, True), im_type, im_date, mod, raw, tif)
-    #
-    #         return Hazard(hazard_id, "", HazardType.VOLCANO, Location(LatLong(0.0, 0.0)), Date("19901010")), list([im])
-    #db = Database()
 
     app.run(host="0.0.0.0", debug=True)
