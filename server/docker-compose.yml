@@ -25,7 +25,4 @@ services:
       volumes:
         - ./src/preprocessing/logs:/dataprocessing/logs
 
-volumes:
-  processing_logs:
-
 

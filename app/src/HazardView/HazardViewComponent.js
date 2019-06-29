@@ -16,8 +16,9 @@ export default class HazardViewComponent extends Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
-      hazardId: this.props.hazardId,
+      hazardId: this.props.id,
       filter: FILTER.reduce(
         (options, option) => ({
           ...options,
@@ -114,21 +115,17 @@ export default class HazardViewComponent extends Component {
 
   render() {
     return (
-      <div className="HazardViewComponent container-fluid">
-        <div class="row">
-          <div class="sidebar">
-            <Sidebar
-              action={this.filterHandler}
-              checkboxes={this.state.filter}
-              location={this.props}
-            />
-          </div>
-          <div class="col-sm-12">
+        <div className="HazardViewComponent container-fluid">
             <Header id={this.state.hazardId} />
-            <Images id={this.state.hazardId} filter={this.state.filter} />
-          </div>
+            <div className={"row"}>
+              <div className={"col-lg-3"}>
+                <Sidebar action={this.filterHandler} checkboxes={this.state.filter} location={this.props}/>
+              </div>
+              <div className={"col-lg-9"}>
+
+              </div>
+            </div>
         </div>
-      </div>
     );
   }
 }

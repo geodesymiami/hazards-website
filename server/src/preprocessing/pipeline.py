@@ -122,7 +122,6 @@ if __name__ == "__main__":
         db.create_new_hazard(hazard)
         db.create_new_satellite(satellite)
         db.create_new_image(image)
-        db.close()
 
         # LOG: database successfully updated
         logger.log(loglevel.INFO, "\tDatabase succesfully updated.")

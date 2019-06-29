@@ -81,13 +81,14 @@ class Database:
             cursor.execute(sql)  # Execute to the SQL statement
             result = cursor.fetchall()  # fetch all the results, since there may be several
 
+            cursor.close()
         hazards = []
         for item in result:
             id = item['id']
             name = item['name']
             type = HazardType.from_string(item['type'])
             location = Location(LatLong(item['latitude'], item['longitude']))
-            last_updated = Date(str(item['updated']))
+            last_updated = Date(str(item['updated']).replace("-", ""))
 
             hazard = Hazard(id, name, type, location, last_updated)
             hazards.append(hazard)
@@ -106,6 +107,8 @@ class Database:
                   "(SELECT DISTINCT sat_id FROM images WHERE haz_id='{}')".format(hazard_id)
             cursor.execute(sql)
             result = cursor.fetchall()
+
+            cursor.close()
 
         satellites = []
         for sat in result:
@@ -138,6 +141,7 @@ class Database:
             cursor.execute(sql)  # Execute to the SQL statement
             data = cursor.fetchall()
 
+            cursor.close()
         data = data[0]
         id = data['id']
         name = data['name']
@@ -155,6 +159,8 @@ class Database:
             sql = "SELECT * FROM `images` WHERE `haz_id` = '{}';".format(hazard_id)
             cursor.execute(sql)
             data = cursor.fetchall()
+
+            cursor.close()
 
             for img in data:
                 sat_id = int(img['sat_id']) // 10
@@ -324,7 +330,5 @@ if __name__ == "__main__":
     db.create_new_hazard(hazard)
     db.create_new_satellite(satellite)
     db.create_new_image(image)
-
-    db.close()
 
     # print(sats)

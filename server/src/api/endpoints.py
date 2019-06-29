@@ -7,19 +7,23 @@ app = Flask(__name__)
 from common.types import *
 from common.database import Database
 
+db = Database()
 
 @app.route('/api/<string:hazard_type_param>', methods=['GET'])
 def get_hazards_summary_info(hazard_type_param: str):
-
+    print("Get Hazards Summary")
     # HazardType.from_string() raises an exception if the string is not compatible
     try:
+        print(hazard_type_param)
         hazard_type = HazardType.from_string(hazard_type_param)
+        print(hazard_type)
     except ValueError:
         # send back an exception
         abort(400, "Hazard Type {0} does not exist.".format(hazard_type_param))
         return
 
-    data_from_db = db.get_hazards_by_type(HazardType.VOLCANOES)
+    data_from_db = db.get_hazards_by_type(hazard_type)
+
     data_to_return = parse_hazard_summary_info_from_db(data_from_db, hazard_type)
 
     return jsonify(data_to_return)
@@ -152,8 +156,6 @@ def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
     hazard, images = db.get_hazard_data_by_hazard_id(hazard_id=hazard_id_param,
                                                      filter=hazard_filter)
 
-    print(hazard)
-    print(images)
     # 3. FORMAT PYTHON TYPES INTO JSON RESPONSE
 
     # Handle error cases: hazard_id does not exist, no images returned
@@ -183,11 +185,12 @@ def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
 
     parsed_image_dict = parse_hazard_images_from_db(images=images, hazard=hazard)
 
-    #filtered_image_dict = filter_hazard_images(parsed_image_dict, hazard_filter= hazard_filter)
+    filtered_image_dict = filter_hazard_images(parsed_image_dict, hazard_filter= hazard_filter)
 
-    print(parsed_image_dict)
+    print("Hi")
+    print(filtered_image_dict)
 
-    return jsonify(parsed_image_dict)
+    return jsonify(filtered_image_dict)
 
 
 @app.errorhandler(400)
@@ -216,7 +219,7 @@ def filter_hazard_images(parsed_dict, hazard_filter: HazardInfoFilter):
                     new_image_list = []
                     # filter images by their date
                     for image in parsed_dict['images_by_satellite'][satellite][image_type]:
-                        if hazard_filter.date_range.date_in_range(image.image_date):
+                        if hazard_filter.date_range and hazard_filter.date_range.date_in_range(image.image_date):
                             new_image_list.append(image)
 
                     new_image_list.sort(key=lambda im: int(im.image_date.date), reverse=True)
@@ -243,13 +246,15 @@ def parse_hazard_summary_info_from_db(data: List[Hazard], hazard_type: HazardTyp
     return_dict['type'] = HazardType.to_string(hazard_type)
 
     for hazard in data:
-        return_dict['hazards']['hazard_id'] = hazard.hazard_id
-        return_dict['hazards']['name'] = hazard.name
-        return_dict['hazards']['last_updated'] = hazard.last_updated.date
-        return_dict['hazards']['location'] = {
-                                              'latitude':  hazard.location.center.lat,
-                                              'longitude': hazard.location.center.long
-                                             }
+        hazard_dict = dict()
+        hazard_dict['hazard_id'] = hazard.hazard_id
+        hazard_dict['name'] = hazard.name
+        hazard_dict['last_updated'] = hazard.last_updated.date
+        hazard_dict['location'] = {
+                                      'latitude':  hazard.location.center.lat,
+                                      'longitude': hazard.location.center.long
+                                  }
+        return_dict['hazards'].append(hazard_dict)
     return return_dict
 
 
@@ -276,7 +281,6 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
         if image_type not in image_dict[satellite]:
             image_dict[satellite][image_type] = []
 
-        print(image.image_date.date)
         image_json = {
                         'image_id': image.image_id,
                         'image_date': image.image_date.date,
@@ -286,7 +290,7 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
                      }
 
         image_dict[satellite][image_type].append(image_json)
-    print("Done")
+
     return return_dict
 
 if __name__ == "__main__":
@@ -305,6 +309,6 @@ if __name__ == "__main__":
     #         im = Image(id, haz_id, Satellite(sat_id, True), im_type, im_date, mod, raw, tif)
     #
     #         return Hazard(hazard_id, "", HazardType.VOLCANO, Location(LatLong(0.0, 0.0)), Date("19901010")), list([im])
-    db = Database()
+    #db = Database()
 
     app.run(host="0.0.0.0", debug=True)

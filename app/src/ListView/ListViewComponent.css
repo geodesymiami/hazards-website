@@ -5,3 +5,27 @@
 .card-cont {
   margin: 40px;
 }
+
+.hazard{
+  display: flex;
+  align-items: center;
+}
+
+p{
+  display: inline;
+}
+
+li{
+  border-top: none;
+}
+
+.hazard{
+  width: 100%;
+  border: thin solid grey;
+  border-bottom: none;
+  padding: 1em
+}
+
+li.row:last-child .hazard{
+  border-bottom: thin solid grey;
+}

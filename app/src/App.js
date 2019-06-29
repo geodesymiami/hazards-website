@@ -85,8 +85,8 @@ class App extends Component {
         <Router>
           <Redirect from="/" to="/list" noThrow />
           <ListViewComponent path="/list" />
-          <MapViewComponent path="/map" volcanoes={this.state.volcanoes} earthquakes={this.state.earthquakes} />
-          <HazardViewComponent path="/hazard" />
+          <MapViewComponent path="/map" />
+          <HazardViewComponent path="/hazard/:id" />
           <FourOhFourViewComponent default />
         </Router>
       </div>

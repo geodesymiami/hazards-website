@@ -34,8 +34,8 @@ class Sidebar extends Component {
 
   render() {
     return (
-      <div class="sidebar">
-        <div class="nav-sidebar">
+      <div className="sidebar">
+        <div className="nav-sidebar">
           <form>
             <h3>Image Type</h3>
             {this.createCheckboxes(IMAGETYPE)}

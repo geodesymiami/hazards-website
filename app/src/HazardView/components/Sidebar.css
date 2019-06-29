@@ -1,8 +1,4 @@
 .sidebar {
-  position: fixed;
-  top: 250px;
-  bottom: 0;
-  left: 0;
   z-index: 1000;
   display: block;
   padding: 20px;
@@ -10,8 +6,7 @@
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
   background-color: #f5f5f5;
   border-right: 1px solid rgb(238, 238, 238);
-  border-bottom-right-radius: 25px;
-  border-top-right-radius: 25px;
+  margin-bottom: 3em;
 }
 
 .sidenav a {

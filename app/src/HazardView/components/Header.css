@@ -1,5 +1,8 @@
-.hazardinfo {
-  padding: 10px;
-  background-color: rgb(218, 216, 231);
-  border-radius: 25px;
+.important{
+  font-size: 4em;
+  font-weight: bold
+}
+
+#num_images{
+  margin-top: 3em;
 }
