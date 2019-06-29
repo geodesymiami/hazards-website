@@ -1,0 +1,24 @@
+.btn{
+    margin: 1em 1em 0 0;
+}
+
+    .btn-primary{
+        color: white !important;
+    }
+
+p{
+    display: block;
+}
+
+.row{
+    justify-content: center;
+}
+
+.container{
+    height: 100%;
+    align-items: center;
+}
+
+.jumbotron{
+    margin-top: 2em;
+}
