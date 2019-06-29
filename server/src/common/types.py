@@ -246,6 +246,7 @@ class Hazard:
     hazard_type: HazardType
     location: Location
     last_updated: Date
+    num_images: int
 
 
 @dataclass

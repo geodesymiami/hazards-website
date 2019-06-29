@@ -89,8 +89,9 @@ class Database:
             type = HazardType.from_string(item['type'])
             location = Location(LatLong(item['latitude'], item['longitude']))
             last_updated = Date(str(item['updated']).replace("-", ""))
+            num_images = item['num_images']
 
-            hazard = Hazard(id, name, type, location, last_updated)
+            hazard = Hazard(id, name, type, location, last_updated, num_images)
             hazards.append(hazard)
 
         return hazards
@@ -147,12 +148,11 @@ class Database:
         name = data['name']
         type = HazardType.from_string(data['type'])
         center = LatLong(data['latitude'], data['longitude'])
-
         location = Location(center)
-
         updated = Date(str(data['updated']).replace("-", ""))
+        num_images = data['num_images']
 
-        hazard = Hazard(id, name, type, location, updated)
+        hazard = Hazard(id, name, type, location, updated, num_images)
 
         # Get Images, no filter, needs true column names
         with self.database.cursor() as cursor:
@@ -306,7 +306,7 @@ class Database:
 
 
 if __name__ == "__main__":
-    hazard = Hazard("200022", "Volcano2", HazardType.VOLCANO, Location(LatLong(1.000, 1.000)), Date("19700101"))
+    hazard = Hazard("200022", "Volcano2", HazardType.VOLCANO, Location(LatLong(1.000, 1.000)), Date("19700101"), 0)
     satellite = Satellite(SatelliteEnum(9), False)
     image = Image("60",
                   "200022",

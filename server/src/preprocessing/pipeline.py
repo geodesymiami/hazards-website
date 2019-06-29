@@ -101,7 +101,7 @@ if __name__ == "__main__":
         # LOG: images successfully moved to S3 bucket
         # LOG: mod_path_aws, full_path_aws, tif_path_aws
 
-        hazard = Hazard(haz_id, haz_name, HazardType.VOLCANO, Location(LatLong(center[0], center[1])), Date(img_date))
+        hazard = Hazard(haz_id, haz_name, HazardType.VOLCANO, Location(LatLong(center[0], center[1])), Date(img_date), 3)
         sat_id = SatelliteEnum.from_string(sat_name)
         satellite = Satellite(sat_id, sat_dir)
         image = Image(str(randint(1, 10000000)),
