@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Navbar, Nav, Form, FormControl, Button, Container } from 'react-bootstrap'
-import { Router, Location, navigate, Redirect } from '@reach/router'
+import { Navbar, Nav,Container } from 'react-bootstrap'
+import { Router} from '@reach/router'
 import ListViewComponent from './ListView/ListViewComponent'
 import MapViewComponent from './MapView/MapViewComponent'
 import HazardViewComponent from './HazardView/HazardViewComponent'
@@ -23,8 +23,8 @@ class App extends Component {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="mr-auto">
-                    <Nav.Link href="/volcanos/list">Volcanos List</Nav.Link>
-                    <Nav.Link href="/volcanos/map">Volcanos Map</Nav.Link>
+                    <Nav.Link href="/list">Volcanos List</Nav.Link>
+                    <Nav.Link href="/map">Volcanos Map</Nav.Link>
                     <Nav.Link href="#home" disabled>Earthquakes List</Nav.Link>
                     <Nav.Link href="#link" disabled>Earthquakes Map</Nav.Link>
                 </Nav>
@@ -34,9 +34,9 @@ class App extends Component {
         <Container>
             <Router>
               <HomeViewComponent path="/" noThrow />
-              <ListViewComponent path="/volcanos/list" />
-              <Redirect to={"/volcanos/list"} from={"/volcanos"} noThrow />
-              <MapViewComponent path="/volcanos/map" />
+              <ListViewComponent path="/list" />
+              {/*<Redirect to={"/volcanos/list"} from={"/volcanos"} noThrow />*/}
+              <MapViewComponent path="/map" />
               <HazardViewComponent path="/hazard/:id" />
               <FourOhFourViewComponent default />
             </Router>

@@ -1,31 +1,11 @@
-.ListViewComponent {
-   
+.container{
+  margin-top: 3em;
 }
 
-.card-cont {
-  margin: 40px;
+.dataTables_filter{
+  float: right;
 }
 
-.hazard{
-  display: flex;
-  align-items: center;
-}
-
-p{
-  display: inline;
-}
-
-li{
-  border-top: none;
-}
-
-.hazard{
-  width: 100%;
-  border: thin solid grey;
-  border-bottom: none;
-  padding: 1em
-}
-
-li.row:last-child .hazard{
-  border-bottom: thin solid grey;
+.page-title{
+  margin-bottom: 1em;
 }

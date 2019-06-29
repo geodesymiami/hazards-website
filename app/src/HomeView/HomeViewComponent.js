@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Jumbotron, Button, Row, Col, Container } from 'react-bootstrap'
+import { Jumbotron, Row, Col, Container } from 'react-bootstrap'
 import './styles.css'
 
 class HomeViewComponent extends Component{
