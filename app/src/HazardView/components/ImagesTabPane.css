@@ -1,0 +1,7 @@
+.row > div:first-child{
+    padding-left: 0;
+}
+
+.row > div:last-child{
+    padding-right: 0;
+}

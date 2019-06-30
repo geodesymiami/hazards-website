@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
+import ImagesTabPane from "./ImagesTabPane";
 
 class ImageTypeTabs extends Component {
 
@@ -18,7 +19,9 @@ class ImageTypeTabs extends Component {
     return (
         <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" activeKey={this.state.key} onSelect={key => this.setState({ key })}>
             {this.props.image_types.map( (name, index) => {
-                return <Tab eventKey={name} key={name} title={name}></Tab>
+                return <Tab eventKey={name} key={name} title={name}>
+                          <ImagesTabPane image_type={name}/>
+                       </Tab>
             })}
         </Tabs>
     );
