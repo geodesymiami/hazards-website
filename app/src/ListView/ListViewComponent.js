@@ -64,7 +64,7 @@ export default class ListViewComponent extends Component {
                     columnDefs: [
                         {
                             "render": function (data, type, row) {
-                                return `<a href='/volcano/${row['hazard_id']}'>${data}</a>`;
+                                return `<a href='/volcanos/${row['hazard_id']}'>${data}</a>`;
                             },
                             "targets": 1
                         },

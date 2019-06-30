@@ -277,6 +277,7 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
                                 'latitude':  hazard.location.center.lat,
                                 'longitude': hazard.location.center.long
                               }
+    return_dict['num_images'] = hazard.num_images
 
     return_dict['images_by_satellite'] = dict()
     # A reference to `return_dict['images_by_satellite']`

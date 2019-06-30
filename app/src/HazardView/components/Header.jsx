@@ -1,17 +1,20 @@
 import React, { Component } from "react";
 import "./Header.css";
 import axios from "axios";
-import {Jumbotron} from "react-bootstrap"
+import { Jumbotron } from "react-bootstrap"
+
+var moment = require('moment')
 
 class Header extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+        hazardId: "",
         hazardName: "",
         longitude: "",
         latitude: "",
-        numImages: "10",
+        numImages: "",
         lastImageDate: ""
     };
   }
@@ -19,28 +22,44 @@ class Header extends Component {
   componentWillMount() {
     var id = this.props.id;
 
-    fetch(`http://0.0.0.0:5000/api/volcano/${id}`, {mode: 'cors'})
-        .then((response) => {
-            return response.json()
-        })
-        .then((data) =>
-            this.setState({
-                hazardName: data.hazard_name,
-                longitude: data.location.longitude,
-                latitude: data.location.latitude,
-                lastImageDate: data.last_updated
+    // fetch(`http://0.0.0.0:5000/api/volcano/${id}`, {mode: 'cors'})
+    //     .then((response) => {
+    //         return response.json()
+    //     })
+    //     .then((data) =>
+    //         this.setState({
+    //             hazardId: this.props.id,
+    //             hazardName: data.hazard_name,
+    //             longitude: data.longitude,
+    //             latitude: data.latitude,
+    //             lastImageDate: data.last_updated,
+    //             numImages: data.num_images
+    //         })
+    //     )
+    //     .catch(error => console.log(error));
+
+      axios.get(`http://0.0.0.0:5000/api/volcano/${id}`, {mode: 'cors'})
+            .then( (response) => {
+                this.setState({
+                    hazardId: this.props.id,
+                    hazardName: response.data.hazard_name,
+                    longitude: response.data.location.longitude,
+                    latitude: response.data.location.latitude,
+                    lastImageDate: moment(response.data.last_updated).format("YYYY-MM-DD").toString(),
+                    numImages: response.data.num_images
+                })
+                console.log(this.state)
             })
-        )
-        .catch(error => console.log(error));
   }
 
   render() {
     return (
           <Jumbotron id="HazardInfo" className="hazardinfo" style={{textAlign: "center"}}>
               <h1 className={"important"}>{this.state.hazardName}</h1>
-              <h5>Hazard Id: {this.props.id}</h5>
-              <h3 id={"num_images"}>{this.state.numImages} Images</h3>
-              <h5>{this.state.lastImageDate}</h5>
+              <h6>Volcano Id: {this.state.hazardId}</h6>
+              <h6>Volcanic Caldera</h6>
+              <hr />
+              <h5 id={"num_images"}>{this.state.numImages} Images &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;  Last Image: {this.state.lastImageDate}</h5>
           </Jumbotron>
     );
   }
