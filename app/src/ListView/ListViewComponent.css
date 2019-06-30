@@ -2,10 +2,43 @@
   margin-top: 3em;
 }
 
-.dataTables_filter{
-  float: right;
-}
-
 .page-title{
   margin-bottom: 1em;
 }
+
+table{
+  width: 100% !important;
+}
+
+  tr{
+    border-bottom: thin solid #999;
+  }
+
+  td, th{
+    padding: 8px 0;
+  }
+
+.row{
+  margin: 1em 0;
+}
+
+.row .left{
+  display: flex;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.row .right{
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+.dataTables_paginate{
+  display: flex;
+  justify-content: center;
+}
+
+  ul.pagination{
+    margin: 0;
+  }
