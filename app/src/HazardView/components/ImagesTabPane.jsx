@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import TabPane from 'react-bootstrap/TabPane'
-import Sidebar from "./Sidebar";
 import "./ImagesTabPane.css"
 
 class ImagesTabPane extends Component{
@@ -13,12 +12,9 @@ class ImagesTabPane extends Component{
 
         return(
 
-            <TabPane eventKey={"test"}>
+            <TabPane eventKey={this.props.image_type} className={"images"} style={{background: this.props.color}}>
                 <div className={"row"}>
-                    <div className={"col-lg-4"}>
-                        <Sidebar />
-                    </div>
-                    <div className={"col-lg-8"} style={{height: "100vh", background: "gray"}}></div>
+
                 </div>
             </TabPane>
 
