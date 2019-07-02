@@ -10,27 +10,8 @@
   width: 100%;
 }
 
-.sidenav a {
-  padding: 8px 8px 8px 32px;
-  text-decoration: none;
-  font-size: 25px;
-  color: #ffffff;
-  display: block;
-  transition: 0.3s;
-}
-
-.sidenav .closebtn {
-  position: absolute;
-  top: 0;
-  right: 25px;
-  font-size: 36px;
-  margin-left: 50px;
-}
-
-.sidenav h1 {
-  color: #fff;
-}
-
-.sidenav ul {
-  color: #fff;
+.form-inline select{
+  padding: 2em;
+  text-align: center;
+  margin: 0 1em;
 }

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./Sidebar.css";
-import Checkbox from "./Checkbox";
+import {Form, Col, InputGroup} from "react-bootstrap"
 
 const IMAGETYPE = ["Backscatter", "Interferogram", "Coherence"];
 const RECTIFICATION = ["Georectified", "Orthorectified"];
@@ -10,58 +10,69 @@ class Sidebar extends Component {
   constructor(props){
     super(props)
   }
-  // selectAllCheckboxes = isSelected => {
-  //   Object.keys(this.props.checkboxes).forEach(checkbox => {
-  //     this.props.action(checkbox, isSelected);
-  //   });
-  // };
-  //
-  // selectAll = () => this.selectAllCheckboxes(true);
-  //
-  // deselectAll = () => this.selectAllCheckboxes(false);
-  //
-  // handleCheckboxChange = changeEvent => {
-  //   const { name } = changeEvent.target;
-  //   this.props.action(name, !this.props.checkboxes[name]);
-  // };
-  //
-  // createCheckbox = option => (
-  //   <Checkbox
-  //     label={option}
-  //     isSelected={this.props.checkboxes[option]}
-  //     onCheckboxChange={this.handleCheckboxChange}
-  //     key={option}
-  //   />
-  // );
-  //
-  // createCheckboxes = option => option.map(this.createCheckbox);
 
   render() {
     return (
       <div className="sidebar">
         <div className="nav-sidebar">
           <form>
-            <h3>Image Type</h3>
-            {/*{this.createCheckboxes(IMAGETYPE)}*/}
-            {/*<h3>Rectification</h3>*/}
-            {/*{this.createCheckboxes(RECTIFICATION)}*/}
-
-            {/*<div className="form-group mt-2">*/}
-            {/*  <button*/}
-            {/*    type="button"*/}
-            {/*    className="btn btn-outline-primary mr-2"*/}
-            {/*    onClick={this.selectAll}*/}
-            {/*  >*/}
-            {/*    Select All*/}
-            {/*  </button>*/}
-            {/*  <button*/}
-            {/*    type="button"*/}
-            {/*    className="btn btn-outline-primary mr-2"*/}
-            {/*    onClick={this.deselectAll}*/}
-            {/*  >*/}
-            {/*    Deselect All*/}
-            {/*  </button>*/}
-            {/*</div>*/}
+            <h3>Filter Options</h3>
+            <Form.Group controlId="exampleForm.ControlSelect1">
+              <Form.Label>Satellite</Form.Label>
+              <Form.Control as="select" multiple>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+              </Form.Control>
+            </Form.Group>
+            <Form.Group controlId="validationCustomUsername">
+              <Form.Label>Start Date</Form.Label>
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text id="startDatePre">@</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control type="text" placeholder="YYYY-MM-DD" aria-describedby="startDatePre" />
+                <Form.Control.Feedback type="invalid">
+                  Please choose a username.
+                </Form.Control.Feedback>
+              </InputGroup>
+            </Form.Group>
+            <Form.Group controlId="validationCustomUsername">
+              <Form.Label>End Date</Form.Label>
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text id="endDatePre">@</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control type="text" placeholder="YYYY-MM-DD" aria-describedby="endDatePre" />
+                <Form.Control.Feedback type="invalid">
+                  Please choose a username.
+                </Form.Control.Feedback>
+              </InputGroup>
+            </Form.Group>
+            <Form.Group controlId="validationCustomUsername" className={"form-inline"}>
+              <Form.Label>Last</Form.Label>
+              <Form.Control as="select">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+              </Form.Control>
+              <Form.Label>images</Form.Label>
+            </Form.Group>
+            <Form.Group controlId="validationCustomUsername" className={"form-inline"}>
+              <Form.Label>Last</Form.Label>
+              <Form.Control as="select">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+              </Form.Control>
+              <Form.Label>days</Form.Label>
+            </Form.Group>
           </form>
         </div>
       </div>
