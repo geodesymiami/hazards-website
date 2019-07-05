@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from typing import Tuple, List, Optional, Set
+from typing import List, Optional
 import os
 from datetime import datetime, timedelta
 
@@ -46,7 +46,7 @@ class ImageType(Enum):
 
             :param string: One of "geo_baskscatter", "geo_coherence", "geo_interferogram",
                                   "ortho_backscatter", "ortho_coherence", or "ortho_interferogram"
-            :raises ValueError when `string not in ("geo_baskscatter", "geo_coherence", "geo_interferogram",
+            :raises ValueError when `string` not in ("geo_baskscatter", "geo_coherence", "geo_interferogram",
                                                     "ortho_backscatter", "ortho_coherence", "ortho_interferogram")
         """
         upper_string = string.upper()
@@ -180,28 +180,35 @@ class Date:
 
     @classmethod
     def get_today(cls):
+        """
+            :returns Date: the Date representation of the current date
+        """
         return Date(datetime.now().strftime("%Y-%m-%d"))
 
 class DateRange:
     """
-    This class is used for filtering images by a range of dates.
-    If `end = None`, then the date range ends on the current date
+        This class is used for filtering images by a range of dates.
+        If `start`  is not specified, Jan 1, 1970   is used (datetime(0)).
+        If `end`    is not specified, current date  is used.
     """
     def __init__(self, start: Optional[Date] = Date("1970-01-01"), end: Optional[Date] = Date.get_today()):
         self.start_date: Optional[Date] = start
         self.end_date: Optional[Date] = end
 
     def __str__(self):
-        end_str = self.end_date.date if self.end_date else str(None)
-        return "[{start}, {end}]".format(start=self.start_date.date, end=end_str)
+        return "[{start}, {end}]".format(start=self.start_date.date, end=self.end_date.date)
 
     def is_date_in_range(self, date: Date):
-        # end_date = self.end_date if self.end_date != None else Date.get_today()
+        """
+            Checks if `date` is between start and end bounds of the DateRange
+            :param date: the date to check
+            :return bool: whether `date` is between start and end
+        """
         return int(self.start_date) <= int(date) <= int(self.end_date)
 
-class ImageURL():
+class ImageURL:
     """
-    Creates and validates a URL
+        Creates and validates a URL
     """
     def __init__(self, url: str):
         if self.is_valid_url(url):
@@ -209,12 +216,21 @@ class ImageURL():
         else:
             raise ValueError("The url {0} is not a valid URL".format(url))
 
-    # TODO: Add further validation
     @classmethod
     def is_valid_url(self, url):
+        """
+            Checks if the `url` is an image (file extension one of ["jpg", "png", "tif", "gif"]) and if
+            the url string begins with "http".
+
+            :param url: the `url` to validate
+            :return: whether the `url` is properly formed and as expected
+        """
+
+        valid_http = ["http"]
         valid_extensions = [".jpg", ".png", ".tif", ".gif"]
         filename, file_extension = os.path.splitext(url)
-        if file_extension not in valid_extensions:
+        file_http = filename[:4]
+        if file_extension not in valid_extensions or file_http not in valid_http:
             return False
         return True
 
@@ -226,18 +242,25 @@ class Location:
         if valid_lats and valid_lons:
             self.center = center
         else:
-            raise Exception()
+            raise ValueError("The latitude or longitude provided is out of bounds.")
 
     @classmethod
     def validate_latitude(cls, lat: LatLong):
+        """
+            Validates that `lat` is between -90˚ and 90˚ (valid latitudinal bounds)
+            :param lat: the latitude
+            :return: whether `lat` is between -90˚ and 90˚ latitude
+        """
         return -90 <= float(lat.lat) <= 90
 
     @classmethod
     def validate_longitude(cls, lon: LatLong):
+        """
+           Validates that `lon` is between -180˚ and 180˚ (valid longitudinal bounds)
+           :param lon: the longitude
+           :return: whether `lon` is between -180˚ and 180˚ longitude
+       """
         return -180 <= float(lon.long) <= 180
-
-class AscendingParseException(Exception):
-    pass
 
 @dataclass
 class Hazard:
@@ -261,10 +284,13 @@ class Image:
 
 class HazardInfoFilter:
     """
-    self.satellites: Optional[List[Satellite]]
-    self.image_types: Optional[List[ImageType]]
-    self.date_range: Optional[DateRange]
-    self.max_num_images: int
+        Creates a custom image filter for hazard images. Possible filter option include:
+            - satellite(s)
+            - image types(s)
+            - date range
+            - last N days of images
+            - maximum number of images
+        Also handles the generation of the correlated SQL where clause for the given filter options.
     """
 
     def __init__(self,
