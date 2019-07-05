@@ -105,8 +105,7 @@ class Database:
         """
 
         with self.database.cursor() as cursor:
-            sql = "SELECT satellite.* FROM satellites satellite WHERE satellite.id in " \
-                  "(SELECT DISTINCT sat_id FROM images WHERE haz_id='{}')".format(hazard_id)
+            sql = "SELECT DISTINCT sat_id FROM images WHERE haz_id='{}'".format(hazard_id)
             cursor.execute(sql)
             result = cursor.fetchall()
 
@@ -114,10 +113,8 @@ class Database:
 
         satellites = []
         for sat in result:
-            id = sat['id']//10
-            asc = sat['ascending'] % 10
-            satellite = Satellite(id, True if asc is 1 else False)
-            satellites.append(satellite)
+            sat_id = int(sat['sat_id'])
+            satellites.append(Satellite.from_int(sat_id))
 
         return satellites
 
