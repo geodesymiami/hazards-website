@@ -41,6 +41,14 @@ class ImageType(Enum):
 
     @classmethod
     def from_string(cls, string: str) -> "ImageType":
+        """
+            Example: ImageType.from_string("geo_baskscatter")
+
+            :param string: One of "geo_baskscatter", "geo_coherence", "geo_interferogram",
+                                  "ortho_backscatter", "ortho_coherence", or "ortho_interferogram"
+            :raises ValueError when `string not in ("geo_baskscatter", "geo_coherence", "geo_interferogram",
+                                                    "ortho_backscatter", "ortho_coherence", "ortho_interferogram")
+        """
         upper_string = string.upper()
         if upper_string in ImageType.__members__:
             return ImageType[upper_string]
@@ -48,6 +56,12 @@ class ImageType(Enum):
             raise ValueError("{} is not a valid image type".format(string))
 
     def to_string(self) -> str:
+        """
+            Converts an image type into a lowercase string.
+            Example: ImageType.to_string(ImageType.GEO_BACKSCATTER) returns 'geo_backscatter'
+
+            :returns : lowercase string representation of the self.name (see example)
+        """
         return self.name.lower()
 
 class SatelliteEnum(Enum):
