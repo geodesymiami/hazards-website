@@ -165,7 +165,7 @@ class Database:
             for img in data:
                 sat_id = int(img['sat_id']) // 10
                 sat_asc = int(img['sat_id']) % 10
-                sat = Satellite(SatelliteEnum(sat_id), True if sat_asc == 1 else False)
+                sat = Satellite(Satellite(sat_id), True if sat_asc == 1 else False)
                 image = Image(img['id'],
                               img['haz_id'],
                               sat,
@@ -307,7 +307,7 @@ class Database:
 
 if __name__ == "__main__":
     hazard = Hazard("200022", "Volcano2", HazardType.VOLCANO, Location(LatLong(1.000, 1.000)), Date("19700101"), 0)
-    satellite = Satellite(SatelliteEnum(9), False)
+    satellite = Satellite(Satellite(9), False)
     image = Image("60",
                   "200022",
                   satellite,

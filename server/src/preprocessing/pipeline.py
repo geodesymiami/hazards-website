@@ -69,7 +69,7 @@ if __name__ == "__main__":
         try:
             haz_id, haz_name, sat_name, sat_dir, img_type, img_date, center = summary.pull_summary_data(
                 "/vsis3/{}".format(file_path))
-            sat_id = SatelliteEnum.from_string(sat_name)
+            sat_id = Satellite.from_string(sat_name)
         except:
             # LOG: error in image metadata format
             logger.log(loglevel.ERROR, '\tThere was an error in the metadata format of the image. Skipping.')
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         # LOG: mod_path_aws, full_path_aws, tif_path_aws
 
         hazard = Hazard(haz_id, haz_name, HazardType.VOLCANO, Location(LatLong(center[0], center[1])), Date(img_date), 3)
-        sat_id = SatelliteEnum.from_string(sat_name)
+        sat_id = Satellite.from_string(sat_name)
         satellite = Satellite(sat_id, sat_dir)
         image = Image(str(randint(1, 10000000)),
                       haz_id,

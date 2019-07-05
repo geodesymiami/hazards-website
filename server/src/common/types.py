@@ -64,29 +64,89 @@ class ImageType(Enum):
         """
         return self.name.lower()
 
-class SatelliteEnum(Enum):
-    ERS = 1
-    ENV = 2
-    S1A = 3
-    RS1 = 4
-    RS2 = 5
-    CSK = 6
-    TSX = 7
-    JERS = 8
-    ALOS = 9
-    ALOS2 = 10
-    NISAR = 11
+class Satellite(Enum):
+    ERS_DESC    = 10
+    ERS_ASC     = 11
+    ENV_DESC    = 20
+    ENV_ASC     = 21
+    S1A_DESC    = 30
+    S1A_ASC     = 31
+    RS1_DESC    = 40
+    RS1_ASC     = 41
+    RS2_DESC    = 50
+    RS2_ASC     = 51
+    CSK_DESC    = 60
+    CSK_ASC     = 61
+    TSX_DESC    = 70
+    TSX_ASC     = 71
+    JERS_DESC   = 80
+    JERS_ASC    = 81
+    ALOS_DESC   = 90
+    ALOS_ASC    = 91
+    ALOS2_DESC  = 100
+    ALOS2_ASC   = 101
+    NISAR_DESC  = 110
+    NISAR_ASC   = 111
 
     @classmethod
-    def from_string(cls, string: str) -> "SatelliteEnum":
-        upper_string = string.upper()
-        if upper_string in SatelliteEnum.__members__:
-            return SatelliteEnum[upper_string]
-        else:
-            raise ValueError("{} is not a valid image type".format(string))
+    def from_string(cls, string: str) -> "Satellite":
+        """
+            Example: Satellite.from_string("ERS_DESC")
 
-    def to_string(self) -> str:
+            :param string: The satellite name followed by its direction (either ASC or DESC), separated by an '_'
+            :raises ValueError when `string` not in satellite dictionary
+        """
+        upper_string = string.upper()
+        if upper_string in Satellite.__members__:
+            return Satellite[upper_string]
+        else:
+            raise ValueError("{} is not a valid satellite".format(string))
+
+    @classmethod
+    def from_int(cls, value: int) -> "Satellite":
+        """
+            Example: Satellite.from_int(10)
+
+            :param value: The integer representation of the satellite, where the final digit represents the satellites
+                          direction (0 for descending, 1 for ascending)
+            :raises ValueError when `value` is not in satellite dictionary
+        """
+        if Satellite(value) in list(Satellite.__members__.values()):
+            return Satellite(value)
+        else:
+            raise ValueError("{} is not a valid satellite".format(value))
+
+    @classmethod
+    def from_params(cls, sat_name: str, ascending: bool) -> "Satellite":
+        """
+
+            Example: Satellite.from_params("geo_backscatter", ascending=True)
+
+            :param sat_name: The name of the satellite
+            :param ascending: The direction of the satellite
+            :raises: ValueError if (`sat_name`, `ascending`) not in satellite dictionary
+        """
+        upper_sat_name = sat_name.upper()
+        sat_direction = "ASC" if ascending else "DESC"  # Python ternary operator
+
+        sat_string = "{}_{}".format(upper_sat_name, sat_direction)
+
+        if sat_string in Satellite.__members__:
+            return Satellite[sat_string]
+        else:
+            raise ValueError("{} {} is not a valid set of satellite parameters".format(sat_name, sat_direction))
+
+    def __str__(self) -> str:
         return self.name.upper()
+
+    def __int__(self) -> int:
+        return self.value
+
+    def get_name(self) -> str:
+        return self.name.upper().split("_")[0]
+
+    def is_ascending(self) -> bool:
+        return self.value % 10 == 1
 
 class LatLong:
     def __init__(self, lat: float, long: float):
@@ -184,61 +244,6 @@ class Location:
     @classmethod
     def validate_longitude(cls, lon: LatLong):
         return -180 <= float(lon.long) <= 180
-
-@dataclass
-class Satellite:
-    satellite_id: SatelliteEnum
-    ascending: bool
-
-    def to_string(self):
-        """
-        :return: Of the form "SATID_ASC" or "SATID_DESC"
-        """
-        sat_id_str = self.satellite_id.to_string()
-
-        if self.ascending:
-            return sat_id_str + "_ASC"
-        else:
-            return sat_id_str + "_DESC"
-
-    @classmethod
-    def from_string(cls, raw_satellite: str) -> Tuple["Satellite", ...]:
-        """
-        The `raw_satellite` parameter can be of the following formats:
-
-        1. "SATID" OR "SATID_BOTH" -> Tuple of both ascending and descending satellites of SATID
-        2."SATID_ASC" -> Tuple of just ascending satellite SATID
-        3. "SATID_DESC" -> Tuple of just descending satellite SATID
-        :raises: ValueError, AscendingParseException
-        :return:
-        """
-        if "_" in raw_satellite:
-            sat_id, asc_or_desc = raw_satellite.split("_")
-            asc_or_desc = asc_or_desc.lower()
-            if asc_or_desc not in ('asc', 'desc', 'both'):
-                raise AscendingParseException
-        else:
-            sat_id = raw_satellite
-            asc_or_desc = 'both'
-
-        sat_enum = SatelliteEnum.from_string(sat_id)
-        asc_satellite = Satellite(satellite_id=sat_enum, ascending=True)
-        desc_satellite = Satellite(satellite_id=sat_enum, ascending=False)
-
-        if asc_or_desc == 'both':
-            return asc_satellite, desc_satellite
-        elif asc_or_desc == 'asc':
-            return (asc_satellite,) # The way to create a 1-tuple in Python
-        elif asc_or_desc == 'desc':
-            return (desc_satellite,)
-
-    def __hash__(self):
-        return hash(self.to_string())
-
-
-    @classmethod
-    def get_satellite_name(cls) -> str:
-        pass
 
 class AscendingParseException(Exception):
     pass
