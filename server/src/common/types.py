@@ -64,6 +64,9 @@ class ImageType(Enum):
         """
         return self.name.lower()
 
+    def __str__(self):
+        return self.to_string()
+
 class Satellite(Enum):
     ERS_DESC    = 10
     ERS_ASC     = 11
@@ -147,6 +150,9 @@ class Satellite(Enum):
 
     def is_ascending(self) -> bool:
         return self.value % 10 == 1
+
+    def get_value(self):
+        return str(self.value)
 
 class LatLong:
     def __init__(self, lat: float, long: float):
@@ -294,11 +300,11 @@ class HazardInfoFilter:
     """
 
     def __init__(self,
-                 satellites: Optional[List[Satellite]],
-                 image_types: Optional[List[ImageType]],
-                 date_range: Optional[DateRange],
-                 max_num_images: int,
-                 last_n_days: Optional[int]):
+                 satellites:        Optional[List[Satellite]]   = None,
+                 image_types:       Optional[List[ImageType]]   = None,
+                 date_range:        Optional[DateRange]         = None,
+                 max_num_images:    Optional[int]               = None,
+                 last_n_days:       Optional[int]               = None):
 
         self.satellites: Optional[List[Satellite]] = satellites
         self.image_types: Optional[List[ImageType]] = image_types
@@ -317,3 +323,48 @@ class HazardInfoFilter:
             new_date_range = date_range
 
         self.date_range: Optional[DateRange] = new_date_range
+
+    def generate_sql_filter(self, haz_id):
+        """
+            Generates the correlating 'WHERE' clause in SQL for passing to the database.
+            :param haz_id: the haard id to filter by
+            :return: the SQL representation of the filter as a WHERE clause
+        """
+
+        sat_list = [sat.get_value() for sat in self.satellites]
+        im_types_list = [str(imtype) for imtype in self.image_types]
+
+        filter_sql = ""
+
+        if len(sat_list) > 0:
+            if len(sat_list) == 1:
+                sat_sql = "`sat_id` = '{}'".format(sat_list[0])
+            else:
+                sat_list_string = "', '".join(sat_list)
+                sat_sql = "`sat_id` in ('{}')".format(sat_list_string)
+
+            filter_sql += " AND {}".format(sat_sql)
+
+        if len(im_types_list) > 0:
+            if len(im_types_list) == 1:
+                imtype_sql = "`img_type` = '{}'".format(im_types_list[0])
+            else:
+                imtype_sql_string = "', '".join(im_types_list)
+                imtype_sql = "`img_type` in ('{}')".format(imtype_sql_string)
+
+            filter_sql += " AND {}".format(imtype_sql)
+
+        if self.date_range:
+            date_range_sql = "`img_date` BETWEEN '{}' AND '{}'".format(str(self.date_range.start_date),
+                                                                     str(self.date_range.end_date))
+
+            filter_sql += " AND {}".format(date_range_sql)
+
+        if self.max_num_images:
+            max_num_sql = " LIMIT {}".format(self.max_num_images)
+
+            filter_sql += max_num_sql
+
+        haz_id_sql = "`haz_id`={}".format(haz_id)
+
+        return haz_id_sql+filter_sql
