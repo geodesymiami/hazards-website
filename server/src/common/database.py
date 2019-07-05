@@ -117,65 +117,59 @@ class Database:
             satellites.append(Satellite.from_int(sat_id))
 
         return satellites
-
-    def get_hazard_data_by_hazard_id(self, hazard_id: str, filter: HazardInfoFilter) -> Tuple[Hazard, List[Image]]:
-        """
-        Returns hazards by id filtered by satellite, image type, date range, and num images.
-        This should constitute a multiple table lookup, where first, the data for the provided
-        `hazard_id` is pulled from the `hazards` table, then the images associated with the
-        `hazard_id` are pulled from the `images` table.
-
-        :param hazard_id: the hazard_id to pull information and images for
-        :param filter: a list of filtering options to refine the returned information
-        :returns Hazard, [Image]
-
-        Worked on by Samuel Triana and Xinxin Rong.
-        """
-
-        images = []
-
+    
+    def get_hazard_info_by_hazard_id(self, hazard_id: str) -> Hazard:
+        
         # Get Hazard data and create Hazard Object
         with self.database.cursor() as cursor:
             sql = "SELECT * FROM `hazards` WHERE `id`='{}'".format(hazard_id)
             cursor.execute(sql)  # Execute to the SQL statement
-            data = cursor.fetchall()
+            result = cursor.fetchone()
 
             cursor.close()
-        data = data[0]
-        id = data['id']
-        name = data['name']
-        type = HazardType.from_string(data['type'])
-        center = LatLong(data['latitude'], data['longitude'])
-        location = Location(center)
-        updated = Date(str(data['updated']).replace("-", ""))
-        num_images = data['num_images']
 
-        hazard = Hazard(id, name, type, location, updated, num_images)
+        id = result['id']
+        name = result['name']
+        type = HazardType.from_string(result['type'])
+        location = Location(result['latitude'], result['longitude'])
+        updated = Date(result['updated'].strftime("%Y-%m-%d"))
+        num_images = result['num_images']
+
+        return Hazard(id, name, type, location, updated, num_images)
+
+    def get_images_by_hazard_id(self, hazard_id: str, filter: Optional[HazardInfoFilter]) -> List[Image]:
+        """
+            Returns images by hazard_id filtered by satellite, image type, date range, and num images.
+
+            :param hazard_id: the hazard_id to pull images for
+            :param filter: a list of filtering options to refine the returned information
+            :returns [Image]
+
+        """
+
+        images = []
 
         # Get Images, no filter, needs true column names
         with self.database.cursor() as cursor:
-            sql = "SELECT * FROM `images` WHERE `haz_id` = '{}';".format(hazard_id)
+            sql = "SELECT * FROM `images` WHERE {};".format(filter.generate_sql_filter(hazard_id))
             cursor.execute(sql)
             data = cursor.fetchall()
 
             cursor.close()
 
-            for img in data:
-                sat_id = int(img['sat_id']) // 10
-                sat_asc = int(img['sat_id']) % 10
-                sat = Satellite(Satellite(sat_id), True if sat_asc == 1 else False)
-                image = Image(img['id'],
-                              img['haz_id'],
-                              sat,
-                              ImageType.from_string(img['img_type']),
-                              Date(img['img_date'].strftime("%Y%m%d")),
-                              ImageURL(img['raw_image_url']),
-                              ImageURL(img['tif_image_url']),
-                              ImageURL(img['mod_image_url'])
-                              )
-                images.append(image)
+        for img in data:
+            image = Image(img['id'],
+                          img['haz_id'],
+                          Satellite.from_int(int(img['sat_id'])),
+                          ImageType.from_string(img['img_type']),
+                          Date(img['img_date'].strftime("%Y-%m-%d")),
+                          ImageURL(img['raw_image_url']),
+                          ImageURL(img['tif_image_url']),
+                          ImageURL(img['mod_image_url'])
+                         )
+            images.append(image)
 
-        return hazard, images
+        return images
 
     """
     All database insertion methods should take care to do the following:

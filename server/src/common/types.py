@@ -332,12 +332,12 @@ class HazardInfoFilter:
             :return: the SQL representation of the filter as a WHERE clause
         """
 
-        sat_list = [sat.get_value() for sat in self.satellites]
-        im_types_list = [str(imtype) for imtype in self.image_types]
-
         filter_sql = ""
 
-        if len(sat_list) > 0:
+        if self.satellites:
+
+            sat_list = [sat.get_value() for sat in self.satellites]
+
             if len(sat_list) == 1:
                 sat_sql = "`sat_id` = '{}'".format(sat_list[0])
             else:
@@ -346,7 +346,10 @@ class HazardInfoFilter:
 
             filter_sql += " AND {}".format(sat_sql)
 
-        if len(im_types_list) > 0:
+        if self.image_types:
+
+            im_types_list = [str(imtype) for imtype in self.image_types]
+
             if len(im_types_list) == 1:
                 imtype_sql = "`img_type` = '{}'".format(im_types_list[0])
             else:
@@ -367,5 +370,7 @@ class HazardInfoFilter:
             filter_sql += max_num_sql
 
         haz_id_sql = "`haz_id`={}".format(haz_id)
+
+        print(haz_id_sql+filter_sql)
 
         return haz_id_sql+filter_sql
