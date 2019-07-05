@@ -168,36 +168,36 @@ class Date:
     def __init__(self, date: str):
 
         try:
-            self.date = datetime.strptime(date, "%y-%m-%d")
+            self.date = datetime.strptime(date, "%Y-%m-%d")
         except ValueError:
             raise ValueError("The date {0} is not a valid date of the form \"YYYY-MM-DD\"".format(date))
 
     def __str__(self):
-        return self.date
+        return self.date.strftime("%Y-%m-%d")
 
     def __int__(self):
-        return int(self.date)
+        return int(self.date.timestamp())
 
     @classmethod
     def get_today(cls):
-        return Date(datetime.now().strftime("%Y%m%d"))
+        return Date(datetime.now().strftime("%Y-%m-%d"))
 
 class DateRange:
     """
     This class is used for filtering images by a range of dates.
     If `end = None`, then the date range ends on the current date
     """
-    def __init__(self, start: Date, end: Optional[Date] = None):
-        self.start: Date = start
-        self.end: Optional[Date] = end
+    def __init__(self, start: Optional[Date] = Date("1970-01-01"), end: Optional[Date] = Date.get_today()):
+        self.start_date: Optional[Date] = start
+        self.end_date: Optional[Date] = end
 
     def __str__(self):
-        end_str = self.end.date if self.end else str(None)
-        return "[{start}, {end}]".format(start=self.start.date, end=end_str)
+        end_str = self.end_date.date if self.end_date else str(None)
+        return "[{start}, {end}]".format(start=self.start_date.date, end=end_str)
 
-    def date_in_range(self, date: Date):
-        end_date = self.end if self.end != None else Date.get_today()
-        return int(self.start) <= int(date.date) <= int(end_date)
+    def is_date_in_range(self, date: Date):
+        # end_date = self.end_date if self.end_date != None else Date.get_today()
+        return int(self.start_date) <= int(date) <= int(self.end_date)
 
 class ImageURL():
     """
@@ -285,7 +285,7 @@ class HazardInfoFilter:
             if date_range is None:
                 new_date_range = DateRange(start=last_n_days_date)
             else:
-                new_date_range = DateRange(start=last_n_days_date, end=date_range.end)
+                new_date_range = DateRange(start=last_n_days_date, end=date_range.end_date)
         else:
             new_date_range = date_range
         self.date_range: Optional[DateRange] = new_date_range
