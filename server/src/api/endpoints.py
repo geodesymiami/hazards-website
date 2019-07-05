@@ -9,22 +9,17 @@ from common.types import *
 from common.database import Database
 
 @app.route('/api/<string:hazard_type_param>', methods=['GET'])
-def get_hazards_summary_info(hazard_type_param: str):
+def get_hazards(hazard_type_param: str):
     print("Get Hazards Summary")
-    # HazardType.from_string() raises an exception if the string is not compatible
     try:
-        print(hazard_type_param)
         hazard_type = HazardType.from_string(hazard_type_param)
-        print(hazard_type)
     except ValueError:
         # send back an exception
         abort(400, "Hazard Type {0} does not exist.".format(hazard_type_param))
         return
 
     db = Database()
-
     data_from_db = db.get_hazards_by_type(hazard_type)
-
     db.close()
 
     data_to_return = parse_hazard_summary_info_from_db(data_from_db, hazard_type)
