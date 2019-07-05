@@ -155,36 +155,27 @@ class LatLong:
 
 class Date:
     """
-    Class for dates of the format YYYYMMDD
+    Class for dates of the format YYYY-MM-DD
 
     Example:
-        >>> today = Date("20190411")
+        >>> today = Date("2019-04-11")
         >>> print(today.date)
         20190411
-        >>> print("The year is {0} in the {1}th month".format(today.date[:4], today.date[4:6]))
+        >>> print("The year is {0} in the {1}th month".format(today.date[:4], today.date[5:7]))
         The year is 2019 in the 04th month
     """
 
     def __init__(self, date: str):
 
-        if self.is_valid_date(date):
-            self.date = date
-        else:
-            raise ValueError("The date {0} is not a valid date of the form \"YYYYMMDD\"".format(date))
+        try:
+            self.date = datetime.strptime(date, "%y-%m-%d")
+        except ValueError:
+            raise ValueError("The date {0} is not a valid date of the form \"YYYY-MM-DD\"".format(date))
 
-    @classmethod
-    def is_valid_date(self, possible_date: str):
-        """
-        Checks if date is of format "YYYYMMDD"
-        """
-        if len(possible_date) == 8:
-            if possible_date.isdigit():
-                if 1 <= int(possible_date[4:6]) <= 12:
-                    if 1 <= int(possible_date[6:]) <= 31:
-                        return True
-        return False
+    def __str__(self):
+        return self.date
 
-    def to_integer(self):
+    def __int__(self):
         return int(self.date)
 
     @classmethod
