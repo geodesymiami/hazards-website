@@ -30,18 +30,10 @@ def get_hazards(hazard_type_param: str):
 def get_satellites_by_hazard_id(hazard_id_param: int):
 
     db = Database()
-
-    satellites: List[Satellite] = db.get_satellites_by_hazard_id(hazard_id= hazard_id_param)
-
+    satellites: List[Satellite] = db.get_satellites_by_hazard_id(hazard_id=hazard_id_param)
     db.close()
 
-    if len(satellites) == 0:
-        abort(404, "No satellites returned for hazard_id: {0}".format(hazard_id_param))
-
-    data_to_return = [{'satellite_id':   sat.to_string(),
-                       'satellite_name': sat.satellite_name
-                      }
-                      for sat in satellites]
+    data_to_return = [{'satellite_id': sat.get_value(), 'satellite_name': sat.get_name()} for sat in satellites]
 
     return jsonify(data_to_return)
 

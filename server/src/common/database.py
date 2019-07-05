@@ -97,7 +97,7 @@ class Database:
 
         return hazards
 
-    def get_satellites_by_hazard_id(self, hazard_id: str) -> List[Satellite]:
+    def get_satellites_by_hazard_id(self, hazard_id: int) -> List[Satellite]:
         """
         Returns a list of Satellite that have images a given hazard (given by hazard_id)
         :param hazard_id: the hazard_id of the hazard to obtain a list of satellites for
