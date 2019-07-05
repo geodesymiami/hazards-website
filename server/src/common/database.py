@@ -230,17 +230,15 @@ class Database:
         :returns DatabaseSuccess
         """
 
-        id = satellite.satellite_id.value
-        name = satellite.satellite_id.to_string()
-        asc = 1 if satellite.ascending else 0
-
-        new_id = int(str(id)+str(asc))
+        id = satellite.get_value()
+        name = satellite.get_name()
+        asc = satellite.get_direction()
 
         try:
             with self.database.cursor() as cursor:
                 sql = "INSERT INTO `satellites` " \
                       "(`id`, `name`, `direction`) " \
-                      "VALUES ('{}', '{}', '{}')".format(new_id, name, asc)
+                      "VALUES ('{}', '{}', '{}')".format(id, name, asc)
 
                 cursor.execute(sql)
 

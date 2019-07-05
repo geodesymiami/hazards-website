@@ -147,8 +147,11 @@ class Satellite(Enum):
     def get_name(self) -> str:
         return self.name.upper().split("_")[0]
 
+    def get_direction(self) -> int:
+        return self.value % 10
+
     def is_ascending(self) -> bool:
-        return self.value % 10 == 1
+        return self.get_direction() == 1
 
     def get_value(self):
         return str(self.value)
