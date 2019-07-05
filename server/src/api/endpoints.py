@@ -82,7 +82,7 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
     # should be valid. For example if image_types = 'valid_type,bad_type,valid_type', all is good.
     # However, if image_types = 'bad_type1,bad_type2', a 400 is thrown
     image_types: Optional[str] = request.args.get('image_types')
-    validated_image_types: Set[ImageType] = set()
+    validated_image_types = set()
 
     if image_types is not None and image_types != "":
         parsed_image_types = image_types.split(',')
@@ -92,48 +92,49 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
                 validated_image_types.add(ImageType.from_string(parsed_image_type))
             except ValueError:
                 pass
+
         if len(validated_image_types) == 0:
             abort(400, "None of the following image types are supported: '{0}'".format(str(image_types)))
 
-    # Validate satellite IDs
+    validated_image_types = list(validated_image_types)
 
+    # Validate satellite IDs
     satellite_ids: Optional[str] = request.args.get('satellites')
-    validated_satellites: Set[Satellite] = set()
+    validated_satellites = set()
 
     if satellite_ids is not None and satellite_ids != "":
         parsed_satellite_ids = satellite_ids.split(",")
         for parsed_satellite_id in parsed_satellite_ids:
             try:
-                new_sats = Satellite.from_string(parsed_satellite_id)
-                validated_satellites.update(new_sats)
+                new_sat = Satellite.from_string(parsed_satellite_id)
+                validated_satellites.update(new_sat)
             except ValueError:
                 # Bad satellite ID
                 pass
-            except AscendingParseException:
-                # Bad ASC, DESC, BOTH parameter
-                abort(400, "The following satellite id "
-                           "is not of the form 'SATID_ASC', 'SATID_DESC', or 'SATID_BOTH': {0}".format(parsed_satellite_id))
+
         if len(validated_satellites) == 0:
             abort(400, "None of the following satellite ids are supported: '{0}'".format(str(satellite_ids)))
+
+    validated_satellites = list(validated_satellites)
 
     # Validate start_date and end_date
     start_date = request.args.get('start_date')
     validated_start_date = None
     if start_date is not None: 
-        if Date.is_valid_date(start_date):
+        try:
             validated_start_date = Date(start_date)
+        except ValueError:
+            abort(400, "The following is an invalid date: {}".format(start_date))
           
     end_date = request.args.get('end_date')
     validated_end_date = None
-    if end_date is not None: 
-        if Date.is_valid_date(end_date):
+    if end_date is not None:
+        try:
             validated_end_date = Date(end_date)
+        except ValueError:
+            abort(400, "The following is an invalid date: {}".format(end_date))
 
-    validated_date_range = None
-    if start_date is not None:
-        validated_date_range = DateRange(validated_start_date, validated_end_date)
-    elif start_date is None and end_date is not None:
-        abort(400, "A specified end_date without a specified start_date is not allowed.")
+    validated_date_range = DateRange(validated_start_date, validated_end_date)
 
     # Validate integer values
     last_n_days: Optional[str] = request.args.get('last_n_days')
@@ -152,7 +153,7 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
         else:
             abort(400, "'max_num_images' should be an integer. {0} is not an integer.".format(max_num_images))
     else:
-        validated_max_num_images = 5
+        validated_max_num_images = 10
 
     # Both date_range and last_n_days cannot both be set
     if validated_date_range is not None and last_n_days is not None:
@@ -169,45 +170,15 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
 
     db = Database()
 
-    hazard, images = db.get_hazard_data_by_hazard_id(hazard_id=hazard_id_param,
-                                                     filter=hazard_filter)
+    images = db.get_images_by_hazard_id(hazard_id=hazard_id_param, filter=hazard_filter)
     db.close()
 
     # 3. FORMAT PYTHON TYPES INTO JSON RESPONSE
 
     # Handle error cases: hazard_id does not exist, no images returned
-    if not hazard:
-        abort(404, 'Hazard with id {0} does not exist'.format(hazard.hazard_id))
-    if len(images) == 0:
-        if validated_satellites:
-            satellite_strs = [sat.to_string() for sat in validated_satellites]
-        else:
-            satellite_strs = str(None)
-        if validated_image_types:
-            image_type_strings = [im_type.to_string() for im_type in validated_image_types]
-        else:
-            image_type_strings = str(None)
-        abort(404, "Request with the following filters "
-                   "returned an empty response. \n"
-                   "date range: {date_range}, \n"
-                   "satellite_ids: {satellite_strs}, \n"
-                   "image_types: {image_types}, \n"
-                   "max_num_images: {max_num_images}, \n"
-                   "last_n_days: {validated_last_n_days}"
-                   .format(date_range=str(validated_date_range),
-                           satellite_strs=str(satellite_strs),
-                           image_types=image_type_strings,
-                           max_num_images=validated_max_num_images,
-                           validated_last_n_days=validated_last_n_days))
+    parsed_image_dict = parse_hazard_images_from_db(images=images, hazard_id=hazard_id_param)
 
-    parsed_image_dict = parse_hazard_images_from_db(images=images, hazard=hazard)
-
-    filtered_image_dict = filter_hazard_images(parsed_image_dict, hazard_filter= hazard_filter)
-
-    print("Hi")
-    print(filtered_image_dict)
-
-    return jsonify(filtered_image_dict)
+    return jsonify(parsed_image_dict)
 
 
 @app.errorhandler(400)
@@ -221,33 +192,6 @@ def not_found_error(error):
     response = jsonify({'code': 404, 'message': 'Not Found. \n {0}'.format(error)})
     response.status_code = 404
     return response
-
-def filter_hazard_images(parsed_dict, hazard_filter: HazardInfoFilter):
-    satellites = list(parsed_dict['images_by_satellite'].keys())
-    for satellite in satellites:
-        if hazard_filter.satellites and satellite not in hazard_filter.satellites:
-            del parsed_dict['images_by_satellite'][satellite]
-        else:
-            image_types = list(parsed_dict['images_by_satellite'][satellite].keys())
-            for image_type in image_types:
-                if hazard_filter.image_types and image_type not in hazard_filter.image_types:
-                    del parsed_dict['images_by_satellite'][satellite][image_type]
-                else:
-                    new_image_list = []
-                    # filter images by their date
-                    for image in parsed_dict['images_by_satellite'][satellite][image_type]:
-                        if hazard_filter.date_range and hazard_filter.date_range.date_in_range(image.image_date):
-                            new_image_list.append(image)
-
-                    new_image_list.sort(key=lambda im: int(im.image_date.date), reverse=True)
-                    most_recent_images = new_image_list[:hazard_filter.max_num_images]
-
-                    parsed_dict['images_by_satellite'][satellite][image_type] = most_recent_images
-
-    return parsed_dict
-
-
-
 
 def parse_hazard_summary_info_from_db(data: List[Hazard], hazard_type: HazardType):
     """
@@ -285,15 +229,18 @@ def parse_hazard_data_from_db(hazard: Hazard):
     }
     return_dict['num_images'] = hazard.num_images
 
-def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
+    return return_dict
+
+def parse_hazard_images_from_db(images: List[Image], hazard_id: str):
     return_dict = dict()
     return_dict['hazard_id'] = hazard_id
     return_dict['images_by_satellite'] = dict()
+
     # A reference to `return_dict['images_by_satellite']`
     image_dict = return_dict['images_by_satellite']
 
     for image in images:
-        satellite = image.satellite.satellite_id.to_string()
+        satellite = str(image.satellite)
         if satellite not in image_dict:
             image_dict[satellite] = {}
 
@@ -303,10 +250,10 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
 
         image_json = {
                         'image_id': image.image_id,
-                        'image_date': image.image_date.date,
-                        'raw_image_url': image.raw_image_url.url,
-                        'tif_image_url': image.tif_image_url.url,
-                        'modified_image_url': image.modified_image_url.url
+                        'image_date': str(image.image_date),
+                        'raw_image_url': str(image.raw_image_url),
+                        'tif_image_url': str(image.tif_image_url),
+                        'modified_image_url': str(image.modified_image_url)
                      }
 
         image_dict[satellite][image_type].append(image_json)
@@ -315,4 +262,4 @@ def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
 
 if __name__ == "__main__":
 
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="127.0.0.1", debug=True)
