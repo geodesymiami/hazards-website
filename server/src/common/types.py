@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Set
 import os
 from datetime import datetime, timedelta
 
@@ -200,6 +200,12 @@ class DateRange:
         If `end`    is not specified, current date  is used.
     """
     def __init__(self, start: Optional[Date] = Date("1970-01-01"), end: Optional[Date] = Date.get_today()):
+
+        if start is None:
+            start = Date("1970-01-01")
+        if end is None:
+            end = Date.get_today()
+
         self.start_date: Optional[Date] = start
         self.end_date: Optional[Date] = end
 
@@ -241,6 +247,9 @@ class ImageURL:
         if file_extension not in valid_extensions or file_http not in valid_http:
             return False
         return True
+
+    def __str__(self):
+        return self.url
 
 class Location:
     def __init__(self, latitude, longitude):
@@ -363,14 +372,14 @@ class HazardInfoFilter:
 
         if self.date_range:
             date_range_sql = "`img_date` BETWEEN '{}' AND '{}'".format(str(self.date_range.start_date),
-                                                                     str(self.date_range.end_date))
+                                                                       str(self.date_range.end_date))
 
             filter_sql += " AND {}".format(date_range_sql)
 
-        if self.max_num_images:
-            max_num_sql = " LIMIT {}".format(self.max_num_images)
-
-            filter_sql += max_num_sql
+        # if self.max_num_images:
+        #     max_num_sql = " LIMIT {}".format(self.max_num_images)
+        #
+        #     filter_sql += max_num_sql
 
         haz_id_sql = "`haz_id`={}".format(haz_id)
 

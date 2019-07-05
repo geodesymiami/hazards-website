@@ -38,7 +38,27 @@ def get_satellites_by_hazard_id(hazard_id_param: int):
     return jsonify(data_to_return)
 
 @app.route('/api/<string:hazard_type_param>/<int:hazard_id_param>', methods=['GET'])
-def get_hazards_page_data(hazard_type_param: str, hazard_id_param: str):
+def get_hazard_data(hazard_type_param: str, hazard_id_param: str):
+
+    try:
+        HazardType.from_string(hazard_type_param)
+    except ValueError:
+        # send back an exception
+        abort(404, "Hazard Type {0} does not exist.".format(hazard_type_param))
+
+    db = Database()
+    hazard = db.get_hazard_info_by_hazard_id(hazard_id_param)
+    db.close()
+
+    if not hazard:
+        abort(404, 'Hazard with id {0} does not exist'.format(hazard.hazard_id))
+
+    data = parse_hazard_data_from_db(hazard)
+
+    return jsonify(data)
+
+@app.route('/api/<string:hazard_type_param>/images/<int:hazard_id_param>', methods=['GET'])
+def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
     """
     1. Validate the input data
             a. Validate the hazard type, image_types (argument), satellite_ids (argument),start_date (argument),
@@ -249,23 +269,25 @@ def parse_hazard_summary_info_from_db(data: List[Hazard], hazard_type: HazardTyp
         hazard_dict['latitude'] = hazard.location.center.lat
         hazard_dict['longitude'] = hazard.location.center.long
         hazard_dict['num_images'] = hazard.num_images
-        hazard_dict['last_updated'] = hazard.last_updated.date
+        hazard_dict['last_updated'] = str(hazard.last_updated)
 
         return_dict['hazards'].append(hazard_dict)
     return return_dict
 
-
-def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
+def parse_hazard_data_from_db(hazard: Hazard):
     return_dict = dict()
     return_dict['hazard_id'] = hazard.hazard_id
     return_dict['hazard_name'] = hazard.name
-    return_dict['last_updated'] = hazard.last_updated.date
+    return_dict['last_updated'] = str(hazard.last_updated)
     return_dict['location'] = {
-                                'latitude':  hazard.location.center.lat,
-                                'longitude': hazard.location.center.long
-                              }
+        'latitude': hazard.location.center.lat,
+        'longitude': hazard.location.center.long
+    }
     return_dict['num_images'] = hazard.num_images
 
+def parse_hazard_images_from_db(images: List[Image], hazard: Hazard):
+    return_dict = dict()
+    return_dict['hazard_id'] = hazard_id
     return_dict['images_by_satellite'] = dict()
     # A reference to `return_dict['images_by_satellite']`
     image_dict = return_dict['images_by_satellite']
