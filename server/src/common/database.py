@@ -248,37 +248,29 @@ class Database:
 
     def create_new_image(self, image: Image):
         """
-        Inserts a image object into the database `images` table. The `image` object's parameters
-        should be one-to-one with the `images` table's columns. Also, needs to insert a new
-        `satellite_hazard` pair into the `satellite_hazards` table correlating the existence of the
-        image's satellite with the image's hazard.
+            Inserts a image object into the database `images` table. The `image` object's parameters
+            should be one-to-one with the `images` table's columns.
 
-        Some validations that should be done:
-            - All parameters exist
-            - All parameters are properly sanitized for database insertion
-            - The image doesn't already exist in the database (check by URL)
-            - The hazard_id and satellite_id exist already in the database
-            - The image_date is a valid date and within reasonable bounds
+            Some validations that should be done:
+                - All parameters exist
+                - All parameters are properly sanitized for database insertion
+                - The image doesn't already exist in the database (check by URL)
+                - The hazard_id and satellite_id exist already in the database
+                - The image_date is a valid date and within reasonable bounds
 
-        When inserting a satellite_hazards pair into the join table, validate the following:
-            - The satellite_id exists in the satellite table
-            - The hazard_id exists in the hazards table
-            - The satellite_hazard pair is unique
-
-        :param image: a fully formed Image object to insert
-        :returns DatabaseSuccess
+            :param image: a fully formed Image object to insert
+            :returns DatabaseSuccess
         """
 
         id = image.image_id
         haz_id = image.hazard_id
-        sat_id = str(image.satellite.satellite_id.value)+str(int(image.satellite.ascending))
+        sat_id = image.satellite.get_value()
         im_type = image.image_type.value
-        im_date = datetime.strptime(image.image_date.date, "%Y%m%d")
+        im_date = image.image_date.date
         tif = image.tif_image_url.url
         raw = image.raw_image_url.url
         mod = image.modified_image_url.url
 
-        # TODO: Need to validate that the hazard_id and satellite_id exist in the database already
         try:
             with self.database.cursor() as cursor:
                 sql = "INSERT INTO `images` " \
