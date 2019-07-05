@@ -197,14 +197,12 @@ class Database:
         :returns DatabaseSuccess
         """
 
-        print(hazard)
-
         id = hazard.hazard_id
         name = hazard.name
         haz_type = hazard.hazard_type.value
         lat = hazard.location.center.lat
         lon = hazard.location.center.long
-        updated = datetime.strptime(hazard.last_updated.date, "%Y%m%d")
+        updated = hazard.last_updated.date
 
         try:
             with self.database.cursor() as cursor:
