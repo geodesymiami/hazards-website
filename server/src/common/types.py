@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import os
 from datetime import datetime, timedelta
 
@@ -122,7 +122,6 @@ class Satellite(Enum):
     @classmethod
     def from_params(cls, sat_name: str, ascending: bool) -> "Satellite":
         """
-
             Example: Satellite.from_params("geo_backscatter", ascending=True)
 
             :param sat_name: The name of the satellite
@@ -241,7 +240,9 @@ class ImageURL:
         return True
 
 class Location:
-    def __init__(self, center: LatLong):
+    def __init__(self, latitude, longitude):
+
+        center = LatLong(latitude, longitude)
 
         valid_lats = self.validate_latitude(center)
         valid_lons = self.validate_longitude(center)

@@ -78,17 +78,18 @@ class Database:
 
         with self.database.cursor() as cursor:
             sql = "SELECT * FROM `hazards` WHERE `type`='{}'".format(haz_type.to_string())
-            cursor.execute(sql)  # Execute to the SQL statement
+            cursor.execute(sql)         # Execute to the SQL statement
             result = cursor.fetchall()  # fetch all the results, since there may be several
 
             cursor.close()
+
         hazards = []
         for item in result:
             id = item['id']
             name = item['name']
             type = HazardType.from_string(item['type'])
-            location = Location(LatLong(item['latitude'], item['longitude']))
-            last_updated = Date(str(item['updated']).replace("-", ""))
+            location = Location(item['latitude'], item['longitude'])
+            last_updated = Date(item['updated'].strftime("%Y-%m-%d"))
             num_images = item['num_images']
 
             hazard = Hazard(id, name, type, location, last_updated, num_images)
@@ -177,7 +178,7 @@ class Database:
                               )
                 images.append(image)
 
-        return (hazard, images)
+        return hazard, images
 
     """
     All database insertion methods should take care to do the following:
