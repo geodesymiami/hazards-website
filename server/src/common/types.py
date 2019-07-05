@@ -12,10 +12,10 @@ class HazardType(Enum):
     @classmethod
     def from_string(cls, string: str) -> "HazardType":
         """
-        Example: HazardType.from_string("volcanoes")
+        Example: HazardType.from_string("volcano")
 
-        :param string: Either "volcanoes" or "earthquakes"
-        :raises ValueError when `string not in ("volcanoes", "earthquakes")
+        :param string: Either "volcano" or "earthquake"
+        :raises ValueError when `string not in ("volcano", "earthquake")
         """
         upper_string = string.upper()
         if upper_string in HazardType.__members__:
@@ -26,11 +26,10 @@ class HazardType(Enum):
     def to_string(self) -> str:
         """
         Converts a hazard type into a lowercase string.
-        Examples: HazardType.to_string(HazardType.VOLCANOES) returns 'volcanoes'
-                  HazardType.to_string(HazardType.EARTHQUAKES) returns 'earthquakes'
+        Examples: HazardType.to_string(HazardType.VOLCANOES) returns 'volcano'
+                  HazardType.to_string(HazardType.EARTHQUAKES) returns 'earthquake'
         """
         return self.name.lower()
-
 
 class ImageType(Enum):
     GEO_BACKSCATTER     = 1
@@ -50,7 +49,6 @@ class ImageType(Enum):
 
     def to_string(self) -> str:
         return self.name.lower()
-
 
 class SatelliteEnum(Enum):
     ERS = 1
@@ -76,12 +74,10 @@ class SatelliteEnum(Enum):
     def to_string(self) -> str:
         return self.name.upper()
 
-
 class LatLong:
     def __init__(self, lat: float, long: float):
         self.lat: float = lat
         self.long: float = long
-
 
 class Date:
     """
@@ -121,7 +117,6 @@ class Date:
     def get_today(cls):
         return Date(datetime.now().strftime("%Y%m%d"))
 
-
 class DateRange:
     """
     This class is used for filtering images by a range of dates.
@@ -138,7 +133,6 @@ class DateRange:
     def date_in_range(self, date: Date):
         end_date = self.end if self.end != None else Date.get_today()
         return int(self.start) <= int(date.date) <= int(end_date)
-
 
 class ImageURL():
     """
@@ -159,7 +153,6 @@ class ImageURL():
             return False
         return True
 
-
 class Location:
     def __init__(self, center: LatLong):
 
@@ -177,7 +170,6 @@ class Location:
     @classmethod
     def validate_longitude(cls, lon: LatLong):
         return -180 <= float(lon.long) <= 180
-
 
 @dataclass
 class Satellite:
@@ -234,10 +226,8 @@ class Satellite:
     def get_satellite_name(cls) -> str:
         pass
 
-
 class AscendingParseException(Exception):
     pass
-
 
 @dataclass
 class Hazard:
@@ -247,7 +237,6 @@ class Hazard:
     location: Location
     last_updated: Date
     num_images: int
-
 
 @dataclass
 class Image:
@@ -259,7 +248,6 @@ class Image:
     raw_image_url: ImageURL
     tif_image_url: ImageURL
     modified_image_url: ImageURL
-
 
 class HazardInfoFilter:
     """
