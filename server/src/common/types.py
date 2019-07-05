@@ -2,7 +2,7 @@ from enum import Enum
 from dataclasses import dataclass
 from typing import Tuple, List, Optional, Set
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class HazardType(Enum):
@@ -281,11 +281,13 @@ class HazardInfoFilter:
         # Combine date_range and last_n_days date range into a single date range
         # We use last_n_days as the start date if it exists
         if last_n_days:
-            last_n_days_date = Date(str(int(Date.get_today().date) - last_n_days))
+            n_days_date_string = (datetime.today() - timedelta(days=last_n_days)).strftime("%Y-%m-%d")
+            last_n_days_date = Date(n_days_date_string)
             if date_range is None:
                 new_date_range = DateRange(start=last_n_days_date)
             else:
                 new_date_range = DateRange(start=last_n_days_date, end=date_range.end_date)
         else:
             new_date_range = date_range
+
         self.date_range: Optional[DateRange] = new_date_range
