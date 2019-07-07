@@ -238,19 +238,19 @@ def parse_hazard_data_from_db(hazard: Hazard):
 def parse_hazard_images_from_db(images: List[Image], hazard_id: str):
     return_dict = dict()
     return_dict['hazard_id'] = hazard_id
-    return_dict['images_by_satellite'] = dict()
+    return_dict['images_by_type'] = dict()
 
     # A reference to `return_dict['images_by_satellite']`
-    image_dict = return_dict['images_by_satellite']
+    image_dict = return_dict['images_by_type']
 
     for image in images:
-        satellite = str(image.satellite)
-        if satellite not in image_dict:
-            image_dict[satellite] = {}
+        imtype = str(image.image_type)
+        if imtype not in image_dict:
+            image_dict[imtype] = {}
 
-        image_type = image.image_type.to_string()
-        if image_type not in image_dict[satellite]:
-            image_dict[satellite][image_type] = []
+        satellite = str(image.satellite)
+        if satellite not in image_dict[imtype]:
+            image_dict[imtype][satellite] = []
 
         image_json = {
                         'image_id': image.image_id,
@@ -260,7 +260,7 @@ def parse_hazard_images_from_db(images: List[Image], hazard_id: str):
                         'modified_image_url': str(image.modified_image_url)
                      }
 
-        image_dict[satellite][image_type].append(image_json)
+        image_dict[imtype][satellite].append(image_json)
 
     return return_dict
 
