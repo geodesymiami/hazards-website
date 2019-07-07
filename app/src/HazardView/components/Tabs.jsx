@@ -22,25 +22,24 @@ class ImageTypeTabs extends Component {
     return (
         <Tab.Container>
           <Nav variant={"tabs"} activeKey={this.state.key}>
-            {this.props.image_types.map( (name, index) => {
-                  return  <Nav.Item>
-                            <Nav.Link eventKey={name}>{name}</Nav.Link>
-                          </Nav.Item>
-            })}
+            {
+                this.props.image_types.map( (name, index) => {
+                    name = name.toLowerCase().split(" ").join("_")
+                    return  <Nav.Item>
+                                <Nav.Link eventKey={name}>{name}</Nav.Link>
+                            </Nav.Item>
+                })
+            }
           </Nav>
-          {/*<Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" activeKey={this.state.key} onSelect={key => this.setState({ key })}>*/}
-          {/*    {this.props.image_types.map( (name, index) => {*/}
-          {/*        return <Tab eventKey={name} key={name} title={name}></Tab>*/}
-          {/*    })}*/}
-          {/*</Tabs>*/}
            <div className={'row'}>
-              <div className={"col-lg-4"}>
+              <div className={"col-lg-3"}>
                 <Sidebar />
               </div>
-              <div className={"col-lg-8"}>
+              <div className={"col-lg-9"}>
                 <Tab.Content>
                   {this.props.image_types.map( (name, index) => {
-                    return <ImagesTabPane image_type={name} key={name} color={this.state.colors[index]}/>
+                        name = name.toLowerCase().split(" ").join("_")
+                        return <ImagesTabPane image_type={name} key={name} color={this.state.colors[index]} haz_id={this.props.haz_id}/>
                   })}
                 </Tab.Content>
               </div>

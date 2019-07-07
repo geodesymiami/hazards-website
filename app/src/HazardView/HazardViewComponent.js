@@ -24,8 +24,8 @@ export default class HazardViewComponent extends Component {
   render() {
     return (
         <div className="HazardViewComponent container-fluid">
-            <Header id={this.props.id} />
-            <ImageTypeTabs image_types={this.state.image_types}/>
+            <Header id={this.props.haz_id} />
+            <ImageTypeTabs image_types={this.state.image_types} haz_id={this.props.haz_id}/>
         </div>
     );
   }

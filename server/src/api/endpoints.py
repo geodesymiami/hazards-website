@@ -82,6 +82,10 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
     # should be valid. For example if image_types = 'valid_type,bad_type,valid_type', all is good.
     # However, if image_types = 'bad_type1,bad_type2', a 400 is thrown
     image_types: Optional[str] = request.args.get('image_types')
+
+    if image_types == "all":
+        image_types = "geo_backscatter,geo_coherence,geo_interferogram,ortho_backscatter,ortho_coherence,ortho_interferogran"
+
     validated_image_types = set()
 
     if image_types is not None and image_types != "":

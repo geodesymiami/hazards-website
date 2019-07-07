@@ -1,3 +1,13 @@
+.tab-content{
+    min-height: 100vh;
+}
+
 .images{
     height: 100vh;
+    padding: 0.5em 1em;
+}
+
+.image{
+    margin: 0.25em;
+    max-width: 185px;
 }

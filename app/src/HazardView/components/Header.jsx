@@ -22,22 +22,6 @@ class Header extends Component {
   componentWillMount() {
     var id = this.props.id;
 
-    // fetch(`http://0.0.0.0:5000/api/volcano/${id}`, {mode: 'cors'})
-    //     .then((response) => {
-    //         return response.json()
-    //     })
-    //     .then((data) =>
-    //         this.setState({
-    //             hazardId: this.props.id,
-    //             hazardName: data.hazard_name,
-    //             longitude: data.longitude,
-    //             latitude: data.latitude,
-    //             lastImageDate: data.last_updated,
-    //             numImages: data.num_images
-    //         })
-    //     )
-    //     .catch(error => console.log(error));
-
       axios.get(`http://0.0.0.0:5000/api/volcano/${id}`, {mode: 'cors'})
             .then( (response) => {
                 this.setState({

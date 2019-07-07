@@ -31,16 +31,16 @@ class App extends Component {
             </Navbar.Collapse>
         </Navbar>
 
-        <Container>
+        <div className={"container-fluid"}>
             <Router>
               <HomeViewComponent path="/" noThrow />
               <ListViewComponent path="/volcanos/list" />
               <Redirect to={"/volcanos/list"} from={"/volcanos"} noThrow />
               <MapViewComponent path="/volcanos/map" />
-              <HazardViewComponent path="/volcanos/:id" />
+              <HazardViewComponent path="/volcanos/:haz_id" />
               <FourOhFourViewComponent default />
             </Router>
-        </Container>
+        </div>
       </div>
     );
   }
