@@ -11,3 +11,8 @@
     margin: 0.25em;
     max-width: 185px;
 }
+
+.sat{
+    margin-bottom: 2em;
+    min-width: 100%
+}

@@ -11,8 +11,7 @@ class ImageTypeTabs extends Component {
     super(props);
 
     this.state = {
-      key: this.props.image_types[0],
-      colors: ["red", "orange", "yellow", "green", "blue", "purple", "pink"]
+      key: this.props.image_types[0]
     };
 
   }
@@ -39,7 +38,7 @@ class ImageTypeTabs extends Component {
                 <Tab.Content>
                   {this.props.image_types.map( (name, index) => {
                         name = name.toLowerCase().split(" ").join("_")
-                        return <ImagesTabPane image_type={name} key={name} color={this.state.colors[index]} haz_id={this.props.haz_id}/>
+                        return <ImagesTabPane image_type={name} key={name} haz_id={this.props.haz_id} images={this.props.images[name]}/>
                   })}
                 </Tab.Content>
               </div>

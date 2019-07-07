@@ -31,27 +31,36 @@ class ImagesTabPane extends Component{
 
     componentWillMount() {
 
-        var id = this.props.haz_id
-
-        axios.get(`http://0.0.0.0:5000/api/volcano/images/${id}`, {params: {image_types: this.state.image_type},mode: "cors"})
-            .then((response) => {
-                console.log(response)
-            })
-
     }
 
     render(){
 
+        var images_by_sat = this.props.images;
+
+        //images_by_sat.map( (name, index) => { console.log(name); return name})
+
+        var sats = Object.keys(images_by_sat)
+
+        console.log(sats)
+        console.log(images_by_sat[sats[0]])
+
         return(
 
-            <TabPane eventKey={this.state.image_type} className={"images"} style={{background: this.props.color}}>
+            <TabPane eventKey={this.props.image_type} className={"images"}>
                 <div className={"row"}>
-                    {this.state.satellites.map( (name, index) => {
-                        return  <div>
+                    {sats.map( (name, index) => {
+                        return  <div className={"sat"}>
                                     <h3>{name}</h3>
-                                    {this.state.images.map( (name, index) => {
-                                        return <img src={name} className={"image"}/>
-                                    })}
+                                    {images_by_sat[sats[index]].sort(
+                                        function(a, b){
+                                            return a.image_date > b.image_date;
+                                        }).map(
+                                            (name, index) => {
+                                                console.log(name["modified_image_url"])
+                                                return <img src={name["modified_image_url"]} className={"image"}/>
+                                            }
+                                        )
+                                }
                                 </div>
                     })}
                 </div>
