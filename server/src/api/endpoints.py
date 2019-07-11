@@ -33,7 +33,7 @@ def get_satellites_by_hazard_id(hazard_id_param: int):
     satellites: List[Satellite] = db.get_satellites_by_hazard_id(hazard_id=hazard_id_param)
     db.close()
 
-    data_to_return = [{'satellite_id': sat.get_value(), 'satellite_name': sat.get_name()} for sat in satellites]
+    data_to_return = [{'satellite_id': sat.get_value(), 'satellite_name': str(sat)} for sat in satellites]
 
     return jsonify(data_to_return)
 

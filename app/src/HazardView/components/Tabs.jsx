@@ -32,7 +32,7 @@ class ImageTypeTabs extends Component {
           </Nav>
            <div className={'row'}>
               <div className={"col-lg-3"}>
-                <Sidebar />
+                <Sidebar haz_id={this.props.haz_id}/>
               </div>
               <div className={"col-lg-9"}>
                 <Tab.Content>

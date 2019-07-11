@@ -1,14 +1,24 @@
 import React, { Component } from "react";
 import "./Sidebar.css";
 import {Form, Col, InputGroup} from "react-bootstrap"
-
-const IMAGETYPE = ["Backscatter", "Interferogram", "Coherence"];
-const RECTIFICATION = ["Georectified", "Orthorectified"];
+import axios from 'axios'
 
 class Sidebar extends Component {
 
   constructor(props){
     super(props)
+    this.state = {
+      satellites: []
+    }
+  }
+
+  componentWillMount() {
+    axios.get(`http://localhost:5000/api/satellites/${this.props.haz_id}`, {mode: "cors"})
+        .then((response) => {
+                this.setState({
+                  satellites: response["data"].map(sat => sat.satellite_name)
+                })
+            })
   }
 
   render() {
@@ -20,11 +30,9 @@ class Sidebar extends Component {
             <Form.Group controlId="exampleForm.ControlSelect1">
               <Form.Label>Satellite</Form.Label>
               <Form.Control as="select" multiple>
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
+                {this.state.satellites.map( (sat, index) => {
+                  return <option>{sat}</option>
+                })}
               </Form.Control>
             </Form.Group>
             <Form.Group controlId="validationCustomUsername">
