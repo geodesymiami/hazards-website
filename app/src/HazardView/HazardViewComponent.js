@@ -25,7 +25,6 @@ export default class HazardViewComponent extends Component {
             .then((response) => {
                 var available_image_types = Object.keys(response.data["images_by_type"])
                 var available_images = response.data["images_by_type"]
-                console.log(available_images)
                 this.setState({
                     image_types: available_image_types,
                     images_by_satellite: available_images
@@ -36,7 +35,7 @@ export default class HazardViewComponent extends Component {
   render() {
         return (
             <div className="HazardViewComponent container-fluid">
-                <Header id={this.props.haz_id} />
+                <Header id={this.props.haz_id}/>
                 <ImageTypeTabs image_types={this.state.image_types} haz_id={this.props.haz_id} images={this.state.images_by_satellite}/>
             </div>
         );

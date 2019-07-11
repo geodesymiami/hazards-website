@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import ImagesTabPane from "./ImagesTabPane";
 import Sidebar from "./Sidebar";
@@ -11,41 +10,46 @@ class ImageTypeTabs extends Component {
     super(props);
 
     this.state = {
-      key: this.props.image_types[0]
+      key: ""
     };
 
   }
 
-  render() {
+  componentWillReceiveProps(nextProps, nextContext) {
+      this.setState({
+          key: nextProps.image_types[0]
+      })
+  }
 
-    return (
-        <Tab.Container>
-          <Nav variant={"tabs"} activeKey={this.state.key}>
-            {
-                this.props.image_types.map( (name, index) => {
-                    name = name.toLowerCase().split(" ").join("_")
-                    return  <Nav.Item>
-                                <Nav.Link eventKey={name}>{name}</Nav.Link>
-                            </Nav.Item>
-                })
-            }
-          </Nav>
-           <div className={'row'}>
-              <div className={"col-lg-3"}>
-                <Sidebar haz_id={this.props.haz_id}/>
-              </div>
-              <div className={"col-lg-9"}>
-                <Tab.Content>
-                  {this.props.image_types.map( (name, index) => {
-                        name = name.toLowerCase().split(" ").join("_")
-                        return <ImagesTabPane image_type={name} key={name} haz_id={this.props.haz_id} images={this.props.images[name]}/>
-                  })}
-                </Tab.Content>
-              </div>
-            </div>
+    render() {
+        console.log(this.state.key)
+        return (
+            <Tab.Container activeKey={this.state.key}>
+              <Nav variant={"tabs"} onSelect={key => this.setState({ key })}>
+                {
+                    this.props.image_types.map( (name, index) => {
+                        var formatted_name = name.split("_").map(w => w.charAt(0).toUpperCase() + w.substring(1)).join(" ")
+                        return  <Nav.Item key={name}>
+                                    <Nav.Link eventKey={name} key={name}>{formatted_name}</Nav.Link>
+                                </Nav.Item>
+                    })
+                }
+              </Nav>
+               <div className={'row'}>
+                  <div className={"col-lg-3"}>
+                    <Sidebar haz_id={this.props.haz_id}/>
+                  </div>
+                  <div className={"col-lg-9"}>
+                    <Tab.Content>
+                      {this.props.image_types.map( (name, index) => {
+                            return <ImagesTabPane image_type={name} key={name} haz_id={this.props.haz_id} images={this.props.images[name]}/>
+                      })}
+                    </Tab.Content>
+                  </div>
+                </div>
 
-        </Tab.Container>
-    );
+            </Tab.Container>
+        );
   }
 }
 

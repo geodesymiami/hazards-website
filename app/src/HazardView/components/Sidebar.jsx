@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./Sidebar.css";
-import {Form, Col, InputGroup} from "react-bootstrap"
+import {Form, InputGroup} from "react-bootstrap"
 import axios from 'axios'
 
 class Sidebar extends Component {
@@ -31,7 +31,7 @@ class Sidebar extends Component {
               <Form.Label>Satellite</Form.Label>
               <Form.Control as="select" multiple>
                 {this.state.satellites.map( (sat, index) => {
-                  return <option>{sat}</option>
+                  return <option key={sat} value={sat}>{sat}</option>
                 })}
               </Form.Control>
             </Form.Group>

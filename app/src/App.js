@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Navbar, Nav,Container } from 'react-bootstrap'
+import { Navbar, Nav} from 'react-bootstrap'
 import { Router, Redirect } from '@reach/router'
 import ListViewComponent from './ListView/ListViewComponent'
 import MapViewComponent from './MapView/MapViewComponent'
