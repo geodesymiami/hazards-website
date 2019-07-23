@@ -69,6 +69,8 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
 
     """
 
+    print(request.args)
+
     # 1. VALIDATE THE INPUT DATA
     # Validate hazard type
     try:
@@ -142,8 +144,9 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
 
     # Validate integer values
     last_n_days: Optional[str] = request.args.get('last_n_days')
+
     validated_last_n_days = None
-    if last_n_days is not None:
+    if last_n_days is not None and last_n_days != '':
         if last_n_days.isdigit():
             validated_last_n_days = int(last_n_days)
         else:
@@ -151,7 +154,7 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
 
     max_num_images: Optional[str] = request.args.get('max_num_images')
     validated_max_num_images = None
-    if max_num_images is not None:
+    if max_num_images is not None and max_num_images != '':
         if max_num_images.isdigit():
             validated_max_num_images = int(max_num_images)
         else:
@@ -160,7 +163,7 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
         validated_max_num_images = 10
 
     # Both date_range and last_n_days cannot both be set
-    if validated_date_range is not None and last_n_days is not None:
+    if validated_date_range is not None and last_n_days is not None and last_n_days != '':
         abort(400, "Both start_date / end_date AND last_n_days cannot both be set. Please choose 1 or the other")
 
     # 2. MAKE REQUEST TO DATABASE

@@ -23,6 +23,7 @@ class ImageTypeTabs extends Component {
 
     render() {
         console.log(this.state.key)
+        console.log(this.props.filter_func)
         return (
             <Tab.Container activeKey={this.state.key}>
               <Nav variant={"tabs"} onSelect={key => this.setState({ key })}>
@@ -37,7 +38,7 @@ class ImageTypeTabs extends Component {
               </Nav>
                <div className={'row'}>
                   <div className={"col-lg-3"}>
-                    <Sidebar haz_id={this.props.haz_id}/>
+                    <Sidebar haz_id={this.props.haz_id} filter_func={this.props.filter_func}/>
                   </div>
                   <div className={"col-lg-9"}>
                     <Tab.Content>
