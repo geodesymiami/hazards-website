@@ -30,11 +30,11 @@ class Database:
 
         self.pipeline_logger = RsmasLogger('pipeline')
 
-        self.HOST = config.get_config_var("database", "host")
+        self.HOST = config.get_config_var("database", "localhost")
         self.USER = config.get_config_var("database", "user")
         self.PASSWORD = config.get_config_var("database", "password")
         self.DATABASE = config.get_config_var("database", "database")
-        self.PORT = config.get_config_var("database", "port")
+        self.PORT = config.get_config_var("database", "localport")
 
         attempts = config.get_config_var("database", "attempts")
         delay = config.get_config_var("database", "attempt_delay")
@@ -105,6 +105,7 @@ class Database:
         """
 
         with self.database.cursor() as cursor:
+            # TODO: sql inject secure this query
             sql = "SELECT DISTINCT sat_id FROM images WHERE haz_id='{}'".format(hazard_id)
             cursor.execute(sql)
             result = cursor.fetchall()
@@ -122,6 +123,7 @@ class Database:
         
         # Get Hazard data and create Hazard Object
         with self.database.cursor() as cursor:
+            # TODO: sql inject secure this query
             sql = "SELECT * FROM `hazards` WHERE `id`='{}'".format(hazard_id)
             cursor.execute(sql)  # Execute to the SQL statement
             result = cursor.fetchone()
@@ -206,6 +208,7 @@ class Database:
 
         try:
             with self.database.cursor() as cursor:
+                # TODO: sql inject secure this query
                 sql = "INSERT INTO `hazards` " \
                       "(`id`, `name`, `type`, `latitude`, `longitude`, `updated`) " \
                       "VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(id, name, haz_type, lat, lon, updated)
@@ -236,6 +239,7 @@ class Database:
 
         try:
             with self.database.cursor() as cursor:
+                # TODO: sql inject secure this query
                 sql = "INSERT INTO `satellites` " \
                       "(`id`, `name`, `direction`) " \
                       "VALUES ('{}', '{}', '{}')".format(id, name, asc)
@@ -273,6 +277,7 @@ class Database:
 
         try:
             with self.database.cursor() as cursor:
+                # TODO: sql inject secure this query
                 sql = "INSERT INTO `images` " \
                       "(`id`, `haz_id`, `sat_id`, `img_date`, `img_type`, `tif_image_url`, `raw_image_url`, `mod_image_url`) " \
                       "VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')" \

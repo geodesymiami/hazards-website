@@ -17,6 +17,7 @@ CREATE TABLE hazards ( -- table allocated for volcanoes, earthquakes and non-haz
     `latitude` 	    float NOT NULL,
     `longitude`     float NOT NULL,
     `updated` 	    DATE,
+    `num_images`    int,
     PRIMARY KEY(`id`)
 );
 
