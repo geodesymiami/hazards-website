@@ -38,7 +38,8 @@
   ],
   "proxy": "http://ec2-3-82-161-15.compute-1.amazonaws.com/",
   "devDependencies": {
-    "husky": "^2.0.0"
+    "husky": "^2.0.0",
+    "query-string": "^6.8.2"
   },
   "husky": {
     "hooks": {

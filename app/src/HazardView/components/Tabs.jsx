@@ -9,6 +9,7 @@ class ImageTypeTabs extends Component {
   constructor(props) {
     super(props);
 
+    // Set appropriate key here
     this.state = {
       key: ""
     };
@@ -16,14 +17,13 @@ class ImageTypeTabs extends Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
+      var active_key = nextProps.image_types.includes(this.props.active_image_type) ? this.props.active_image_type : nextProps.image_types[0]
       this.setState({
-          key: nextProps.image_types[0]
+          key: active_key
       })
   }
 
     render() {
-        console.log(this.state.key)
-        console.log(this.props.filter_func)
         return (
             <Tab.Container activeKey={this.state.key}>
               <Nav variant={"tabs"} onSelect={key => this.setState({ key })}>
