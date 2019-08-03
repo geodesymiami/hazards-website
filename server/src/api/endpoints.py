@@ -126,19 +126,31 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
     # Validate start_date and end_date
     start_date = request.args.get('start_date')
     validated_start_date = None
-    if start_date is not None: 
+    if start_date is not None:
+
+        if start_date == "":
+            start_date = "1970-01-01"
+
         try:
             validated_start_date = Date(start_date)
         except ValueError:
             abort(400, "The following is an invalid date: {}".format(start_date))
+    else:
+        validated_start_date = "1970-01-01"
           
     end_date = request.args.get('end_date')
     validated_end_date = None
     if end_date is not None:
+
+        if end_date == "":
+            end_date = Date.get_today()
+
         try:
             validated_end_date = Date(end_date)
         except ValueError:
             abort(400, "The following is an invalid date: {}".format(end_date))
+    else:
+        validated_end_date = Date.get_today()
 
     validated_date_range = DateRange(validated_start_date, validated_end_date)
 
@@ -163,7 +175,7 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
         validated_max_num_images = 10
 
     # Both date_range and last_n_days cannot both be set
-    if validated_date_range is not None and last_n_days is not None and last_n_days != '':
+    if request.args.get('start_date') is not None and request.args.get('end_date') is not  None and request.args.get('last_n_days') is not None:
         abort(400, "Both start_date / end_date AND last_n_days cannot both be set. Please choose 1 or the other")
 
     # 2. MAKE REQUEST TO DATABASE
@@ -214,27 +226,31 @@ def parse_hazard_summary_info_from_db(data: List[Hazard], hazard_type: HazardTyp
     return_dict['type'] = HazardType.to_string(hazard_type)
 
     for hazard in data:
-        hazard_dict = dict()
-        hazard_dict['hazard_id'] = hazard.hazard_id
-        hazard_dict['name'] = hazard.name
-        hazard_dict['latitude'] = hazard.location.center.lat
-        hazard_dict['longitude'] = hazard.location.center.long
-        hazard_dict['num_images'] = hazard.num_images
-        hazard_dict['last_updated'] = str(hazard.last_updated)
+
+        hazard_dict = {
+            'hazard_id': hazard.hazard_id,
+            'name': hazard.name,
+            'latitude': hazard.location.center.lat,
+            'longitude': hazard.location.center.long,
+            'num_images': hazard.num_images,
+            'last_updated': str(hazard.last_updated)
+        }
 
         return_dict['hazards'].append(hazard_dict)
     return return_dict
 
 def parse_hazard_data_from_db(hazard: Hazard):
-    return_dict = dict()
-    return_dict['hazard_id'] = hazard.hazard_id
-    return_dict['hazard_name'] = hazard.name
-    return_dict['last_updated'] = str(hazard.last_updated)
-    return_dict['location'] = {
-        'latitude': hazard.location.center.lat,
-        'longitude': hazard.location.center.long
+
+    return_dict = {
+        'hazard_id': hazard.hazard_id,
+        'hazard_name': hazard.name,
+        'last_updated': str(hazard.last_updated),
+        'location': {
+            'latitude': hazard.location.center.lat,
+            'longitude': hazard.location.center.long
+        }
     }
-    return_dict['num_images'] = hazard.num_images
+
 
     return return_dict
 
