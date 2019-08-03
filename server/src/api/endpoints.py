@@ -106,14 +106,15 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
 
     # Validate satellite IDs
     satellite_ids: Optional[str] = request.args.get('satellites')
-    validated_satellites = set()
+    validated_satellites = list()
 
     if satellite_ids is not None and satellite_ids != "":
         parsed_satellite_ids = satellite_ids.split(",")
+
         for parsed_satellite_id in parsed_satellite_ids:
             try:
                 new_sat = Satellite.from_string(parsed_satellite_id)
-                validated_satellites.update(new_sat)
+                validated_satellites.append(new_sat)
             except ValueError:
                 # Bad satellite ID
                 pass
@@ -121,7 +122,7 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
         if len(validated_satellites) == 0:
             abort(400, "None of the following satellite ids are supported: '{0}'".format(str(satellite_ids)))
 
-    validated_satellites = list(validated_satellites)
+    validated_satellites = list(set(validated_satellites))
 
     # Validate start_date and end_date
     start_date = request.args.get('start_date')
@@ -136,14 +137,14 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
         except ValueError:
             abort(400, "The following is an invalid date: {}".format(start_date))
     else:
-        validated_start_date = "1970-01-01"
+        validated_start_date = Date("1970-01-01")
           
     end_date = request.args.get('end_date')
     validated_end_date = None
     if end_date is not None:
 
         if end_date == "":
-            end_date = Date.get_today()
+            end_date = str(Date.get_today())
 
         try:
             validated_end_date = Date(end_date)
@@ -173,10 +174,6 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
             abort(400, "'max_num_images' should be an integer. {0} is not an integer.".format(max_num_images))
     else:
         validated_max_num_images = 10
-
-    # Both date_range and last_n_days cannot both be set
-    if request.args.get('start_date') is not None and request.args.get('end_date') is not  None and request.args.get('last_n_days') is not None:
-        abort(400, "Both start_date / end_date AND last_n_days cannot both be set. Please choose 1 or the other")
 
     # 2. MAKE REQUEST TO DATABASE
 

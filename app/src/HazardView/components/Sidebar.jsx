@@ -14,8 +14,6 @@ class Sidebar extends Component {
       satellites: []
     }
 
-    console.log(this.props.filter_func)
-
     this.filterImages = this.filterImages.bind(this)
   }
 
@@ -33,22 +31,11 @@ class Sidebar extends Component {
     const form = event.target;
     const data = new FormData(form);
 
-    console.log(this.props)
+    var satellites = data.getAll("satellites")
+    data.delete("satellites")
+    data.append("satellites", satellites.join(","))
 
     this.props.filter_func(data)
-
-    // const queryString = new URLSearchParams(data).toString()
-    //
-    // console.log(queryString)
-    //
-    // axios.get(`http://0.0.0.0:5000/api/volcano/images/${this.props.haz_id}?${queryString}`,
-    //     {
-    //       mode: "cors",
-    //       params: data
-    //     })
-    //     .then( (response) => {
-    //       console.log(response)
-    //     })
 
   }
 
@@ -60,9 +47,9 @@ class Sidebar extends Component {
             <h3>Filter Options</h3>
             <Form.Group controlId="exampleForm.ControlSelect1">
               <Form.Label>Satellite</Form.Label>
-              <Form.Control as="select" name={"satellite"} multiple>
+              <Form.Control as="select" name={"satellites"} multiple>
                 {this.state.satellites.map( (sat, index) => {
-                  return <option key={sat} value={sat}>{sat}</option>
+                    return <option key={sat} value={sat}>{sat}</option>
                 })}
               </Form.Control>
             </Form.Group>

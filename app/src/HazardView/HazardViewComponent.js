@@ -31,6 +31,8 @@ export default class HazardViewComponent extends Component {
 
       const queryString = new URLSearchParams(data).toString()
 
+      console.log(queryString)
+
       axios.get(`http://0.0.0.0:5000/api/volcano/images/${this.props.haz_id}?${queryString}`, {mode: "cors"})
             .then((response) => {
                 console.log(response)
@@ -44,12 +46,10 @@ export default class HazardViewComponent extends Component {
   }
 
   render() {
-      console.log("Component rendered")
         return (
             <div className="HazardViewComponent container-fluid">
                 <Header id={this.props.haz_id}/>
 
-                <!-- Pass image type from URL here -->
                 <ImageTypeTabs image_types={this.state.image_types} haz_id={this.props.haz_id} images={this.state.images_by_satellite} filter_func={this.getImages}/>
             </div>
         );
