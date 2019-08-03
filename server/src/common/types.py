@@ -201,11 +201,6 @@ class DateRange:
     """
     def __init__(self, start: Optional[Date] = Date("1970-01-01"), end: Optional[Date] = Date.get_today()):
 
-        if start is None:
-            start = Date("1970-01-01")
-        if end is None:
-            end = Date.get_today()
-
         self.start_date: Optional[Date] = start
         self.end_date: Optional[Date] = end
 
@@ -244,7 +239,7 @@ class ImageURL:
         valid_extensions = [".jpg", ".png", ".tif", ".gif"]
         filename, file_extension = os.path.splitext(url)
         file_http = filename[:4]
-        if file_extension not in valid_extensions or file_http not in valid_http:
+        if file_http not in valid_http:
             return False
         return True
 

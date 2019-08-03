@@ -21,7 +21,8 @@ export default class HazardViewComponent extends Component {
   }
 
   componentDidMount() {
-        this.getImages({})
+      // Get and format URL variables here
+      this.getImages({})
   }
 
   getImages(data){
@@ -47,6 +48,8 @@ export default class HazardViewComponent extends Component {
         return (
             <div className="HazardViewComponent container-fluid">
                 <Header id={this.props.haz_id}/>
+
+                <!-- Pass image type from URL here -->
                 <ImageTypeTabs image_types={this.state.image_types} haz_id={this.props.haz_id} images={this.state.images_by_satellite} filter_func={this.getImages}/>
             </div>
         );
