@@ -12,7 +12,8 @@ export default class HazardViewComponent extends Component {
         this.state = {
             active_image_type: '',
             image_types: [],
-            images_by_satellite: []
+            images_by_satellite: [],
+            url_params: {}
         }
 
         this.getImages = this.getImages.bind(this)
@@ -44,6 +45,9 @@ export default class HazardViewComponent extends Component {
           "max_num_images": max_imgs,
           "last_n_days": last_days
       }
+      this.setState({
+          url_params: data
+      })
 
       console.log(this.state.active_image_type)
 
@@ -75,6 +79,7 @@ export default class HazardViewComponent extends Component {
                                haz_id={this.props.haz_id}
                                images={this.state.images_by_satellite}
                                filter_func={this.getImages}
+                               url_data={this.state.url_params}
                 />
 
             </div>

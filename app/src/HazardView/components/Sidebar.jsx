@@ -11,7 +11,8 @@ class Sidebar extends Component {
     console.log("Sidebar constructor")
 
     this.state = {
-      satellites: []
+      satellites: [],
+      url_params: {}
     }
 
     this.filterImages = this.filterImages.bind(this)
@@ -24,6 +25,12 @@ class Sidebar extends Component {
                   satellites: response["data"].map(sat => sat.satellite_name)
                 })
             })
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
+      this.setState({
+        url_params: nextProps.url_data
+      })
   }
 
   filterImages(event){
@@ -40,6 +47,12 @@ class Sidebar extends Component {
   }
 
   render() {
+
+    const filtered_start = this.state.url_params['start_date']
+    const filtered_end = this.state.url_params['end_date']
+    const filtered_num = this.state.url_params['max_num_images']
+    const filtered_n_days = this.state.url_params['last_n_days']
+
     return (
       <div className="sidebar">
         <div className="nav-sidebar">
@@ -48,9 +61,15 @@ class Sidebar extends Component {
             <Form.Group controlId="exampleForm.ControlSelect1">
               <Form.Label>Satellite</Form.Label>
               <Form.Control as="select" name={"satellites"} multiple>
-                {this.state.satellites.map( (sat, index) => {
-                    return <option key={sat} value={sat}>{sat}</option>
-                })}
+                {
+                  this.state.satellites.map( (sat, index) => {
+                      const filtered_sats = this.state.url_params['satellites']
+                      if(filtered_sats !== undefined && filtered_sats.includes(sat)){
+                          return <option key={sat} value={sat} selected>{sat}</option>
+                      }
+                      return <option key={sat} value={sat}>{sat}</option>
+                  })
+                }
               </Form.Control>
             </Form.Group>
             <Form.Group controlId="validationCustomUsername">
@@ -59,7 +78,7 @@ class Sidebar extends Component {
                 <InputGroup.Prepend>
                   <InputGroup.Text id="startDatePre">@</InputGroup.Text>
                 </InputGroup.Prepend>
-                <Form.Control type="text" placeholder="YYYY-MM-DD" aria-describedby="startDatePre" name={"start_date"} />
+                <Form.Control type="text" placeholder="YYYY-MM-DD" aria-describedby="startDatePre" name={"start_date"} defaultValue={filtered_start}/>
                 <Form.Control.Feedback type="invalid">
                   Please choose a username.
                 </Form.Control.Feedback>
@@ -71,7 +90,7 @@ class Sidebar extends Component {
                 <InputGroup.Prepend>
                   <InputGroup.Text id="endDatePre">@</InputGroup.Text>
                 </InputGroup.Prepend>
-                <Form.Control type="text" placeholder="YYYY-MM-DD" aria-describedby="endDatePre" name={"end_date"} />
+                <Form.Control type="text" placeholder="YYYY-MM-DD" aria-describedby="endDatePre" name={"end_date"} defaultValue={filtered_end}/>
                 <Form.Control.Feedback type="invalid">
                   Please choose a username.
                 </Form.Control.Feedback>
@@ -79,12 +98,12 @@ class Sidebar extends Component {
             </Form.Group>
             <Form.Group controlId="validationCustomUsername" className={"form-inline"}>
               <Form.Label>Last</Form.Label>
-              <Form.Control type="text" placeholder="0" name={"max_num_images"} />
+              <Form.Control type="text" placeholder="0" name={"max_num_images"} defaultValue={filtered_num}/>
               <Form.Label>images</Form.Label>
             </Form.Group>
             <Form.Group controlId="validationCustomUsername" className={"form-inline"}>
               <Form.Label>Last</Form.Label>
-              <Form.Control type="text" placeholder="0" name={"last_n_days"} />
+              <Form.Control type="text" placeholder="0" name={"last_n_days"} defaultValue={filtered_n_days}/>
               <Form.Label>days</Form.Label>
             </Form.Group>
             <Button type={"submit"}>Submit</Button>

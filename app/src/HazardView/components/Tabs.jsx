@@ -11,7 +11,8 @@ class ImageTypeTabs extends Component {
 
     // Set appropriate key here
     this.state = {
-      key: ""
+        key: "",
+        url_params: {}
     };
 
   }
@@ -19,7 +20,8 @@ class ImageTypeTabs extends Component {
   componentWillReceiveProps(nextProps, nextContext) {
       var active_key = nextProps.image_types.includes(this.props.active_image_type) ? this.props.active_image_type : nextProps.image_types[0]
       this.setState({
-          key: active_key
+          key: active_key,
+          url_params: nextProps.url_data
       })
   }
 
@@ -38,12 +40,21 @@ class ImageTypeTabs extends Component {
               </Nav>
                <div className={'row'}>
                   <div className={"col-lg-3"}>
-                    <Sidebar haz_id={this.props.haz_id} filter_func={this.props.filter_func}/>
+                    <Sidebar
+                        haz_id={this.props.haz_id}
+                        url_data={this.state.url_params}
+                        filter_func={this.props.filter_func}
+                    />
                   </div>
                   <div className={"col-lg-9"}>
                     <Tab.Content>
                       {this.props.image_types.map( (name, index) => {
-                            return <ImagesTabPane image_type={name} key={name} haz_id={this.props.haz_id} images={this.props.images[name]}/>
+                            return <ImagesTabPane
+                                        image_type={name}
+                                        key={name}
+                                        haz_id={this.props.haz_id}
+                                        images={this.props.images[name]}
+                                    />
                       })}
                     </Tab.Content>
                   </div>

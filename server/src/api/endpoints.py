@@ -79,31 +79,6 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
         # send back an exception
         abort(404, "Hazard Type {0} does not exist.".format(hazard_type_param))
 
-    # Validate image_types
-    # If the image_types argument is specified, than a non-zero number of the specified arguments
-    # should be valid. For example if image_types = 'valid_type,bad_type,valid_type', all is good.
-    # However, if image_types = 'bad_type1,bad_type2', a 400 is thrown
-    image_types: Optional[str] = request.args.get('image_types')
-
-    if image_types == "all":
-        image_types = "geo_backscatter,geo_coherence,geo_interferogram,ortho_backscatter,ortho_coherence,ortho_interferogran"
-
-    validated_image_types = set()
-
-    if image_types is not None and image_types != "":
-        parsed_image_types = image_types.split(',')
-        for parsed_image_type in parsed_image_types:
-            # Filter out bad values
-            try:
-                validated_image_types.add(ImageType.from_string(parsed_image_type))
-            except ValueError:
-                pass
-
-        if len(validated_image_types) == 0:
-            abort(400, "None of the following image types are supported: '{0}'".format(str(image_types)))
-
-    validated_image_types = list(validated_image_types)
-
     # Validate satellite IDs
     satellite_ids: Optional[str] = request.args.get('satellites')
     validated_satellites = list()
@@ -178,8 +153,7 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
     # 2. MAKE REQUEST TO DATABASE
 
     # Create types to request from database
-    hazard_filter = HazardInfoFilter(image_types=validated_image_types,
-                                     satellites=validated_satellites,
+    hazard_filter = HazardInfoFilter(satellites=validated_satellites,
                                      date_range=validated_date_range,
                                      max_num_images=validated_max_num_images,
                                      last_n_days=validated_last_n_days)
