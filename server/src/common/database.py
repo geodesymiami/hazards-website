@@ -10,24 +10,8 @@ class Database:
 
     def __init__(self):
         """
-        The init constructor should handle establishing an open connection with the database,
-        and handle any additional setup or connections needed for the below queries to work
-        as expected. Anticipated use case of this object is as follows:
-
-        Data Transform:
-            ...
-            db = Database()
-            db.create_new_hazard(hazard)
-            db.close()
-
-        API:
-            ...
-            db = Database()
-            hazards = db.get_hazards_by_type(HazardType.VOLCANOES)
-            db.close()
-
+        Establishes an open connection with the database.
         """
-
         self.pipeline_logger = RsmasLogger('pipeline')
 
         self.HOST = config.get_config_var("database", "localhost")
@@ -56,6 +40,10 @@ class Database:
             raise ConnectionError()
 
     def connect(self):
+        """
+        Forms a connection to the database using the proper HOST, USER, PASSWORD, DATABASE, and PORT
+        :return: pymsql.Conn, a connection object to the database
+        """
         return pymysql.connect(host=self.HOST,
                                 user=self.USER,
                                 password=self.PASSWORD,
@@ -65,21 +53,25 @@ class Database:
                                 cursorclass=pymysql.cursors.DictCursor)
 
     def close(self):
+        """
+        Closes the open database connection. Should be used in conjunction with every .connect() call
+        to ensure there are no open db connections of leaks.
+        """
         self.database.close()
 
     def get_hazards_by_type(self, haz_type: HazardType) -> List[Hazard]:
 
         """
-        Returns a list of Hazard of a given HazardType.
+        Returns a list of hazards of a given HazardType.
 
         :param hazard_type: the type of hazard to return (volcano or earthquake)
-        :returns [Hazard]
+        :returns [Hazard], the complete list of hazards of `hazard_type`
         """
 
         with self.database.cursor() as cursor:
             sql = "SELECT * FROM `hazards` WHERE `type`='{}'".format(haz_type.to_string())
-            cursor.execute(sql)         # Execute to the SQL statement
-            result = cursor.fetchall()  # fetch all the results, since there may be several
+            cursor.execute(sql)
+            result = cursor.fetchall()
 
             cursor.close()
 
@@ -99,9 +91,9 @@ class Database:
 
     def get_satellites_by_hazard_id(self, hazard_id: int) -> List[Satellite]:
         """
-        Returns a list of Satellite that have images a given hazard (given by hazard_id)
+        Returns a list of satellites that have images for a given hazard (given by hazard_id)
         :param hazard_id: the hazard_id of the hazard to obtain a list of satellites for
-        :returns [Satellite]
+        :returns [Satellite], the list of satellites that have imaged `hazard_id`
         """
 
         with self.database.cursor() as cursor:
@@ -120,7 +112,11 @@ class Database:
         return satellites
     
     def get_hazard_info_by_hazard_id(self, hazard_id: str) -> Hazard:
-        
+        """
+        Returns high level information about the given `hazard_id` (whats stored in the hazards database table)
+        :param hazard_id: the hazard_id of the hazard to retrieve information about
+        :return: Hazard, a fully formed hazard object built from data stored in the database
+        """
         # Get Hazard data and create Hazard Object
         with self.database.cursor() as cursor:
             # TODO: sql inject secure this query
@@ -141,11 +137,12 @@ class Database:
 
     def get_images_by_hazard_id(self, hazard_id: str, filter: Optional[HazardInfoFilter]) -> List[Image]:
         """
-            Returns images by hazard_id filtered by satellite, image type, date range, and num images.
+            Returns a list of images of the given hazard_id filtered by satellite, image type, date range,
+            and number of images.
 
-            :param hazard_id: the hazard_id to pull images for
-            :param filter: a list of filtering options to refine the returned information
-            :returns [Image]
+            :param hazard_id: str, the hazard_id to pull images for
+            :param filter: HazardInfoFilter, a filter object containing filters by which to refine the query
+            :returns [Image], a list of images matching the given filter
 
         """
 
@@ -188,15 +185,7 @@ class Database:
         Inserts a hazard object into the database `hazards` table. The `hazard` object's parameters
         should be one-to-one with the `hazards` table's columns.
 
-        Some validations that should be done:
-            - All parameters exist
-            - All parameters are properly sanitized for database insertion
-            - The hazard doesn't already exist in the database
-
-        Also needs to take care to update the `last_updated` column to the new image date being stored.
-
         :param hazard: a fully formed hazard object to insert
-        :returns DatabaseSuccess
         """
 
         id = hazard.hazard_id
@@ -224,13 +213,7 @@ class Database:
         Inserts a satellite object into the database `satellites` table. The `satellite` object's parameters
         should be one-to-one with the `satellites` table's columns.
 
-        Some validations that should be done:
-            - All parameters exist
-            - All parameters are properly sanitized for database insertion
-            - The satellite doesn't already exist in the database
-
         :param satellite: a fully formed Satellite object to insert
-        :returns DatabaseSuccess
         """
 
         id = satellite.get_value()
@@ -255,15 +238,7 @@ class Database:
             Inserts a image object into the database `images` table. The `image` object's parameters
             should be one-to-one with the `images` table's columns.
 
-            Some validations that should be done:
-                - All parameters exist
-                - All parameters are properly sanitized for database insertion
-                - The image doesn't already exist in the database (check by URL)
-                - The hazard_id and satellite_id exist already in the database
-                - The image_date is a valid date and within reasonable bounds
-
             :param image: a fully formed Image object to insert
-            :returns DatabaseSuccess
         """
 
         id = image.image_id

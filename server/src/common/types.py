@@ -12,6 +12,7 @@ class HazardType(Enum):
     @classmethod
     def from_string(cls, string: str) -> "HazardType":
         """
+        Creates a HazardType object from the given `string`
         Example: HazardType.from_string("volcano")
 
         :param string: Either "volcano" or "earthquake"
@@ -42,6 +43,7 @@ class ImageType(Enum):
     @classmethod
     def from_string(cls, string: str) -> "ImageType":
         """
+            Creates an ImageType object from the given `string`
             Example: ImageType.from_string("geo_baskscatter")
 
             :param string: One of "geo_baskscatter", "geo_coherence", "geo_interferogram",
@@ -94,6 +96,7 @@ class Satellite(Enum):
     @classmethod
     def from_string(cls, string: str) -> "Satellite":
         """
+            Creates a Satellite from the given `string`
             Example: Satellite.from_string("ERS_DESC")
 
             :param string: The satellite name followed by its direction (either ASC or DESC), separated by an '_'
@@ -108,6 +111,7 @@ class Satellite(Enum):
     @classmethod
     def from_int(cls, value: int) -> "Satellite":
         """
+            Creates a Satellite from the given `value`
             Example: Satellite.from_int(10)
 
             :param value: The integer representation of the satellite, where the final digit represents the satellites
@@ -122,10 +126,11 @@ class Satellite(Enum):
     @classmethod
     def from_params(cls, sat_name: str, ascending: bool) -> "Satellite":
         """
+            Creates a Satellite from the given `sat_name` and direction value
             Example: Satellite.from_params("geo_backscatter", ascending=True)
 
             :param sat_name: The name of the satellite
-            :param ascending: The direction of the satellite
+            :param ascending: The direction of the satellite (True for ascending, False for descending)
             :raises: ValueError if (`sat_name`, `ascending`) not in satellite dictionary
         """
         upper_sat_name = sat_name.upper()
@@ -145,36 +150,51 @@ class Satellite(Enum):
         return self.value
 
     def get_name(self) -> str:
+        """
+        :return: str, the name of the satellite
+        """
         return self.name.upper().split("_")[0]
 
     def get_direction(self) -> int:
+        """
+        :return: str, the direction of the satellite (1 for ascending, 0 for descending)
+        """
         return self.value % 10
 
     def is_ascending(self) -> bool:
+        """
+        :return: bool, True if satelliet direction is ascending, False otherwise
+        """
         return self.get_direction() == 1
 
-    def get_value(self):
+    def get_value(self) -> str:
+        """
+        :return: str, the integer representation of the satellite as a string
+        """
         return str(self.value)
 
 class LatLong:
+    """
+    A latitude, longitude geographic coordinate object.
+    Latitude and longitude values represented as degrees N/S/E/W of the equator/prime meridian.
+    """
     def __init__(self, lat: float, long: float):
+        """
+        :param lat: float, degrees N of the equator (negative values indicate latitude S of the equator)
+        :param long: float, degrees E of the prime meridian (negative values indicate longitude W of the prime meridian)
+        """
         self.lat: float = lat
         self.long: float = long
 
 class Date:
     """
-    Class for dates of the format YYYY-MM-DD
-
-    Example:
-        >>> today = Date("2019-04-11")
-        >>> print(today.date)
-        20190411
-        >>> print("The year is {0} in the {1}th month".format(today.date[:4], today.date[5:7]))
-        The year is 2019 in the 04th month
+    A date of the format YYYY-MM-DD
     """
 
     def __init__(self, date: str):
-
+        """
+        :param date: str, the string representation of the date in YYYY-MM-DD format
+        """
         try:
             self.date = datetime.strptime(date, "%Y-%m-%d")
         except ValueError:
@@ -189,18 +209,19 @@ class Date:
     @classmethod
     def get_today(cls):
         """
-            :returns Date: the Date representation of the current date
+            :return Date: the Date representation of the current date
         """
         return Date(datetime.now().strftime("%Y-%m-%d"))
 
 class DateRange:
     """
-        This class is used for filtering images by a range of dates.
-        If `start`  is not specified, Jan 1, 1970   is used (datetime(0)).
-        If `end`    is not specified, current date  is used.
+        A range of dates for filtering images by a range of dates.
     """
     def __init__(self, start: Optional[Date] = Date("1970-01-01"), end: Optional[Date] = Date.get_today()):
-
+        """
+        :param start:   Date,   the beginning date of the range,    default: 1970-01-01
+        :param end:     Date,   the ending date of the range        default: current date
+        """
         self.start_date: Optional[Date] = start
         self.end_date: Optional[Date] = end
 
@@ -247,6 +268,10 @@ class ImageURL:
         return self.url
 
 class Location:
+    """
+    A latitude, longitude location coordinate.
+    Latitude and longitude are both represented as degress N/S/E/W of equator/prime meridian
+    """
     def __init__(self, latitude, longitude):
 
         center = LatLong(latitude, longitude)
@@ -300,7 +325,6 @@ class HazardInfoFilter:
     """
         Creates a custom image filter for hazard images. Possible filter option include:
             - satellite(s)
-            - image types(s)
             - date range
             - last N days of images
             - maximum number of images
@@ -309,13 +333,11 @@ class HazardInfoFilter:
 
     def __init__(self,
                  satellites:        Optional[List[Satellite]]   = None,
-                 image_types:       Optional[List[ImageType]]   = None,
                  date_range:        Optional[DateRange]         = None,
                  max_num_images:    Optional[int]               = None,
                  last_n_days:       Optional[int]               = None):
 
         self.satellites: Optional[List[Satellite]] = satellites
-        self.image_types: Optional[List[ImageType]] = image_types
         self.max_num_images: int = max_num_images
 
         # Combine date_range and last_n_days date range into a single date range
@@ -352,18 +374,6 @@ class HazardInfoFilter:
                 sat_sql = "`sat_id` in ('{}')".format(sat_list_string)
 
             filter_sql += " AND {}".format(sat_sql)
-
-        if self.image_types:
-
-            im_types_list = [str(imtype) for imtype in self.image_types]
-
-            if len(im_types_list) == 1:
-                imtype_sql = "`img_type` = '{}'".format(im_types_list[0])
-            else:
-                imtype_sql_string = "', '".join(im_types_list)
-                imtype_sql = "`img_type` in ('{}')".format(imtype_sql_string)
-
-            filter_sql += " AND {}".format(imtype_sql)
 
         if self.date_range:
             date_range_sql = "`img_date` BETWEEN '{}' AND '{}'".format(str(self.date_range.start_date),
