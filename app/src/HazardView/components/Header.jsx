@@ -20,7 +20,7 @@ class Header extends Component {
   }
 
   componentWillMount() {
-    var id = this.props.id;
+      var id = this.props.id;
 
       axios.get(`http://0.0.0.0:5000/api/volcano/${id}`, {mode: 'cors'})
             .then( (response) => {
