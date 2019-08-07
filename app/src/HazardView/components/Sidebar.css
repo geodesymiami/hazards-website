@@ -15,3 +15,8 @@
   text-align: center;
   margin: 0 1em;
 }
+
+.small-input{
+  max-width: 5em;
+  margin: 0 1em;
+}

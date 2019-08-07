@@ -98,12 +98,12 @@ class Sidebar extends Component {
             </Form.Group>
             <Form.Group controlId="validationCustomUsername" className={"form-inline"}>
               <Form.Label>Last</Form.Label>
-              <Form.Control type="text" placeholder="0" name={"max_num_images"} defaultValue={filtered_num}/>
+              <Form.Control type="text" placeholder="0" name={"max_num_images"} defaultValue={filtered_num} className={"small-input"}/>
               <Form.Label>images</Form.Label>
             </Form.Group>
             <Form.Group controlId="validationCustomUsername" className={"form-inline"}>
               <Form.Label>Last</Form.Label>
-              <Form.Control type="text" placeholder="0" name={"last_n_days"} defaultValue={filtered_n_days}/>
+              <Form.Control type="text" placeholder="0" name={"last_n_days"} defaultValue={filtered_n_days} className={"small-input"}/>
               <Form.Label>days</Form.Label>
             </Form.Group>
             <Button type={"submit"}>Submit</Button>
