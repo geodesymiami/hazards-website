@@ -3,7 +3,9 @@ import time
 from .types import *
 from .config import config
 from .rsmas_logging import RsmasLogger, loglevel
+
 import pymysql.cursors
+import sqlalchemy as sql
 
 
 class Database:
@@ -29,7 +31,8 @@ class Database:
         self.pipeline_logger.log(loglevel.INFO, "\tAttempting to connect to database.")
         for i in range(attempts):
             try:
-                self.database = self.connect()
+                self.database = self.create_engine()
+                self.conn = self.database.connect()
                 self.pipeline_logger.log(loglevel.INFO, "\t\tSuccesfully connected to database after {} tries.".format(i+1))
                 break
             except pymysql.err.OperationalError:
@@ -39,18 +42,13 @@ class Database:
         if i+1 >= attempts:
             raise ConnectionError()
 
-    def connect(self):
+    def create_engine(self):
         """
         Forms a connection to the database using the proper HOST, USER, PASSWORD, DATABASE, and PORT
         :return: pymsql.Conn, a connection object to the database
         """
-        return pymysql.connect(host=self.HOST,
-                                user=self.USER,
-                                password=self.PASSWORD,
-                                db=self.DATABASE,
-                                port=self.PORT,
-                                charset='utf8mb4',
-                                cursorclass=pymysql.cursors.DictCursor)
+        conn_string = "mysql+pymysql://{}:{}@{}:{}/{}".format(self.USER, self.PASSWORD, self.HOST, self.PORT, self.DATABASE)
+        return sql.create_engine(conn_string).connect()
 
     def close(self):
         """
@@ -68,12 +66,10 @@ class Database:
         :returns [Hazard], the complete list of hazards of `hazard_type`
         """
 
-        with self.database.cursor() as cursor:
-            sql = "SELECT * FROM `hazards` WHERE `type`='{}'".format(haz_type.to_string())
-            cursor.execute(sql)
-            result = cursor.fetchall()
+        hazards = sql.Table('hazards', sql.MetaData(), autoload=True, autoload_with=self.database)
+        query = sql.select([hazards]).where(hazards.columns.type == haz_type.to_string())
 
-            cursor.close()
+        result = self.conn.execute(query).fetchall()
 
         hazards = []
         for item in result:
@@ -96,13 +92,10 @@ class Database:
         :returns [Satellite], the list of satellites that have imaged `hazard_id`
         """
 
-        with self.database.cursor() as cursor:
-            # TODO: sql inject secure this query
-            sql = "SELECT DISTINCT sat_id FROM images WHERE haz_id='{}'".format(hazard_id)
-            cursor.execute(sql)
-            result = cursor.fetchall()
+        images = sql.Table('images', sql.MetaData(), autoload=True, autoload_with=self.database)
+        query = sql.select([images.columns.sat_id.distinct()]).where(images.columns.haz_id == hazard_id)
 
-            cursor.close()
+        result = self.conn.execute(query).fetchall()
 
         satellites = []
         for sat in result:
@@ -117,14 +110,11 @@ class Database:
         :param hazard_id: the hazard_id of the hazard to retrieve information about
         :return: Hazard, a fully formed hazard object built from data stored in the database
         """
-        # Get Hazard data and create Hazard Object
-        with self.database.cursor() as cursor:
-            # TODO: sql inject secure this query
-            sql = "SELECT * FROM `hazards` WHERE `id`='{}'".format(hazard_id)
-            cursor.execute(sql)  # Execute to the SQL statement
-            result = cursor.fetchone()
 
-            cursor.close()
+        hazards = sql.Table('hazards', sql.MetaData(), autoload=True, autoload_with=self.database)
+        query = sql.select([hazards]).where(hazards.columns.id == hazard_id)
+
+        result = self.conn.execute(query).fetchall()
 
         id = result['id']
         name = result['name']
