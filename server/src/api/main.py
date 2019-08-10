@@ -153,10 +153,10 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
     # 2. MAKE REQUEST TO DATABASE
 
     # Create types to request from database
-    hazard_filter = HazardInfoFilter(satellites=validated_satellites,
-                                     date_range=validated_date_range,
-                                     max_num_images=validated_max_num_images,
-                                     last_n_days=validated_last_n_days)
+    hazard_filter = HazardImagesFilter(satellites=validated_satellites,
+                                       date_range=validated_date_range,
+                                       max_num_images=validated_max_num_images,
+                                       last_n_days=validated_last_n_days)
 
     db = Database()
 

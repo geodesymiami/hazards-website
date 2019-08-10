@@ -321,7 +321,7 @@ class Image:
     tif_image_url: ImageURL
     modified_image_url: ImageURL
 
-class HazardInfoFilter:
+class HazardImagesFilter:
     """
         Creates a custom image filter for hazard images. Possible filter option include:
             - satellite(s)
@@ -357,40 +357,32 @@ class HazardInfoFilter:
 
         self.date_range: Optional[DateRange] = new_date_range
 
-    def generate_sql_filter(self, haz_id):
+    def get_filter_params(self):
         """
             Generates the correlating 'WHERE' clause in SQL for passing to the database.
             :param haz_id: the haard id to filter by
             :return: the SQL representation of the filter as a WHERE clause
         """
 
-        filter_sql = ""
+        filter_params = {
+            "satellites": [],
+            "date_start": '1970-01-01',
+            "date_end": str(Date.get_today())
+        }
 
         if self.satellites:
 
             sat_list = [sat.get_value() for sat in self.satellites]
 
-            if len(sat_list) == 1:
-                sat_sql = "`sat_id` = '{}'".format(sat_list[0])
-            else:
-                sat_list_string = "', '".join(sat_list)
-                sat_sql = "`sat_id` in ('{}')".format(sat_list_string)
-
-            filter_sql += " AND {}".format(sat_sql)
+            filter_params['satellites'] = sat_list
 
         if self.date_range:
-            date_range_sql = "`img_date` BETWEEN '{}' AND '{}'".format(str(self.date_range.start_date),
-                                                                       str(self.date_range.end_date))
-
-            filter_sql += " AND {}".format(date_range_sql)
+            filter_params['date_start'] = self.date_range.start_date
+            filter_params['date_end'] = self.date_range.end_date
 
         # if self.max_num_images:
         #     max_num_sql = " LIMIT {}".format(self.max_num_images)
         #
         #     filter_sql += max_num_sql
 
-        haz_id_sql = "`haz_id`={}".format(haz_id)
-
-        print(haz_id_sql+filter_sql)
-
-        return haz_id_sql+filter_sql
+        return filter_params

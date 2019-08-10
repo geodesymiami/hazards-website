@@ -125,7 +125,7 @@ class Database:
 
         return Hazard(id, name, type, location, updated, num_images)
 
-    def get_images_by_hazard_id(self, hazard_id: str, filter: Optional[HazardInfoFilter]) -> List[Image]:
+    def get_images_by_hazard_id(self, hazard_id: str, filter: Optional[HazardImagesFilter]) -> List[Image]:
         """
             Returns a list of images of the given hazard_id filtered by satellite, image type, date range,
             and number of images.
@@ -136,26 +136,29 @@ class Database:
 
         """
 
+        filter_params = filter.get_filter_params()
+
+        images = sql.Table('images', sql.MetaData(), autoload=True, autoload_with=self.database)
+        query = sql.select([images])\
+                .where(images.columns.haz_id == hazard_id)\
+                .where(images.columns.sat_id.in_(filter_params['satellites']))\
+                .where(sql.between(images.columns.img_date, filter_params['date_start'], filter_params['date_end']))
+
+        result = self.conn.execute(query).fetchall()
+
         images = []
+        for item in result:
 
-        # Get Images, no filter, needs true column names
-        with self.database.cursor() as cursor:
-            sql = "SELECT * FROM `images` WHERE {};".format(filter.generate_sql_filter(hazard_id))
-            cursor.execute(sql)
-            data = cursor.fetchall()
+            id = item['id']
+            haz_id = item['haz_id']
+            sat = Satellite.from_int(int(item['sat_id']))
+            img_type = ImageType.from_string(item['img_type'])
+            img_date = Date(item['img_date'].strftime("%Y-%m-%d"))
+            raw_img = ImageURL(item['raw_image_url'])
+            mod_img = ImageURL(item['mod_image_url'])
+            tif_img = ImageURL(item['tif_image_url'])
 
-            cursor.close()
-
-        for img in data:
-            image = Image(img['id'],
-                          img['haz_id'],
-                          Satellite.from_int(int(img['sat_id'])),
-                          ImageType.from_string(img['img_type']),
-                          Date(img['img_date'].strftime("%Y-%m-%d")),
-                          ImageURL(img['raw_image_url']),
-                          ImageURL(img['tif_image_url']),
-                          ImageURL(img['mod_image_url'])
-                         )
+            image = Image(id, haz_id, sat, img_type, img_date, raw_img, tif_img, mod_img)
             images.append(image)
 
         return images
