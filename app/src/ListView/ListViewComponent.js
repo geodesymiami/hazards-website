@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './ListViewComponent.css';
-import "font-awesome/css/font-awesome.min.css"
+import "../font-awesome/css/font-awesome.min.css"
 import {Container} from "react-bootstrap";
 import axios from "axios";
 
