@@ -23,7 +23,7 @@ services:
       links:
         - db
       volumes:
-        - ./src/preprocessing/logs:/dataprocessing/logs
+        - ./server/src/preprocessing/logs:/dataprocessing/logs
   site:
     container_name: site
     build:
@@ -40,9 +40,9 @@ services:
     image: databack/mysql-backup
     restart: always
     volumes:
-      - ./src/db/backups:/db
-      - ./src/db/post-backup:/scripts.d/post-backup
-    env:
+      - ./server/src/db/backups:/db
+      - ./server/src/db/post-backup:/scripts.d/post-backup
+    environment:
       - DB_DUMP_TARGET=/db
       - DB_USER=root
       - DB_PASS=root
