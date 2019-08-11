@@ -183,23 +183,15 @@ class Database:
 
         id = hazard.hazard_id
         name = hazard.name
-        haz_type = hazard.hazard_type.value
+        haz_type = hazard.hazard_type.to_string()
         lat = hazard.location.center.lat
         lon = hazard.location.center.long
         updated = hazard.last_updated.date
 
-        try:
-            with self.database.cursor() as cursor:
-                # TODO: sql inject secure this query
-                sql = "INSERT INTO `hazards` " \
-                      "(`id`, `name`, `type`, `latitude`, `longitude`, `updated`) " \
-                      "VALUES ('{}', '{}', '{}', '{}', '{}', '{}')".format(id, name, haz_type, lat, lon, updated)
+        hazards = sql.Table('hazards', sql.MetaData(), autoload=True, autoload_with=self.database)
+        query = hazards.insert().values(id=id, name=name, type=haz_type, latitude=lat, longitude=lon, updated=updated, num_images=0)
 
-                cursor.execute(sql)
-
-            self.database.commit()
-        except pymysql.err.IntegrityError as e:
-            self.pipeline_logger.log(loglevel.WARNING, "\tThe following error occurred while inserting the new hazard into the database: {}".format(e))
+        self.conn.execute(query)
 
     def create_new_satellite(self, satellite: Satellite):
         """
@@ -211,20 +203,12 @@ class Database:
 
         id = satellite.get_value()
         name = satellite.get_name()
-        asc = satellite.get_direction()
+        asc = "DESC" if satellite.get_direction() == 0 else "ASC"
 
-        try:
-            with self.database.cursor() as cursor:
-                # TODO: sql inject secure this query
-                sql = "INSERT INTO `satellites` " \
-                      "(`id`, `name`, `direction`) " \
-                      "VALUES ('{}', '{}', '{}')".format(id, name, asc)
+        satellites = sql.Table('satellites', sql.MetaData(), autoload=True, autoload_with=self.database)
+        query = satellites.insert().values(id=id, name=name, direction=asc)
 
-                cursor.execute(sql)
-
-            self.database.commit()
-        except pymysql.err.IntegrityError as e:
-            self.pipeline_logger.log(loglevel.WARNING, "\tThe following error occurred while inserting the new satellite into the database: {}".format(e))
+        self.conn.execute(query)
 
     def create_new_image(self, image: Image):
         """
@@ -237,25 +221,15 @@ class Database:
         id = image.image_id
         haz_id = image.hazard_id
         sat_id = image.satellite.get_value()
-        im_type = image.image_type.value
+        im_type = image.image_type.to_string()
         im_date = image.image_date.date
         tif = image.tif_image_url.url
         raw = image.raw_image_url.url
         mod = image.modified_image_url.url
 
-        try:
-            with self.database.cursor() as cursor:
-                # TODO: sql inject secure this query
-                sql = "INSERT INTO `images` " \
-                      "(`id`, `haz_id`, `sat_id`, `img_date`, `img_type`, `tif_image_url`, `raw_image_url`, `mod_image_url`) " \
-                      "VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')" \
-                    .format(id, haz_id, sat_id, im_date, im_type, tif, raw, mod)
-
-                cursor.execute(sql)
-
-            self.database.commit()
-        except pymysql.err.IntegrityError as e:
-            self.pipeline_logger.log(loglevel.WARNING, "\tThe following error occurred while inserting the new image into the database: {}".format(e))
+        images = sql.Table('images', sql.MetaData(), autoload=True, autoload_with=self.database)
+        query = images.insert().values(id=id, haz_id=haz_id, sat_id=sat_id, img_date=im_date, img_type=im_type, raw_image_url=raw, tif_image_url=tif, mod_image_url=mod)
+        self.conn.execute(query)
 
 
 if __name__ == "__main__":
