@@ -116,12 +116,13 @@ class Database:
 
         result = self.conn.execute(query).fetchall()
 
-        id = result['id']
-        name = result['name']
-        type = HazardType.from_string(result['type'])
-        location = Location(result['latitude'], result['longitude'])
-        updated = Date(result['updated'].strftime("%Y-%m-%d"))
-        num_images = result['num_images']
+        for item in result:
+            id = item['id']
+            name = item['name']
+            type = HazardType.from_string(item['type'])
+            location = Location(item['latitude'], item['longitude'])
+            updated = Date(item['updated'].strftime("%Y-%m-%d"))
+            num_images = item['num_images']
 
         return Hazard(id, name, type, location, updated, num_images)
 
