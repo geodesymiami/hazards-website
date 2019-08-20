@@ -143,7 +143,7 @@ class Database:
         query = sql.select([images])\
                 .where(images.columns.haz_id == hazard_id)\
                 .where(images.columns.sat_id.in_(filter_params['satellites']))\
-                .where(sql.between(images.columns.img_date, filter_params['date_start'], filter_params['date_end']))
+                .where(sql.between(images.columns.img_date, str(filter_params['date_start']), str(filter_params['date_end'])))
 
         result = self.conn.execute(query).fetchall()
 
