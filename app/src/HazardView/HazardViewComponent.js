@@ -62,8 +62,9 @@ export default class HazardViewComponent extends Component {
             .then((response) => {
                 var available_image_types = Object.keys(response.data["images_by_type"])
                 var available_images = response.data["images_by_type"]
+
                 this.setState({
-                    image_types: available_image_types,
+                    image_types: available_image_types.sort(),
                     images_by_satellite: available_images
                 })
             })
