@@ -138,8 +138,10 @@ class Database:
         """
 
         filter_params = filter.get_filter_params()
-
+        if not filter_params['satellites']:
+            filter_params['satellites'] = ["10", "11", "20", "21", "30", "31", "40", "41", "50", "51", "60", "61", "70", "71", "80", "81", "90", "91", "100", "101", "110", "111"]
         images = sql.Table('images', sql.MetaData(), autoload=True, autoload_with=self.database)
+
         query = sql.select([images])\
                 .where(images.columns.haz_id == hazard_id)\
                 .where(images.columns.sat_id.in_(filter_params['satellites']))\
