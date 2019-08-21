@@ -219,7 +219,8 @@ def parse_hazard_data_from_db(hazard: Hazard):
         'location': {
             'latitude': hazard.location.center.lat,
             'longitude': hazard.location.center.long
-        }
+        },
+        'num_images': hazard.num_images
     }
 
 
