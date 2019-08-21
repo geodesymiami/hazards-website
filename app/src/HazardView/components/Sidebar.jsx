@@ -22,7 +22,7 @@ class Sidebar extends Component {
     axios.get(`http://localhost:5000/api/satellites/${this.props.haz_id}`, {mode: "cors"})
         .then((response) => {
                 this.setState({
-                  satellites: response["data"].map(sat => sat.satellite_name)
+                  satellites: response["data"].map(sat => sat.satellite_name).sort()
                 })
             })
   }
