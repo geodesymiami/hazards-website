@@ -41,7 +41,7 @@ class Header extends Component {
           <Jumbotron id="HazardInfo" className="hazardinfo" style={{textAlign: "center"}}>
               <h1 className={"important"}>{this.state.hazardName}</h1>
               <h6>Volcano Id: {this.state.hazardId}</h6>
-              <h6>Volcanic Caldera</h6>
+              <h6>({this.state.latitude}, {this.state.longitude})</h6>
               <hr />
               <h5 id={"num_images"}>{this.state.numImages} Images &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;  Last Image: {this.state.lastImageDate}</h5>
           </Jumbotron>

@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import TabPane from 'react-bootstrap/TabPane'
 import "./ImagesTabPane.css"
+import Image from "./Image";
 
 class ImagesTabPane extends Component{
 
@@ -25,7 +26,7 @@ class ImagesTabPane extends Component{
                                                 }
                                             ).map(
                                                 function(image, index){
-                                                    return <img src={image["modified_image_url"]} className={"image"} alt={""} key={index}/>
+                                                    return <Image url={image["modified_image_url"]} index={index} />
                                                 }
                                             )
                                         }
