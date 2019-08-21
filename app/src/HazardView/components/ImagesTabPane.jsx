@@ -15,17 +15,17 @@ class ImagesTabPane extends Component{
             <TabPane eventKey={this.props.image_type} className={"images"}>
                 <div className={"row"}>
                     {
-                        sats.map( (name, index) => {
+                        sats.sort().map( (name, index) => {
                             return  <div className={"sat"} key={index}>
                                         <h3>{name}</h3>
                                         {
                                             images_by_sat[sats[index]].sort(
                                                 function(a, b){
-                                                    return a.image_date > b.image_date;
+                                                    return a.image_date < b.image_date;
                                                 }
                                             ).map(
-                                                function(name, index){
-                                                    return <img src={name["modified_image_url"]} className={"image"} alt={""} key={index}/>
+                                                function(image, index){
+                                                    return <img src={image["modified_image_url"]} className={"image"} alt={""} key={index}/>
                                                 }
                                             )
                                         }
