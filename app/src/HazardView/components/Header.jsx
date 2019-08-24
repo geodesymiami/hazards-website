@@ -22,7 +22,7 @@ class Header extends Component {
   componentWillMount() {
       var id = this.props.id;
 
-      axios.get(`http://0.0.0.0:5000/api/volcano/${id}`, {mode: 'cors'})
+      axios.get(`http://129.114.17.74:5000/api/volcano/${id}`, {mode: 'cors'})
             .then( (response) => {
                 this.setState({
                     hazardId: this.props.id,

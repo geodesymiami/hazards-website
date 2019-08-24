@@ -45,7 +45,7 @@ export default class ListViewComponent extends Component {
 
     componentDidMount() {
         console.log("Component did mount.")
-        axios.get("http://0.0.0.0:5000/api/volcano", {mode: 'cors'})
+        axios.get("http://129.114.17.74:5000/api/volcano", {mode: 'cors'})
             .then((response) => {
                 this.setState({
                     volcanos: response.data.hazards

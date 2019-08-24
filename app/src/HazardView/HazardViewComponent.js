@@ -58,7 +58,7 @@ export default class HazardViewComponent extends Component {
 
       const queryString = new URLSearchParams(data).toString()
 
-      axios.get(`http://0.0.0.0:5000/api/volcano/images/${this.props.haz_id}?${queryString}`, {mode: "cors"})
+      axios.get(`http://129.114.17.74:5000/api/volcano/images/${this.props.haz_id}?${queryString}`, {mode: "cors"})
             .then((response) => {
                 var available_image_types = Object.keys(response.data["images_by_type"])
                 var available_images = response.data["images_by_type"]
