@@ -1,13 +1,11 @@
 from osgeo import gdal
 import sys
 import pandas as pd
+from datetime import datetime
 
 import common.config.config as config
 from common.types import *
 from common.rsmas_logging import RsmasLogger, loglevel
-
-ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
-SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
 
 def get_id_from_coords(lat, lon):
 
@@ -43,6 +41,9 @@ def pull_summary_data(file_path):
 
     gdal.UseExceptions()
 
+    ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
+    SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
+
     gdal.SetConfigOption('AWS_REGION', 'us-east-2')
     gdal.SetConfigOption('AWS_SECRET_ACCESS_KEY', SECRET_KEY)
     gdal.SetConfigOption('AWS_ACCESS_KEY_ID', ACCESS_KEY)
@@ -68,7 +69,7 @@ def pull_summary_data(file_path):
     satellite_name = band.GetMetadataItem('SAT')
     sat_direction = 1 if band.GetMetadataItem('Mode') == 'Asc' else 0
     image_type = band.GetMetadataItem('Image_Type')
-    image_date = band.GetMetadataItem('Date')
+    image_date = datetime.strptime(band.GetMetadataItem('Date'), "%Y%m%d").strftime("%Y-%m-%d")
 
     logger.log(loglevel.DEBUG, "\tImage Metadata:")
     logger.log(loglevel.DEBUG, "\t\tVolcano Number: {}".format(volcano_id))
