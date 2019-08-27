@@ -7,3 +7,4 @@ pillow
 pymysql
 python>=3.7
 rasterio
+sqlalchemy
