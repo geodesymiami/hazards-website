@@ -1,5 +1,7 @@
 import time
 
+import sqlalchemy
+
 from .types import *
 from .config import config
 from .rsmas_logging import RsmasLogger, loglevel
@@ -192,9 +194,13 @@ class Database:
         updated = hazard.last_updated.date
 
         hazards = sql.Table('hazards', sql.MetaData(), autoload=True, autoload_with=self.database)
+
         query = hazards.insert().values(id=id, name=name, type=haz_type, latitude=lat, longitude=lon, updated=updated, num_images=0)
 
-        self.conn.execute(query)
+        try:
+            self.conn.execute(query)
+        except sqlalchemy.exc.IntegrityError:
+            print("SQL integrity error. Nothing inserted.")
 
     def create_new_satellite(self, satellite: Satellite):
         """
@@ -211,7 +217,10 @@ class Database:
         satellites = sql.Table('satellites', sql.MetaData(), autoload=True, autoload_with=self.database)
         query = satellites.insert().values(id=id, name=name, direction=asc)
 
-        self.conn.execute(query)
+        try:
+            self.conn.execute(query)
+        except sqlalchemy.exc.IntegrityError:
+            print("SQL integrity error. Nothing inserted.")
 
     def create_new_image(self, image: Image):
         """
@@ -232,6 +241,16 @@ class Database:
 
         images = sql.Table('images', sql.MetaData(), autoload=True, autoload_with=self.database)
         query = images.insert().values(id=id, haz_id=haz_id, sat_id=sat_id, img_date=im_date, img_type=im_type, raw_image_url=raw, tif_image_url=tif, mod_image_url=mod)
+
+        try:
+            self.conn.execute(query)
+        except sqlalchemy.exc.IntegrityError:
+            print("SQL integrity error. Nothing inserted.")
+
+        hazards = sql.Table('hazards', sql.MetaData(), autoload=True, autoload_with=self.database)
+        num_images = self.get_hazard_info_by_hazard_id(haz_id).num_images
+
+        query = sql.update(hazards).where(hazards.columns.id == haz_id).values(num_images=num_images+1)
         self.conn.execute(query)
 
 
