@@ -35,7 +35,7 @@ def get_list_of_images():
     return recent
 
 
-if __name__ == "__main__":
+def run():
 
     """
         1. Read in image file

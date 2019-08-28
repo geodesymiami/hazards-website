@@ -17,4 +17,4 @@ COPY $RESOURCES_DIR resources
 
 RUN export PYTHONPATH="$PYTHONPATH:$COMMON_DIR"
 
-CMD ["python", "pipeline.py"]
+CMD ["python", "main.py"]

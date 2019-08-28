@@ -24,6 +24,8 @@ services:
         dockerfile: src/preprocessing/Dockerfile
       links:
         - db
+      ports:
+        - "5001:5000"
       volumes:
         - ./server/src/preprocessing/logs:/dataprocessing/logs
       env_file:

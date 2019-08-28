@@ -1,4 +1,5 @@
 .idea
 *.pyc
 server/src/config/config.py
+server/src/config*
 logs/*
