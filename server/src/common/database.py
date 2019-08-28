@@ -1,4 +1,5 @@
 import time
+import os
 
 import sqlalchemy
 
@@ -18,14 +19,14 @@ class Database:
         """
         self.pipeline_logger = RsmasLogger('pipeline')
 
-        self.HOST = config.get_config_var("database", "localhost")
-        self.USER = config.get_config_var("database", "user")
-        self.PASSWORD = config.get_config_var("database", "password")
-        self.DATABASE = config.get_config_var("database", "database")
-        self.PORT = config.get_config_var("database", "localport")
+        self.HOST = os.getenv('HOST')
+        self.USER = os.getenv('USERNAME')
+        self.PASSWORD = os.getenv('PASSWORD')
+        self.DATABASE = os.getenv('DATABASE')
+        self.PORT = os.getenv('PORT')
 
-        attempts = config.get_config_var("database", "attempts")
-        delay = config.get_config_var("database", "attempt_delay")
+        attempts = 5
+        delay = 5
 
         # Attempt to connect to the database. If the connection fails, wait and try again.
         # mysql docker service takes longer to setup than the api container, so we need to wait until
@@ -37,7 +38,7 @@ class Database:
                 self.conn = self.database.connect()
                 self.pipeline_logger.log(loglevel.INFO, "\t\tSuccesfully connected to database after {} tries.".format(i+1))
                 break
-            except pymysql.err.OperationalError:
+            except sqlalchemy.exc.OperationalError:
                 self.pipeline_logger.log(loglevel.ERROR, "\t\tCould not connect, try #{}. Trying again.".format(i+1))
                 time.sleep(delay)
 

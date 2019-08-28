@@ -69,7 +69,7 @@ if __name__ == "__main__":
         try:
             haz_id, haz_name, sat_name, sat_dir, img_type, img_date, center = summary.pull_summary_data(
                 "/vsis3/{}".format(file_path))
-            sat_id = Satellite.from_params(sat_name, bool(sat_dir)).value
+            sat_id = Satellite.from_params(sat_name, bool(sat_dir))
         except:
             # LOG: error in image metadata format
             logger.log(loglevel.ERROR, '\tThere was an error in the metadata format of the image. Skipping.')

@@ -1,7 +1,7 @@
 from osgeo import gdal
 import sys
 import pandas as pd
-from datetime import datetime
+import os
 
 import common.config.config as config
 from common.types import *
@@ -41,10 +41,11 @@ def pull_summary_data(file_path):
 
     gdal.UseExceptions()
 
-    ACCESS_KEY = config.get_config_var("aws_s3", "access_key")
-    SECRET_KEY = config.get_config_var("aws_s3", "secret_key")
+    ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
+    SECRET_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    REGION = os.getenv('AWS_REGION')
 
-    gdal.SetConfigOption('AWS_REGION', 'us-east-2')
+    gdal.SetConfigOption('AWS_REGION', REGION)
     gdal.SetConfigOption('AWS_SECRET_ACCESS_KEY', SECRET_KEY)
     gdal.SetConfigOption('AWS_ACCESS_KEY_ID', ACCESS_KEY)
 
