@@ -1,12 +1,27 @@
-from flask import Flask
+from flask import Flask, Response
+from flask_cors import CORS
 from flask import request
 from flask import abort, jsonify
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 
+CORS(app)
+
 from common.types import *
 from common.database import Database
+
+
+def format_response(json):
+    """
+    Formats the API response with given headers and data
+    :param json: json, the data to return as a JSON blob
+    :return:
+    """
+    resp = Response(json, status=200, mimetype='application/json')
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
 
 @app.route('/api/<string:hazard_type_param>', methods=['GET'])
 def get_hazards(hazard_type_param: str):
@@ -23,6 +38,8 @@ def get_hazards(hazard_type_param: str):
     db.close()
 
     data_to_return = parse_hazard_summary_info_from_db(data_from_db, hazard_type)
+
+    print(data_to_return)
 
     return jsonify(data_to_return)
 
@@ -175,13 +192,13 @@ def get_hazard_images(hazard_type_param: str, hazard_id_param: str):
 def bad_request_error(error):
     response = jsonify({'code': 400, 'message': 'Bad Request. \n {0}'.format(error)})
     response.status_code = 400
-    return response
+    return format_response(response)
 
 @app.errorhandler(404)
 def not_found_error(error):
     response = jsonify({'code': 404, 'message': 'Not Found. \n {0}'.format(error)})
     response.status_code = 404
-    return response
+    return format_response(response)
 
 def parse_hazard_summary_info_from_db(data: List[Hazard], hazard_type: HazardType):
     """
